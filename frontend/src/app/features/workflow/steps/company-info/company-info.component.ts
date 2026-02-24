@@ -26,6 +26,22 @@ const MONTHS = [
   'July','August','September','October','November','December',
 ];
 
+const STATE_NAMES: Record<string, string> = {
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
+  CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia',
+  HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa',
+  KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland',
+  MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi', MO: 'Missouri',
+  MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey',
+  NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio',
+  OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina',
+  SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont',
+  VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
+  DC: 'District of Columbia',
+};
+
+const QUOTED_CONTRIBUTION_PCT = 50;
+
 @Component({
   selector: 'app-company-info',
   standalone: true,
@@ -59,6 +75,7 @@ const MONTHS = [
                   <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Situs State</mat-label>
                     <input matInput formControlName="situs_state" readonly>
+                    <span *ngIf="prefilledFields.has('situs_state')" matSuffix class="text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">Prefilled</span>
                   </mat-form-field>
                   <div class="flex items-center">
                     <label class="text-sm text-slate-700 mr-3">Is this correct?</label>
@@ -82,16 +99,19 @@ const MONTHS = [
                   <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Group Number</mat-label>
                     <input matInput formControlName="group_number" readonly>
+                    <span *ngIf="prefilledFields.has('group_number')" matSuffix class="text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">Prefilled</span>
                   </mat-form-field>
                   <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Eligible Employees</mat-label>
                     <input matInput formControlName="eligible_employees" readonly>
+                    <span *ngIf="prefilledFields.has('eligible_employees')" matSuffix class="text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">Prefilled</span>
                   </mat-form-field>
                 </div>
 
                 <mat-form-field class="w-full" appearance="outline">
                   <mat-label>Primary Address</mat-label>
                   <input matInput formControlName="primary_address" readonly>
+                  <span *ngIf="prefilledFields.has('primary_address')" matSuffix class="text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">Prefilled</span>
                 </mat-form-field>
 
                 <!-- Effective Date -->
@@ -152,6 +172,7 @@ const MONTHS = [
                     <mat-form-field class="w-full" appearance="outline">
                       <mat-label>Correspondence Address</mat-label>
                       <input matInput formControlName="corr_address">
+                      <mat-error *ngIf="basicForm.get('corr_address')?.hasError('required')">Address is required</mat-error>
                     </mat-form-field>
                     <mat-form-field class="w-full" appearance="outline">
                       <mat-label>Address Line 2</mat-label>
@@ -161,16 +182,20 @@ const MONTHS = [
                       <mat-form-field class="w-full" appearance="outline">
                         <mat-label>Zip Code</mat-label>
                         <input matInput formControlName="corr_zip" maxlength="10">
+                        <mat-error *ngIf="basicForm.get('corr_zip')?.hasError('required')">Zip code is required</mat-error>
+                        <mat-error *ngIf="basicForm.get('corr_zip')?.hasError('pattern')">Format: 12345 or 12345-6789</mat-error>
                       </mat-form-field>
                       <mat-form-field class="w-full" appearance="outline">
                         <mat-label>City</mat-label>
                         <input matInput formControlName="corr_city">
+                        <mat-error *ngIf="basicForm.get('corr_city')?.hasError('required')">City is required</mat-error>
                       </mat-form-field>
                       <mat-form-field class="w-full" appearance="outline">
                         <mat-label>State</mat-label>
                         <mat-select formControlName="corr_state">
                           <mat-option *ngFor="let st of states" [value]="st">{{ st }}</mat-option>
                         </mat-select>
+                        <mat-error *ngIf="basicForm.get('corr_state')?.hasError('required')">State is required</mat-error>
                       </mat-form-field>
                     </div>
                   </div>
@@ -217,6 +242,13 @@ const MONTHS = [
                             <mat-radio-button value="no" color="primary">No</mat-radio-button>
                           </mat-radio-group>
                         </div>
+                      </div>
+                      <div *ngIf="getContributionVariance(i) as variance"
+                           class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-3">
+                        <mat-icon class="text-amber-600 mt-0.5" style="font-size:18px;width:18px;height:18px;">warning</mat-icon>
+                        <p class="text-sm text-amber-800">
+                          Contribution changed by {{ variance }}% from quoted amount (50%). A requote may be required.
+                        </p>
                       </div>
                     </div>
                   </mat-tab>
@@ -316,6 +348,7 @@ export class CompanyInfoComponent implements OnInit, OnDestroy {
   months = MONTHS;
   products = ['Dental', 'Vision', 'STD', 'LTD'];
   minDate = new Date();
+  prefilledFields = new Set<string>();
 
   private destroy$ = new Subject<void>();
 
@@ -330,8 +363,37 @@ export class CompanyInfoComponent implements OnInit, OnDestroy {
     this.setupConditionalValidators();
 
     const step = this.store.currentStep();
-    if (step?.data && Object.keys(step.data).length > 0) {
-      this.patchSavedData(step.data as Record<string, any>);
+    const hasSavedData = step?.data && Object.keys(step.data).length > 0;
+
+    // Prefill from client data on first visit (no saved step data yet)
+    if (!hasSavedData) {
+      const client = this.store.client();
+      if (client) {
+        const stateAbbr = client.primary_address_state;
+        const stateName = stateAbbr ? (STATE_NAMES[stateAbbr] || stateAbbr) : '';
+        const addressParts = [
+          client.primary_address_street,
+          client.primary_address_city,
+          client.primary_address_state,
+          client.primary_address_zip,
+        ].filter(Boolean);
+
+        this.basicForm.patchValue({
+          situs_state: stateName,
+          group_number: client.group_id || client.unique_id || '',
+          eligible_employees: client.eligible_employees?.toString() || '',
+          primary_address: addressParts.join(', '),
+        });
+
+        if (stateName) this.prefilledFields.add('situs_state');
+        if (client.group_id || client.unique_id) this.prefilledFields.add('group_number');
+        if (client.eligible_employees) this.prefilledFields.add('eligible_employees');
+        if (addressParts.length > 0) this.prefilledFields.add('primary_address');
+      }
+    }
+
+    if (hasSavedData) {
+      this.patchSavedData(step!.data as Record<string, any>);
     }
   }
 
@@ -348,11 +410,11 @@ export class CompanyInfoComponent implements OnInit, OnDestroy {
 
   private buildForms(): void {
     this.basicForm = this.fb.group({
-      situs_state: [{ value: 'California', disabled: true }],
-      situs_state_correct: ['yes'],
-      group_number: [{ value: 'GRP-2024-0042', disabled: true }],
-      eligible_employees: [{ value: '150', disabled: true }],
-      primary_address: [{ value: '1000 Main Street, Sacramento, CA 95814', disabled: true }],
+      situs_state: [{ value: '', disabled: true }],
+      situs_state_correct: ['yes', Validators.required],
+      group_number: [{ value: '', disabled: true }],
+      eligible_employees: [{ value: '', disabled: true }],
+      primary_address: [{ value: '', disabled: true }],
       effective_date: ['', Validators.required],
       name_is_different: ['no'],
       legal_group_name: [''],
@@ -379,8 +441,8 @@ export class CompanyInfoComponent implements OnInit, OnDestroy {
     });
 
     this.erisaForm = this.fb.group({
-      section_125: ['no'],
-      erisa_language: ['no'],
+      section_125: ['no', Validators.required],
+      erisa_language: ['no', Validators.required],
       plan_year_type: [''],
       fiscal_year_month: [''],
     });
@@ -409,7 +471,11 @@ export class CompanyInfoComponent implements OnInit, OnDestroy {
         fields.forEach(f => {
           const ctrl = this.basicForm.get(f)!;
           if (val === 'yes') {
-            ctrl.setValidators(Validators.required);
+            if (f === 'corr_zip') {
+              ctrl.setValidators([Validators.required, Validators.pattern(/^\d{5}(-\d{4})?$/)]);
+            } else {
+              ctrl.setValidators(Validators.required);
+            }
           } else {
             ctrl.clearValidators();
             ctrl.setValue('');
@@ -464,6 +530,13 @@ export class CompanyInfoComponent implements OnInit, OnDestroy {
 
   get contributionsArray(): FormArray {
     return this.contribForm.get('contributions') as FormArray;
+  }
+
+  getContributionVariance(index: number): number | null {
+    const ctrl = this.contributionsArray.at(index)?.get('employer_contribution_pct');
+    if (!ctrl) return null;
+    const diff = Math.abs((ctrl.value as number) - QUOTED_CONTRIBUTION_PCT);
+    return diff > 10 ? diff : null;
   }
 
   getData(): Record<string, any> {
