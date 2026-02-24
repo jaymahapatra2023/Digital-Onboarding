@@ -106,14 +106,20 @@ class ClientRepository:
         return client
 
     async def get_timeline_events(
-        self, client_id: UUID, limit: int = 50, offset: int = 0
+        self,
+        client_id: UUID,
+        limit: int = 50,
+        offset: int = 0,
+        event_type: str | None = None,
     ) -> tuple[list[tuple[EventLogORM, UserORM | None]], int]:
-        """Query event_log rows for a client with optional user info."""
+        """Query event_log rows for a client with optional user info and event type filter."""
         count_query = (
             select(func.count())
             .select_from(EventLogORM)
             .where(EventLogORM.client_id == client_id)
         )
+        if event_type:
+            count_query = count_query.where(EventLogORM.event_type == event_type)
         total_result = await self.session.execute(count_query)
         total = total_result.scalar()
 
@@ -125,6 +131,8 @@ class ClientRepository:
             .offset(offset)
             .limit(limit)
         )
+        if event_type:
+            query = query.where(EventLogORM.event_type == event_type)
         result = await self.session.execute(query)
         rows = result.all()
 

@@ -6,6 +6,7 @@ from uuid import UUID
 
 from app.api.dependencies import get_current_user, get_db
 from app.domain.models.client import (
+    CaseDiagnostics,
     CaseReadiness,
     Client,
     ClientListParams,
@@ -76,6 +77,7 @@ async def check_readiness(
 @router.get("/{client_id}/timeline", response_model=TimelineResponse)
 async def get_timeline(
     client_id: UUID,
+    event_type: str | None = Query(None),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
@@ -83,7 +85,21 @@ async def get_timeline(
 ):
     """Get chronological event history for a case."""
     service = ClientService(db)
-    return await service.get_timeline(client_id, limit, offset)
+    return await service.get_timeline(client_id, limit, offset, event_type=event_type)
+
+
+@router.get("/{client_id}/diagnostics", response_model=CaseDiagnostics)
+async def get_diagnostics(
+    client_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserORM = Depends(get_current_user),
+):
+    """Get diagnostic snapshot for a case including step statuses and blockers."""
+    service = ClientService(db)
+    try:
+        return await service.get_diagnostics(client_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.patch("/{client_id}/assign", response_model=Client)

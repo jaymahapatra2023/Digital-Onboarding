@@ -10,12 +10,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.events.client_events import CaseMarkedSold, CaseOwnerAssigned
 from app.domain.events.event_bus import event_bus
 from app.domain.models.client import (
+    CaseDiagnostics,
     CaseReadiness,
     Client,
     ClientListParams,
     ClientListResponse,
     ClientWithMetrics,
     ReadinessBlocker,
+    StepDiagnostic,
     TimelineEvent,
     TimelineResponse,
 )
@@ -157,10 +159,13 @@ class ClientService:
         return CaseReadiness(is_ready=len(blockers) == 0, blockers=blockers)
 
     async def get_timeline(
-        self, client_id: UUID, limit: int = 50, offset: int = 0
+        self, client_id: UUID, limit: int = 50, offset: int = 0,
+        event_type: str | None = None,
     ) -> TimelineResponse:
         """Get chronological event history for a case."""
-        rows, total = await self.repo.get_timeline_events(client_id, limit, offset)
+        rows, total = await self.repo.get_timeline_events(
+            client_id, limit, offset, event_type=event_type
+        )
         descriptions = TimelineEvent.event_descriptions()
 
         events: list[TimelineEvent] = []
@@ -195,6 +200,82 @@ class ClientService:
                 user_id=event_log.user_id,
                 user_name=user_name,
                 created_at=event_log.created_at,
+                payload=payload if payload else None,
             ))
 
         return TimelineResponse(client_id=client_id, events=events, total=total)
+
+    async def get_diagnostics(self, client_id: UUID) -> CaseDiagnostics:
+        """Build a diagnostic snapshot for a single case."""
+        from sqlalchemy import select
+
+        from app.infrastructure.database.models.event_log_orm import EventLogORM
+
+        client = await self.repo.get_by_id(client_id)
+        if not client:
+            raise ValueError("Client not found")
+
+        now = datetime.now(timezone.utc)
+        days_since = (
+            (now - client.updated_at.replace(tzinfo=timezone.utc)).days
+            if client.updated_at
+            else 0
+        )
+
+        wf = await self.workflow_repo.get_instance_by_client(client_id)
+
+        step_diagnostics: list[StepDiagnostic] = []
+        blockers: list[str] = []
+        current_step_id: str | None = None
+
+        if wf:
+            current_step_id = wf.current_step_id
+            # Build step name lookup from definition
+            step_name_map: dict[str, str] = {}
+            if wf.definition and isinstance(wf.definition.steps, list):
+                for s in wf.definition.steps:
+                    step_name_map[s.get("id", "")] = s.get("name", s.get("id", ""))
+
+            for si in wf.step_instances:
+                if si.status == "IN_PROGRESS" and si.started_at:
+                    days_in = (now - si.started_at.replace(tzinfo=timezone.utc)).days
+                else:
+                    days_in = 0
+                step_diagnostics.append(
+                    StepDiagnostic(
+                        step_id=si.step_id,
+                        step_name=step_name_map.get(si.step_id, si.step_id),
+                        status=si.status,
+                        started_at=si.started_at,
+                        completed_at=si.completed_at,
+                        last_saved_at=si.last_saved_at,
+                        days_in_current_status=days_in,
+                    )
+                )
+                if si.status == "IN_PROGRESS" and days_in > 7:
+                    blockers.append(
+                        f"Step '{step_name_map.get(si.step_id, si.step_id)}' in progress for {days_in} days"
+                    )
+
+        # Most recent event for last_activity
+        last_event_query = (
+            select(EventLogORM.created_at)
+            .where(EventLogORM.client_id == client_id)
+            .order_by(EventLogORM.created_at.desc())
+            .limit(1)
+        )
+        result = await self.session.execute(last_event_query)
+        last_activity = result.scalar_one_or_none()
+
+        return CaseDiagnostics(
+            client_id=client.id,
+            client_name=client.client_name,
+            status=client.status,
+            workflow_status=wf.status if wf else None,
+            current_step_id=current_step_id,
+            steps=step_diagnostics,
+            last_activity=last_activity,
+            days_since_update=days_since,
+            is_stale=days_since >= 7,
+            blockers=blockers,
+        )

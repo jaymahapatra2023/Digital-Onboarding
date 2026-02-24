@@ -3,6 +3,7 @@
 from fastapi import APIRouter
 
 from app.api.v1.access import router as access_router
+from app.api.v1.admin import router as admin_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.clients import router as clients_router
 from app.api.v1.documents import router as documents_router
@@ -20,6 +21,7 @@ api_router.include_router(documents_router)
 api_router.include_router(offline_packet_router)
 api_router.include_router(users_router)
 api_router.include_router(licensing_router)
+api_router.include_router(admin_router)
 
 # Backward-compatible alias: main.py imports ``router`` from this module.
 router = api_router

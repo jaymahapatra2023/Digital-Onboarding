@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.api.middleware.error_handler import register_exception_handlers
 from app.api.v1.router import router as v1_router
 from app.domain.events.handlers import setup_event_handlers
 
@@ -23,6 +24,8 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+register_exception_handlers(app)
 
 app.add_middleware(
     CORSMiddleware,

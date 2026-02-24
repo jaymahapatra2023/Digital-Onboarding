@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, KeyValuePipe } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,12 +13,17 @@ export interface TimelineDialogData {
   clientName: string;
 }
 
+interface TimelineFilter {
+  label: string;
+  value: string | undefined;
+}
+
 @Component({
   selector: 'app-timeline-dialog',
   standalone: true,
   imports: [
     CommonModule, MatDialogModule, MatButtonModule,
-    MatIconModule, MatProgressSpinnerModule,
+    MatIconModule, MatProgressSpinnerModule, KeyValuePipe,
   ],
   template: `
     <h2 mat-dialog-title class="flex items-center gap-2">
@@ -27,6 +32,15 @@ export interface TimelineDialogData {
     </h2>
 
     <mat-dialog-content class="min-h-[200px]">
+      <!-- Filter chips -->
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button *ngFor="let f of filters" mat-stroked-button
+                [class.!bg-indigo-100]="selectedFilter === f.value"
+                (click)="onFilterChange(f.value)">
+          {{ f.label }}
+        </button>
+      </div>
+
       <!-- Loading -->
       <div *ngIf="loading" class="flex justify-center items-center py-12">
         <mat-spinner diameter="40"></mat-spinner>
@@ -44,7 +58,7 @@ export interface TimelineDialogData {
         <!-- Vertical line -->
         <div class="absolute left-3 top-2 bottom-2 w-0.5 bg-slate-200"></div>
 
-        <div *ngFor="let event of events; let last = last"
+        <div *ngFor="let event of events; let i = index; let last = last"
              class="relative flex items-start gap-4 pb-6"
              [class.pb-0]="last">
           <!-- Dot node -->
@@ -60,6 +74,18 @@ export interface TimelineDialogData {
               <span *ngIf="event.user_name" class="text-xs text-slate-500">
                 by {{ event.user_name }}
               </span>
+              <button *ngIf="event.payload && hasPayloadKeys(event.payload)"
+                      mat-button class="!text-xs !min-w-0 !px-2 !py-0 text-indigo-500"
+                      (click)="toggleDetails(i)">
+                {{ expandedIndex === i ? 'Hide Details' : 'Details' }}
+              </button>
+            </div>
+            <!-- Expandable payload details -->
+            <div *ngIf="expandedIndex === i && event.payload" class="mt-2 bg-slate-50 rounded-lg p-3 text-xs space-y-1">
+              <div *ngFor="let item of event.payload | keyvalue" class="flex gap-2">
+                <span class="font-medium text-slate-500 min-w-[100px]">{{ item.key }}:</span>
+                <span class="text-slate-700">{{ item.value }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -72,8 +98,18 @@ export interface TimelineDialogData {
   `,
 })
 export class TimelineDialogComponent implements OnInit {
-  events: TimelineEvent[] = [];
+  events: (TimelineEvent & { payload?: Record<string, any> })[] = [];
   loading = false;
+  expandedIndex: number | null = null;
+  selectedFilter: string | undefined = undefined;
+
+  filters: TimelineFilter[] = [
+    { label: 'All Events', value: undefined },
+    { label: 'Step Completions', value: 'WorkflowStepCompleted' },
+    { label: 'Documents', value: 'DocumentUploaded' },
+    { label: 'Access Changes', value: 'AccessAssigned' },
+    { label: 'Submissions', value: 'WorkflowSubmitted' },
+  ];
 
   constructor(
     public dialogRef: MatDialogRef<TimelineDialogComponent>,
@@ -85,9 +121,23 @@ export class TimelineDialogComponent implements OnInit {
     this.loadTimeline();
   }
 
-  loadTimeline(): void {
+  onFilterChange(eventType: string | undefined): void {
+    this.selectedFilter = eventType;
+    this.expandedIndex = null;
+    this.loadTimeline(eventType);
+  }
+
+  toggleDetails(index: number): void {
+    this.expandedIndex = this.expandedIndex === index ? null : index;
+  }
+
+  hasPayloadKeys(payload: Record<string, any>): boolean {
+    return Object.keys(payload).length > 0;
+  }
+
+  loadTimeline(eventType?: string): void {
     this.loading = true;
-    this.service.getTimeline(this.data.clientId).subscribe({
+    this.service.getTimeline(this.data.clientId, 50, 0, eventType).subscribe({
       next: (response) => {
         this.events = response.events;
         this.loading = false;

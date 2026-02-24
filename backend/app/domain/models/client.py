@@ -82,6 +82,7 @@ class TimelineEvent(BaseModel):
     user_id: UUID | None = None
     user_name: str | None = None
     created_at: datetime
+    payload: dict | None = None
 
     @staticmethod
     def event_descriptions() -> dict[str, tuple[str, str]]:
@@ -102,6 +103,10 @@ class TimelineEvent(BaseModel):
             "CaseOwnerAssigned": ("Case assigned to owner", "assignment_ind"),
             "InvitationSent": ("Invitation sent to {email} ({role_type})", "send"),
             "AccessUnlocked": ("Access unlocked for {email}", "lock_open"),
+            "WorkflowSubmitted": ("Workflow submitted for downstream processing", "send"),
+            "MasterAppSigned": ("Master Application signed by {accepted_by}", "draw"),
+            "EnrollmentTransitionInitiated": ("Enrollment transition initiated (group: {group_number})", "swap_horiz"),
+            "WorkflowHandoffRequested": ("Workflow handed off to {target_role} ({target_email})", "forward_to_inbox"),
         }
 
 
@@ -109,3 +114,28 @@ class TimelineResponse(BaseModel):
     client_id: UUID
     events: list[TimelineEvent]
     total: int
+
+
+# --- Diagnostics ---
+
+class StepDiagnostic(BaseModel):
+    step_id: str
+    step_name: str
+    status: str
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    last_saved_at: datetime | None = None
+    days_in_current_status: int = 0
+
+
+class CaseDiagnostics(BaseModel):
+    client_id: UUID
+    client_name: str
+    status: str
+    workflow_status: str | None = None
+    current_step_id: str | None = None
+    steps: list[StepDiagnostic] = []
+    last_activity: datetime | None = None
+    days_since_update: int = 0
+    is_stale: bool = False
+    blockers: list[str] = []

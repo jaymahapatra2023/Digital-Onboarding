@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = ["http://localhost:4200"]
     INVITATION_EXPIRY_DAYS: int = 30
     FRONTEND_URL: str = "http://localhost:4200"
+    SLA_WARNING_DAYS: int = 7
+    SLA_CRITICAL_DAYS: int = 14
+    STUCK_STEP_THRESHOLD_DAYS: int = 7
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

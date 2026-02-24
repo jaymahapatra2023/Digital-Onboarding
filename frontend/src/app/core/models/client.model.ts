@@ -109,6 +109,7 @@ export interface TimelineEvent {
   user_id?: string;
   user_name?: string;
   created_at: string;
+  payload?: Record<string, any>;
 }
 
 export interface TimelineResponse {

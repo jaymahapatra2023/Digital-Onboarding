@@ -59,8 +59,10 @@ export class SoldCasesService {
     return this.api.get<CaseReadiness>(`/clients/${clientId}/readiness`);
   }
 
-  getTimeline(clientId: string, limit = 50, offset = 0): Observable<TimelineResponse> {
-    return this.api.get<TimelineResponse>(`/clients/${clientId}/timeline`, { limit, offset });
+  getTimeline(clientId: string, limit = 50, offset = 0, eventType?: string): Observable<TimelineResponse> {
+    const params: any = { limit, offset };
+    if (eventType) params.event_type = eventType;
+    return this.api.get<TimelineResponse>(`/clients/${clientId}/timeline`, params);
   }
 
   assignToMe(clientId: string): Observable<Client> {

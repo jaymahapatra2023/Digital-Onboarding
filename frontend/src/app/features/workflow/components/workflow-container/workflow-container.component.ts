@@ -212,9 +212,10 @@ export class WorkflowContainerComponent implements OnInit {
           }
         });
       },
-      error: () => {
+      error: (err: any) => {
         this.store.setLoading(false);
-        this.notification.error('Failed to load workflow');
+        const hint = err?.error?.recovery_hint || err?.error?.message;
+        this.notification.error(hint || 'Failed to load workflow');
       },
     });
   }
@@ -260,9 +261,10 @@ export class WorkflowContainerComponent implements OnInit {
         this.handoffEmployerEmail = result.employer_email;
         this.notification.success('Handoff notification sent to employer');
       },
-      error: () => {
+      error: (err: any) => {
         this.handoffLoading = false;
-        this.notification.error('Failed to send handoff notification');
+        const hint = err?.error?.recovery_hint || err?.error?.message;
+        this.notification.error(hint || 'Failed to send handoff notification');
       },
     });
   }
@@ -314,8 +316,9 @@ export class WorkflowContainerComponent implements OnInit {
     this.store.setSaving(true);
     try {
       await this.workflowService.saveStepData(this.clientId, stepId, data).toPromise();
-    } catch {
-      // Silently fail for auto-save
+    } catch (err: any) {
+      const hint = err?.error?.recovery_hint;
+      this.notification.error(hint || 'Auto-save failed. Your latest changes may not be saved.');
     }
     this.store.setSaving(false);
   }
@@ -336,8 +339,9 @@ export class WorkflowContainerComponent implements OnInit {
         this.notification.success('Progress saved');
         this.store.setSaving(false);
       },
-      error: () => {
-        this.notification.error('Failed to save');
+      error: (err: any) => {
+        const hint = err?.error?.recovery_hint || err?.error?.message;
+        this.notification.error(hint || 'Failed to save');
         this.store.setSaving(false);
       },
     });
@@ -393,7 +397,10 @@ export class WorkflowContainerComponent implements OnInit {
           this.submitWorkflow();
         }
       },
-      error: () => this.notification.error('Failed to complete step'),
+      error: (err: any) => {
+        const hint = err?.error?.recovery_hint || err?.error?.message;
+        this.notification.error(hint || 'Failed to complete step');
+      },
     });
   }
 
@@ -411,9 +418,9 @@ export class WorkflowContainerComponent implements OnInit {
         this.store.updateWorkflowStatus(WorkflowStatus.COMPLETED);
         this.notification.success('Group setup submitted successfully!');
       },
-      error: () => {
-        // Submission failed but steps are still completed — notify user
-        this.notification.error('Steps completed, but downstream submission failed. Please try again.');
+      error: (err: any) => {
+        const hint = err?.error?.recovery_hint || err?.error?.message;
+        this.notification.error(hint || 'Steps completed, but downstream submission failed. Please try again.');
       },
     });
   }
@@ -436,7 +443,10 @@ export class WorkflowContainerComponent implements OnInit {
           this.navigateToStep(steps[currentIdx + 1].step_id);
         }
       },
-      error: () => this.notification.error('Failed to skip step'),
+      error: (err: any) => {
+        const hint = err?.error?.recovery_hint || err?.error?.message;
+        this.notification.error(hint || 'Failed to skip step');
+      },
     });
   }
 }
