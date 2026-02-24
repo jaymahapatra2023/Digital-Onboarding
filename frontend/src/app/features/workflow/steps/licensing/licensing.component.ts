@@ -395,4 +395,23 @@ export class LicensingComponent implements OnInit {
       this.totalDistribution === 100
     );
   }
+
+  getValidationErrors(): string[] {
+    const errors: string[] = [];
+    if (this.producers.length === 0) {
+      errors.push('At least one writing producer is required.');
+    }
+    const nonActive = this.producers.filter(p => p.licensing_status !== 'active');
+    if (nonActive.length > 0) {
+      errors.push(`${nonActive.length} producer(s) do not have active licensing status.`);
+    }
+    const noCode = this.producers.filter(p => p.compensable_code === null);
+    if (noCode.length > 0) {
+      errors.push(`${noCode.length} producer(s) have not been verified for a compensable code.`);
+    }
+    if (this.producers.length > 0 && this.totalDistribution !== 100) {
+      errors.push(`Commission splits total ${this.totalDistribution}% (must equal 100%).`);
+    }
+    return errors;
+  }
 }

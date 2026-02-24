@@ -54,22 +54,27 @@ export interface ProducerResult {
               <mat-option value="GA">General Agent (GA)</mat-option>
               <mat-option value="Account Executive">Account Executive</mat-option>
             </mat-select>
+            <mat-error *ngIf="form.get('role_type')?.hasError('required')">Role is required</mat-error>
           </mat-form-field>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <mat-form-field appearance="outline">
               <mat-label>First Name</mat-label>
               <input matInput formControlName="first_name">
+              <mat-error *ngIf="form.get('first_name')?.hasError('required')">First name is required</mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Last Name</mat-label>
               <input matInput formControlName="last_name">
+              <mat-error *ngIf="form.get('last_name')?.hasError('required')">Last name is required</mat-error>
             </mat-form-field>
           </div>
 
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Email</mat-label>
             <input matInput type="email" formControlName="email">
+            <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
+            <mat-error *ngIf="form.get('email')?.hasError('email')">Please enter a valid email</mat-error>
             <mat-error *ngIf="form.get('email')?.hasError('duplicateEmail')">
               This email is already assigned to a producer
             </mat-error>

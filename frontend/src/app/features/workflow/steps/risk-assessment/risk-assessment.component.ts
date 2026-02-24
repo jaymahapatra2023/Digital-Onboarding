@@ -110,6 +110,8 @@ function futureDateValidator(control: AbstractControl): ValidationErrors | null 
                     <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                     <mat-radio-button value="no" color="primary">No</mat-radio-button>
                   </mat-radio-group>
+                  <div *ngIf="pregnantForm.get('any_pregnant')?.touched && pregnantForm.get('any_pregnant')?.invalid"
+                       class="text-xs text-red-600 mt-1">Please indicate whether any employees are currently pregnant</div>
 
                   <mat-form-field *ngIf="pregnantForm.get('any_pregnant')?.value === 'yes'"
                                   class="w-full md:w-1/2 mt-3" appearance="outline">
@@ -158,6 +160,8 @@ function futureDateValidator(control: AbstractControl): ValidationErrors | null 
                     <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                     <mat-radio-button value="no" color="primary">No</mat-radio-button>
                   </mat-radio-group>
+                  <div *ngIf="healthForm.get('has_health_risks')?.touched && healthForm.get('has_health_risks')?.invalid"
+                       class="text-xs text-red-600 mt-1">Please indicate whether there are significant health risks</div>
                 </div>
 
                 <div *ngIf="healthForm.get('has_health_risks')?.value === 'yes'" class="space-y-3">
@@ -213,6 +217,8 @@ function futureDateValidator(control: AbstractControl): ValidationErrors | null 
                     <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                     <mat-radio-button value="no" color="primary">No</mat-radio-button>
                   </mat-radio-group>
+                  <div *ngIf="disabledForm.get('has_disabled')?.touched && disabledForm.get('has_disabled')?.invalid"
+                       class="text-xs text-red-600 mt-1">Please indicate whether there are disabled/not actively at work employees</div>
                 </div>
 
                 <div *ngIf="disabledForm.get('has_disabled')?.value === 'yes'" class="space-y-5">
@@ -240,6 +246,8 @@ function futureDateValidator(control: AbstractControl): ValidationErrors | null 
                       <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                       <mat-radio-button value="no" color="primary">No</mat-radio-button>
                     </mat-radio-group>
+                    <div *ngIf="disabledForm.get('waiver_of_premium')?.touched && disabledForm.get('waiver_of_premium')?.invalid"
+                         class="text-xs text-red-600 mt-1">Waiver of Premium selection is required</div>
                   </div>
 
                   <!-- Employee Details Table -->
@@ -498,6 +506,8 @@ function futureDateValidator(control: AbstractControl): ValidationErrors | null 
                         I am signing and submitting this document. This is a legally binding electronic signature.
                       </span>
                     </mat-checkbox>
+                    <div *ngIf="signatureForm.get('declaration')?.touched && signatureForm.get('declaration')?.invalid"
+                         class="text-xs text-red-600 mt-1">You must accept the declaration to proceed</div>
                   </div>
 
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -813,5 +823,59 @@ export class RiskAssessmentComponent implements OnInit, OnDestroy {
     const disabledOk = this.disabledForm.valid;
     const sigOk = this.signatureForm.valid;
     return pregnantOk && healthOk && disabledOk && sigOk && !this.employeeCountMismatch;
+  }
+
+  getValidationErrors(): string[] {
+    const errors: string[] = [];
+
+    // Pregnant
+    if (this.pregnantForm.get('any_pregnant')?.invalid) {
+      errors.push('Pregnant Employees: please indicate whether any employees are currently pregnant.');
+    }
+    if (this.pregnantForm.get('any_pregnant')?.value === 'yes' &&
+        this.pregnantForm.get('pregnant_count')?.invalid) {
+      errors.push('Pregnant Employees: number of pregnant employees is required.');
+    }
+
+    // Health Risks
+    if (this.healthForm.get('has_health_risks')?.invalid) {
+      errors.push('Health Risks: please indicate whether there are significant health risks.');
+    }
+    if (this.isOtherSelected() && this.healthForm.get('other_risk_details')?.invalid) {
+      errors.push('Health Risks: please specify other health risk details.');
+    }
+
+    // Disabled
+    if (this.disabledForm.get('has_disabled')?.invalid) {
+      errors.push('Disabled Employees: please indicate whether there are disabled/not actively at work employees.');
+    }
+    if (this.disabledForm.get('has_disabled')?.value === 'yes') {
+      if (this.disabledForm.get('disabled_count')?.invalid) {
+        errors.push('Disabled Employees: number of disabled employees is required.');
+      }
+      if (this.disabledForm.get('waiver_of_premium')?.invalid) {
+        errors.push('Disabled Employees: Waiver of Premium selection is required.');
+      }
+      if (this.employeeCountMismatch) {
+        errors.push(`Disabled Employees: declared count (${this.disabledForm.get('disabled_count')?.value}) does not match records added (${this.disabledEmployees.length}).`);
+      }
+    }
+
+    // Signature
+    if (this.signatureForm.get('declaration')?.invalid) {
+      errors.push('Review & Submit: declaration must be accepted.');
+    }
+    if (this.signatureForm.get('accepted_by')?.invalid) {
+      errors.push('Review & Submit: accepted by name is required.');
+    }
+
+    return errors;
+  }
+
+  markFormsAsTouched(): void {
+    this.pregnantForm.markAllAsTouched();
+    this.healthForm.markAllAsTouched();
+    this.disabledForm.markAllAsTouched();
+    this.signatureForm.markAllAsTouched();
   }
 }

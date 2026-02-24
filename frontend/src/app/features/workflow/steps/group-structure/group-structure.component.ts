@@ -167,6 +167,7 @@ const WAITING_PERIOD_TYPES = [
                       <mat-select formControlName="earnings_definition">
                         <mat-option *ngFor="let e of earningsDefinitions" [value]="e">{{ e }}</mat-option>
                       </mat-select>
+                      <mat-error *ngIf="classDescForm.get('earnings_definition')?.hasError('required')">Earnings definition is required</mat-error>
                     </mat-form-field>
                   </div>
 
@@ -177,6 +178,8 @@ const WAITING_PERIOD_TYPES = [
                         {{ wp.label }}
                       </mat-radio-button>
                     </mat-radio-group>
+                    <div *ngIf="classDescForm.get('waiting_period_type')?.touched && classDescForm.get('waiting_period_type')?.invalid"
+                         class="text-xs text-red-600 mt-1">Waiting period type is required</div>
 
                     <mat-form-field *ngIf="classDescForm.get('waiting_period_type')?.value === 'custom'"
                                     class="w-full md:w-1/2 mt-3" appearance="outline">
@@ -306,6 +309,8 @@ const WAITING_PERIOD_TYPES = [
                     <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                     <mat-radio-button value="no" color="primary">No</mat-radio-button>
                   </mat-radio-group>
+                  <div *ngIf="billingForm.get('has_third_party_billing')?.touched && billingForm.get('has_third_party_billing')?.invalid"
+                       class="text-xs text-red-600 mt-1">Third-party billing selection is required</div>
                 </div>
 
                 <div *ngIf="billingForm.get('has_third_party_billing')?.value === 'yes'" class="space-y-4">
@@ -1217,6 +1222,16 @@ export class GroupStructureComponent implements OnInit, OnDestroy {
   isValid(): boolean {
     this.computeValidationErrors();
     return this.validationErrors.length === 0;
+  }
+
+  getValidationErrors(): string[] {
+    this.computeValidationErrors();
+    return this.validationErrors;
+  }
+
+  markFormsAsTouched(): void {
+    this.classDescForm.markAllAsTouched();
+    this.billingForm.markAllAsTouched();
   }
 
   computeValidationErrors(): void {

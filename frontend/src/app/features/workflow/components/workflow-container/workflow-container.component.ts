@@ -73,6 +73,17 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
             <!-- Dynamic step component container -->
             <ng-container #stepContainer></ng-container>
 
+            <!-- Validation error banner -->
+            <div *ngIf="validationErrors.length > 0" class="bg-red-50 border border-red-300 rounded-xl p-4 space-y-2 mt-6">
+              <div class="flex items-center gap-2">
+                <mat-icon class="text-red-600" style="font-size:20px;width:20px;height:20px;">error</mat-icon>
+                <h3 class="text-sm font-semibold text-red-800">Please fix the following before continuing:</h3>
+              </div>
+              <ul class="list-disc list-inside space-y-1 ml-7">
+                <li *ngFor="let err of validationErrors" class="text-sm text-red-700">{{ err }}</li>
+              </ul>
+            </div>
+
             <!-- Navigation bar -->
             <div class="flex justify-between items-center mt-10 pt-6 border-t border-gray-200">
               <button mat-button (click)="onPrevious()" [disabled]="isFirstStep"
@@ -111,6 +122,7 @@ export class WorkflowContainerComponent implements OnInit {
   private currentComponentRef: ComponentRef<any> | null = null;
   clientId: string = '';
   userRole: string = '';
+  validationErrors: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -185,6 +197,8 @@ export class WorkflowContainerComponent implements OnInit {
   }
 
   async navigateToStep(stepId: string): Promise<void> {
+    this.validationErrors = [];
+
     // Save current step data first
     if (this.currentComponentRef?.instance?.getData) {
       await this.saveCurrentStepData();
@@ -251,10 +265,27 @@ export class WorkflowContainerComponent implements OnInit {
   async onNext(): Promise<void> {
     if (this.store.isCurrentStepRoleRestricted()) return;
 
+    // Clear previous validation errors
+    this.validationErrors = [];
+
+    // Mark all forms as touched to trigger inline error display
+    if (this.currentComponentRef?.instance?.markFormsAsTouched) {
+      this.currentComponentRef.instance.markFormsAsTouched();
+    }
+
     // Validation gate: check isValid() before allowing step completion
     if (this.currentComponentRef?.instance?.isValid &&
         !this.currentComponentRef.instance.isValid()) {
-      this.notification.error('Please complete all required fields before continuing.');
+      // Get specific validation errors if the step supports it
+      if (this.currentComponentRef.instance.getValidationErrors) {
+        this.validationErrors = this.currentComponentRef.instance.getValidationErrors();
+      }
+      const count = this.validationErrors.length;
+      if (count > 0) {
+        this.notification.error(`${count} issue${count > 1 ? 's' : ''} need${count === 1 ? 's' : ''} attention before continuing.`);
+      } else {
+        this.notification.error('Please complete all required fields before continuing.');
+      }
       return;
     }
 

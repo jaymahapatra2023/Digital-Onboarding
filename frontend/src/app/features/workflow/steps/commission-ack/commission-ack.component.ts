@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -52,7 +52,7 @@ interface CommissionRate {
       </div>
 
       <!-- S5: Licensing prerequisite blocking banner -->
-      <div *ngIf="!licensingValid" class="bg-red-50 border border-red-300 rounded-xl p-4 space-y-2">
+      <div *ngIf="!licensingValid" class="bg-red-50 border border-red-300 rounded-xl p-4 space-y-3">
         <div class="flex items-center gap-2">
           <mat-icon class="text-red-600" style="font-size:20px;width:20px;height:20px;">block</mat-icon>
           <h3 class="text-sm font-semibold text-red-800">
@@ -62,6 +62,12 @@ interface CommissionRate {
         <ul class="list-disc list-inside space-y-1 ml-7">
           <li *ngFor="let reason of licensingBlockReasons" class="text-sm text-red-700">{{ reason }}</li>
         </ul>
+        <div class="ml-7">
+          <button mat-flat-button color="primary" (click)="editStepRequest.emit('licensing')"
+                  style="border-radius: 8px;">
+            <mat-icon>arrow_back</mat-icon> Go to Licensing
+          </button>
+        </div>
       </div>
 
       <!-- S2: Agreement completeness warnings -->
@@ -244,6 +250,8 @@ interface CommissionRate {
                     </a>
                   </mat-checkbox>
                 </div>
+                <div *ngIf="termsForm.get('disclosure_agreement')?.touched && termsForm.get('disclosure_agreement')?.invalid"
+                     class="text-xs text-red-600 mt-1">You must read and agree to the Disclosure Agreement</div>
               </div>
             </mat-card-content>
           </mat-card>
@@ -262,6 +270,8 @@ interface CommissionRate {
                     Company's agreements. This is a legally binding electronic signature.
                   </span>
                 </mat-checkbox>
+                <div *ngIf="termsForm.get('e_signature')?.touched && termsForm.get('e_signature')?.invalid"
+                     class="text-xs text-red-600 mt-1">Electronic signature is required</div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -288,6 +298,8 @@ interface CommissionRate {
   `,
 })
 export class CommissionAckComponent implements OnInit, OnDestroy {
+  @Output() editStepRequest = new EventEmitter<string>();
+
   infoForm!: FormGroup;
   brokerForm!: FormGroup;
   payeeForm!: FormGroup;
@@ -587,5 +599,25 @@ export class CommissionAckComponent implements OnInit, OnDestroy {
   isValid(): boolean {
     // S2: Agreement must be complete in addition to licensing and terms
     return this.licensingValid && this.agreementComplete && this.termsForm.valid;
+  }
+
+  getValidationErrors(): string[] {
+    const errors: string[] = [];
+    errors.push(...this.licensingBlockReasons);
+    errors.push(...this.agreementBlockReasons);
+    if (this.termsForm.get('disclosure_agreement')?.invalid) {
+      errors.push('You must read and agree to the Disclosure Agreement.');
+    }
+    if (this.termsForm.get('e_signature')?.invalid) {
+      errors.push('Electronic signature is required.');
+    }
+    if (this.termsForm.get('accepted_by')?.invalid) {
+      errors.push('Accepted by name is required.');
+    }
+    return errors;
+  }
+
+  markFormsAsTouched(): void {
+    this.termsForm.markAllAsTouched();
   }
 }

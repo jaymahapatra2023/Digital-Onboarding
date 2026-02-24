@@ -80,6 +80,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                     <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                     <mat-radio-button value="no" color="primary">No</mat-radio-button>
                   </mat-radio-group>
+                  <div *ngIf="onlineAccessForm.get('broker_online_access')?.touched && onlineAccessForm.get('broker_online_access')?.invalid"
+                       class="text-xs text-red-600 mt-1">Online access selection is required</div>
                 </div>
 
                 <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
@@ -90,6 +92,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                     <mat-radio-button value="electronic" color="primary">Electronic / Email</mat-radio-button>
                     <mat-radio-button value="paper" color="primary">Paper / Mail</mat-radio-button>
                   </mat-radio-group>
+                  <div *ngIf="onlineAccessForm.get('document_delivery')?.touched && onlineAccessForm.get('document_delivery')?.invalid"
+                       class="text-xs text-red-600 mt-1">Document delivery preference is required</div>
                 </div>
 
                 <button mat-button class="text-indigo-600" type="button" (click)="openEConsent()">
@@ -127,6 +131,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                       has been distributed to all covered persons within the group.
                     </span>
                   </mat-checkbox>
+                  <div *ngIf="privacyForm.get('privacy_notice_acknowledged')?.touched && privacyForm.get('privacy_notice_acknowledged')?.invalid"
+                       class="text-xs text-red-600 mt-1">Privacy notice acknowledgement is required</div>
                 </div>
               </mat-card-content>
             </mat-card>
@@ -163,6 +169,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                         I certify that I have received a copy of the Intermediary Compensation Notice.
                       </span>
                     </mat-checkbox>
+                    <div *ngIf="intermediaryForm.get('intermediary_notice_received')?.touched && intermediaryForm.get('intermediary_notice_received')?.invalid"
+                         class="text-xs text-red-600 mt-1">Intermediary notice acknowledgement is required</div>
                   </div>
 
                   <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
@@ -172,6 +180,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                         arrangements described therein.
                       </span>
                     </mat-checkbox>
+                    <div *ngIf="intermediaryForm.get('producer_compensation_acknowledged')?.touched && intermediaryForm.get('producer_compensation_acknowledged')?.invalid"
+                         class="text-xs text-red-600 mt-1">Producer compensation acknowledgement is required</div>
                   </div>
                 </div>
               </mat-card-content>
@@ -217,6 +227,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                       I confirm I have reviewed the Confirmation &amp; Agreement form for third party billing.
                     </span>
                   </mat-checkbox>
+                  <div *ngIf="thirdPartyForm.get('agreement_reviewed')?.touched && thirdPartyForm.get('agreement_reviewed')?.invalid"
+                       class="text-xs text-red-600 mt-1">Third party billing agreement review is required</div>
                 </div>
               </mat-card-content>
             </mat-card>
@@ -273,6 +285,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                       I acknowledge the Gross Up tax arrangements as stated above.
                     </span>
                   </mat-checkbox>
+                  <div *ngIf="grossUpForm.get('gross_up_acknowledged')?.touched && grossUpForm.get('gross_up_acknowledged')?.invalid"
+                       class="text-xs text-red-600 mt-1">Gross up acknowledgement is required</div>
                 </div>
               </mat-card-content>
             </mat-card>
@@ -302,6 +316,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                     <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                     <mat-radio-button value="no" color="primary">No</mat-radio-button>
                   </mat-radio-group>
+                  <div *ngIf="hipaaForm.get('phi_access')?.touched && hipaaForm.get('phi_access')?.invalid"
+                       class="text-xs text-red-600 mt-1">PHI access selection is required</div>
                 </div>
 
                 <!-- PHI Access = Yes: Claims Access Section -->
@@ -408,6 +424,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                           provided above.
                         </span>
                       </mat-checkbox>
+                      <div *ngIf="hipaaForm.get('hipaa_terms_accepted')?.touched && hipaaForm.get('hipaa_terms_accepted')?.invalid"
+                           class="text-xs text-red-600 mt-1">HIPAA terms acceptance is required</div>
                     </div>
 
                     <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
@@ -417,6 +435,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                           electronic signature for the HIPAA authorization.
                         </span>
                       </mat-checkbox>
+                      <div *ngIf="hipaaForm.get('esign_declaration')?.touched && hipaaForm.get('esign_declaration')?.invalid"
+                           class="text-xs text-red-600 mt-1">HIPAA electronic signature declaration is required</div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -486,6 +506,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                       <mat-radio-button value="customer" color="primary">Customer</mat-radio-button>
                       <mat-radio-button value="metlife" color="primary">MetLife</mat-radio-button>
                     </mat-radio-group>
+                    <div *ngIf="disabilityTaxForm.get('ltd_w2_issuer')?.touched && disabilityTaxForm.get('ltd_w2_issuer')?.invalid"
+                         class="text-xs text-red-600 mt-1">LTD W-2 issuer selection is required</div>
                   </div>
 
                   <ng-container *ngIf="disabilityTaxForm.get('ltd_w2_issuer')?.value === 'metlife'">
@@ -495,6 +517,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                         <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                         <mat-radio-button value="no" color="primary">No</mat-radio-button>
                       </mat-radio-group>
+                      <div *ngIf="disabilityTaxForm.get('ltd_payroll_vendor')?.touched && disabilityTaxForm.get('ltd_payroll_vendor')?.invalid"
+                           class="text-xs text-red-600 mt-1">LTD payroll vendor selection is required</div>
                     </div>
 
                     <div *ngIf="disabilityTaxForm.get('ltd_payroll_vendor')?.value === 'yes'"
@@ -504,6 +528,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                           I agree to the terms for payroll vendor tax reporting arrangements for LTD.
                         </span>
                       </mat-checkbox>
+                      <div *ngIf="disabilityTaxForm.get('ltd_terms_accepted')?.touched && disabilityTaxForm.get('ltd_terms_accepted')?.invalid"
+                           class="text-xs text-red-600 mt-1">LTD payroll vendor terms acceptance is required</div>
                     </div>
                   </ng-container>
                 </div>
@@ -518,6 +544,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                       <mat-radio-button value="customer" color="primary">Customer</mat-radio-button>
                       <mat-radio-button value="metlife" color="primary">MetLife</mat-radio-button>
                     </mat-radio-group>
+                    <div *ngIf="disabilityTaxForm.get('std_w2_issuer')?.touched && disabilityTaxForm.get('std_w2_issuer')?.invalid"
+                         class="text-xs text-red-600 mt-1">STD W-2 issuer selection is required</div>
                   </div>
 
                   <ng-container *ngIf="disabilityTaxForm.get('std_w2_issuer')?.value === 'metlife'">
@@ -527,6 +555,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                         <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                         <mat-radio-button value="no" color="primary">No</mat-radio-button>
                       </mat-radio-group>
+                      <div *ngIf="disabilityTaxForm.get('std_payroll_vendor')?.touched && disabilityTaxForm.get('std_payroll_vendor')?.invalid"
+                           class="text-xs text-red-600 mt-1">STD payroll vendor selection is required</div>
                     </div>
 
                     <div *ngIf="disabilityTaxForm.get('std_payroll_vendor')?.value === 'yes'"
@@ -536,6 +566,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                           I agree to the terms for payroll vendor tax reporting arrangements for STD.
                         </span>
                       </mat-checkbox>
+                      <div *ngIf="disabilityTaxForm.get('std_terms_accepted')?.touched && disabilityTaxForm.get('std_terms_accepted')?.invalid"
+                           class="text-xs text-red-600 mt-1">STD payroll vendor terms acceptance is required</div>
                     </div>
                   </ng-container>
                 </div>
@@ -576,6 +608,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                       I acknowledge and agree to the Portability Trust Participation Agreement.
                     </span>
                   </mat-checkbox>
+                  <div *ngIf="certBeneficialForm.get('portability_agreement_acknowledged')?.touched && certBeneficialForm.get('portability_agreement_acknowledged')?.invalid"
+                       class="text-xs text-red-600 mt-1">Portability agreement acknowledgement is required</div>
                 </div>
               </mat-card-content>
             </mat-card>
@@ -610,6 +644,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                       Claims have been incurred
                     </mat-radio-button>
                   </mat-radio-group>
+                  <div *ngIf="noClaimsForm.get('claims_status')?.touched && noClaimsForm.get('claims_status')?.invalid"
+                       class="text-xs text-red-600 mt-1">Claims status selection is required</div>
                 </div>
 
                 <!-- Claims Table (shown when claims incurred) -->
@@ -717,6 +753,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                       information regarding claims is true and complete.
                     </span>
                   </mat-checkbox>
+                  <div *ngIf="noClaimsForm.get('customer_esign')?.touched && noClaimsForm.get('customer_esign')?.invalid"
+                       class="text-xs text-red-600 mt-1">Claims certification e-signature is required</div>
                 </div>
               </mat-card-content>
             </mat-card>
@@ -794,6 +832,8 @@ const CLAIM_PRODUCT_OPTIONS = [
                       submitting this document. This is a legally binding electronic signature.
                     </span>
                   </mat-checkbox>
+                  <div *ngIf="finalSignatureForm.get('final_declaration')?.touched && finalSignatureForm.get('final_declaration')?.invalid"
+                       class="text-xs text-red-600 mt-1">Final declaration is required</div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1161,5 +1201,126 @@ export class AuthorizationComponent implements OnInit, OnDestroy {
       && this.certBeneficialForm.valid
       && this.noClaimsForm.valid
       && this.finalSignatureForm.valid;
+  }
+
+  getValidationErrors(): string[] {
+    const errors: string[] = [];
+
+    // Online Access
+    if (this.onlineAccessForm.get('broker_online_access')?.invalid) {
+      errors.push('Online Access: broker online access selection is required.');
+    }
+    if (this.onlineAccessForm.get('document_delivery')?.invalid) {
+      errors.push('Online Access: document delivery preference is required.');
+    }
+
+    // Privacy Notice
+    if (this.privacyForm.get('privacy_notice_acknowledged')?.invalid) {
+      errors.push('Privacy Notice: acknowledgement is required.');
+    }
+
+    // Intermediary
+    if (this.intermediaryForm.get('intermediary_notice_received')?.invalid) {
+      errors.push('Intermediary: notice received acknowledgement is required.');
+    }
+    if (this.intermediaryForm.get('producer_compensation_acknowledged')?.invalid) {
+      errors.push('Intermediary: producer compensation acknowledgement is required.');
+    }
+
+    // Third Party
+    if (this.thirdPartyForm.get('agreement_reviewed')?.invalid) {
+      errors.push('Third Party Billing: agreement review is required.');
+    }
+
+    // Gross Up
+    if (this.grossUpForm.get('gross_up_acknowledged')?.invalid) {
+      errors.push('Gross Up: acknowledgement is required.');
+    }
+
+    // HIPAA
+    if (this.hipaaForm.get('phi_access')?.invalid) {
+      errors.push('HIPAA: PHI access selection is required.');
+    }
+    if (this.hipaaForm.get('phi_access')?.value === 'yes' && this.hipaaForm.get('claims_access_option')?.invalid) {
+      errors.push('HIPAA: claims access option selection is required.');
+    }
+    if (this.hipaaForm.get('hipaa_terms_accepted')?.invalid) {
+      errors.push('HIPAA: terms acceptance is required.');
+    }
+    if (this.hipaaForm.get('esign_declaration')?.invalid) {
+      errors.push('HIPAA: electronic signature declaration is required.');
+    }
+    if (this.hipaaForm.get('esign_group_name')?.invalid) {
+      errors.push('HIPAA: group name is required.');
+    }
+    if (this.hipaaForm.get('esign_group_number')?.invalid) {
+      errors.push('HIPAA: group number is required.');
+    }
+    if (this.hipaaForm.get('esign_first_name')?.invalid) {
+      errors.push('HIPAA: first name is required.');
+    }
+    if (this.hipaaForm.get('esign_last_name')?.invalid) {
+      errors.push('HIPAA: last name is required.');
+    }
+
+    // Disability Tax
+    if (this.disabilityTaxForm.get('ltd_w2_issuer')?.invalid) {
+      errors.push('Disability Tax: LTD W-2 issuer selection is required.');
+    }
+    if (this.disabilityTaxForm.get('ltd_w2_issuer')?.value === 'metlife') {
+      if (this.disabilityTaxForm.get('ltd_payroll_vendor')?.invalid) {
+        errors.push('Disability Tax: LTD payroll vendor selection is required.');
+      }
+      if (this.disabilityTaxForm.get('ltd_terms_accepted')?.invalid) {
+        errors.push('Disability Tax: LTD payroll vendor terms acceptance is required.');
+      }
+    }
+    if (this.disabilityTaxForm.get('std_w2_issuer')?.invalid) {
+      errors.push('Disability Tax: STD W-2 issuer selection is required.');
+    }
+    if (this.disabilityTaxForm.get('std_w2_issuer')?.value === 'metlife') {
+      if (this.disabilityTaxForm.get('std_payroll_vendor')?.invalid) {
+        errors.push('Disability Tax: STD payroll vendor selection is required.');
+      }
+      if (this.disabilityTaxForm.get('std_terms_accepted')?.invalid) {
+        errors.push('Disability Tax: STD payroll vendor terms acceptance is required.');
+      }
+    }
+
+    // Certificate of Beneficial Interest
+    if (this.certBeneficialForm.get('portability_agreement_acknowledged')?.invalid) {
+      errors.push('Certificate of Beneficial Interest: portability agreement acknowledgement is required.');
+    }
+
+    // No Claims
+    if (this.noClaimsForm.get('claims_status')?.invalid) {
+      errors.push('No Claims: claims status selection is required.');
+    }
+    if (this.noClaimsForm.get('customer_esign')?.invalid) {
+      errors.push('No Claims: certification e-signature is required.');
+    }
+
+    // Final Signature
+    if (this.finalSignatureForm.get('final_declaration')?.invalid) {
+      errors.push('Final Signature: declaration is required.');
+    }
+    if (this.finalSignatureForm.get('accepted_by')?.invalid) {
+      errors.push('Final Signature: accepted by name is required.');
+    }
+
+    return errors;
+  }
+
+  markFormsAsTouched(): void {
+    this.onlineAccessForm.markAllAsTouched();
+    this.privacyForm.markAllAsTouched();
+    this.intermediaryForm.markAllAsTouched();
+    this.thirdPartyForm.markAllAsTouched();
+    this.grossUpForm.markAllAsTouched();
+    this.hipaaForm.markAllAsTouched();
+    this.disabilityTaxForm.markAllAsTouched();
+    this.certBeneficialForm.markAllAsTouched();
+    this.noClaimsForm.markAllAsTouched();
+    this.finalSignatureForm.markAllAsTouched();
   }
 }

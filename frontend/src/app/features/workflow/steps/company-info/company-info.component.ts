@@ -77,12 +77,16 @@ const QUOTED_CONTRIBUTION_PCT = 50;
                     <input matInput formControlName="situs_state" readonly>
                     <span *ngIf="prefilledFields.has('situs_state')" matSuffix class="text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">Prefilled</span>
                   </mat-form-field>
-                  <div class="flex items-center">
-                    <label class="text-sm text-slate-700 mr-3">Is this correct?</label>
-                    <mat-radio-group formControlName="situs_state_correct" class="flex gap-4">
-                      <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
-                      <mat-radio-button value="no" color="primary">No</mat-radio-button>
-                    </mat-radio-group>
+                  <div class="flex flex-col justify-center">
+                    <div class="flex items-center">
+                      <label class="text-sm text-slate-700 mr-3">Is this correct?</label>
+                      <mat-radio-group formControlName="situs_state_correct" class="flex gap-4">
+                        <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
+                        <mat-radio-button value="no" color="primary">No</mat-radio-button>
+                      </mat-radio-group>
+                    </div>
+                    <div *ngIf="basicForm.get('situs_state_correct')?.touched && basicForm.get('situs_state_correct')?.invalid"
+                         class="text-xs text-red-600 mt-1">Please confirm whether the situs state is correct</div>
                   </div>
                 </div>
 
@@ -122,6 +126,7 @@ const QUOTED_CONTRIBUTION_PCT = 50;
                   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                   <mat-datepicker #picker></mat-datepicker>
                   <mat-hint>Must be the first of a future month</mat-hint>
+                  <mat-error *ngIf="basicForm.get('effective_date')?.hasError('required')">Effective date is required</mat-error>
                 </mat-form-field>
 
                 <!-- Different group name -->
@@ -136,6 +141,7 @@ const QUOTED_CONTRIBUTION_PCT = 50;
                     <mat-form-field class="w-full" appearance="outline">
                       <mat-label>Legal Group Name</mat-label>
                       <input matInput formControlName="legal_group_name">
+                      <mat-error *ngIf="basicForm.get('legal_group_name')?.hasError('required')">Legal group name is required</mat-error>
                     </mat-form-field>
                     <mat-form-field class="w-full" appearance="outline">
                       <mat-label>DBA (Doing Business As)</mat-label>
@@ -234,6 +240,7 @@ const QUOTED_CONTRIBUTION_PCT = 50;
                           <input matInput type="number" formControlName="employer_contribution_pct"
                                  min="0" max="100">
                           <span matSuffix class="text-slate-500 mr-2">%</span>
+                          <mat-error>Contribution percentage is required (0–100)</mat-error>
                         </mat-form-field>
                         <div class="flex items-center">
                           <label class="text-sm text-slate-700 mr-3">Pre-Tax Dollars?</label>
@@ -283,6 +290,8 @@ const QUOTED_CONTRIBUTION_PCT = 50;
                     <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                     <mat-radio-button value="no" color="primary">No</mat-radio-button>
                   </mat-radio-group>
+                  <div *ngIf="erisaForm.get('section_125')?.touched && erisaForm.get('section_125')?.invalid"
+                       class="text-xs text-red-600 mt-1">Section 125 selection is required</div>
                 </div>
 
                 <!-- ERISA Language -->
@@ -294,6 +303,8 @@ const QUOTED_CONTRIBUTION_PCT = 50;
                     <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
                     <mat-radio-button value="no" color="primary">No</mat-radio-button>
                   </mat-radio-group>
+                  <div *ngIf="erisaForm.get('erisa_language')?.touched && erisaForm.get('erisa_language')?.invalid"
+                       class="text-xs text-red-600 mt-1">ERISA language selection is required</div>
 
                   <div *ngIf="erisaForm.get('erisa_language')?.value === 'yes'" class="space-y-4 mt-3">
                     <mat-form-field class="w-full" appearance="outline">
@@ -303,6 +314,7 @@ const QUOTED_CONTRIBUTION_PCT = 50;
                         <mat-option value="fiscal">Fiscal Year</mat-option>
                         <mat-option value="policy">Policy Year</mat-option>
                       </mat-select>
+                      <mat-error *ngIf="erisaForm.get('plan_year_type')?.hasError('required')">Plan year type is required</mat-error>
                     </mat-form-field>
 
                     <mat-form-field *ngIf="erisaForm.get('plan_year_type')?.value === 'fiscal'"
@@ -311,6 +323,7 @@ const QUOTED_CONTRIBUTION_PCT = 50;
                       <mat-select formControlName="fiscal_year_month">
                         <mat-option *ngFor="let m of months; let i = index" [value]="i + 1">{{ m }}</mat-option>
                       </mat-select>
+                      <mat-error *ngIf="erisaForm.get('fiscal_year_month')?.hasError('required')">Fiscal year end month is required</mat-error>
                     </mat-form-field>
                   </div>
                 </div>
@@ -549,5 +562,64 @@ export class CompanyInfoComponent implements OnInit, OnDestroy {
 
   isValid(): boolean {
     return this.basicForm.valid && this.contribForm.valid && this.erisaForm.valid;
+  }
+
+  getValidationErrors(): string[] {
+    const errors: string[] = [];
+
+    // Basic form
+    if (this.basicForm.get('effective_date')?.invalid) {
+      errors.push('Effective date is required.');
+    }
+    if (this.basicForm.get('federal_tax_id')?.invalid) {
+      errors.push('Federal Tax ID is required (format: XX-XXXXXXX).');
+    }
+    if (this.basicForm.get('situs_state_correct')?.invalid) {
+      errors.push('Please confirm whether the situs state is correct.');
+    }
+    if (this.basicForm.get('name_is_different')?.value === 'yes' &&
+        this.basicForm.get('legal_group_name')?.invalid) {
+      errors.push('Legal group name is required when name differs.');
+    }
+    if (this.basicForm.get('has_correspondence_address')?.value === 'yes') {
+      if (this.basicForm.get('corr_address')?.invalid) errors.push('Correspondence address is required.');
+      if (this.basicForm.get('corr_city')?.invalid) errors.push('Correspondence city is required.');
+      if (this.basicForm.get('corr_state')?.invalid) errors.push('Correspondence state is required.');
+      if (this.basicForm.get('corr_zip')?.invalid) errors.push('Correspondence zip code is required.');
+    }
+
+    // Contributions form
+    const contributions = this.contributionsArray;
+    for (let i = 0; i < contributions.length; i++) {
+      const grp = contributions.at(i);
+      if (grp.get('employer_contribution_pct')?.invalid) {
+        errors.push(`${this.products[i]}: employer contribution percentage is required.`);
+      }
+    }
+
+    // ERISA form
+    if (this.erisaForm.get('section_125')?.invalid) {
+      errors.push('Section 125 (Cafeteria Plan) selection is required.');
+    }
+    if (this.erisaForm.get('erisa_language')?.invalid) {
+      errors.push('ERISA language selection is required.');
+    }
+    if (this.erisaForm.get('erisa_language')?.value === 'yes') {
+      if (this.erisaForm.get('plan_year_type')?.invalid) {
+        errors.push('Plan year type is required when ERISA language is included.');
+      }
+      if (this.erisaForm.get('plan_year_type')?.value === 'fiscal' &&
+          this.erisaForm.get('fiscal_year_month')?.invalid) {
+        errors.push('Fiscal year end month is required.');
+      }
+    }
+
+    return errors;
+  }
+
+  markFormsAsTouched(): void {
+    this.basicForm.markAllAsTouched();
+    this.contribForm.markAllAsTouched();
+    this.erisaForm.markAllAsTouched();
   }
 }

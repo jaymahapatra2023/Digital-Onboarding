@@ -40,7 +40,7 @@ import { WorkflowStore } from '../../store/workflow.store';
             <h3 class="text-base font-semibold text-slate-800">Select Notification Period</h3>
             <p class="text-xs text-slate-500">Choose the number of days prior to renewal for notification.</p>
 
-            <mat-radio-group formControlName="renewal_notification_period" class="flex flex-col gap-4">
+            <mat-radio-group formControlName="renewal_notification_period" class="flex flex-col gap-4" required>
               <div class="flex items-center gap-4 bg-slate-50 rounded-xl p-4 border border-slate-100 cursor-pointer"
                    [class.border-indigo-300]="form.get('renewal_notification_period')?.value === '60'"
                    [class.bg-indigo-50]="form.get('renewal_notification_period')?.value === '60'"
@@ -109,5 +109,17 @@ export class RenewalPeriodComponent implements OnInit, OnDestroy {
 
   isValid(): boolean {
     return this.form.valid;
+  }
+
+  getValidationErrors(): string[] {
+    const errors: string[] = [];
+    if (this.form.get('renewal_notification_period')?.invalid) {
+      errors.push('Please select a renewal notification period.');
+    }
+    return errors;
+  }
+
+  markFormsAsTouched(): void {
+    this.form.markAllAsTouched();
   }
 }

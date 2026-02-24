@@ -28,7 +28,7 @@ import { STEP_NAMES } from '../step-registry';
       </div>
 
       <!-- S3: Prerequisite blocking banner -->
-      <div *ngIf="incompleteSteps.length > 0" class="bg-red-50 border border-red-300 rounded-xl p-4 space-y-2">
+      <div *ngIf="incompleteSteps.length > 0" class="bg-red-50 border border-red-300 rounded-xl p-4 space-y-3">
         <div class="flex items-center gap-2">
           <mat-icon class="text-red-600" style="font-size:20px;width:20px;height:20px;">block</mat-icon>
           <h3 class="text-sm font-semibold text-red-800">
@@ -36,7 +36,12 @@ import { STEP_NAMES } from '../step-registry';
           </h3>
         </div>
         <ul class="list-disc list-inside space-y-1 ml-7">
-          <li *ngFor="let step of incompleteSteps" class="text-sm text-red-700">{{ step }}</li>
+          <li *ngFor="let step of incompleteSteps" class="text-sm text-red-700">
+            {{ step.label }}
+            <button mat-button class="text-indigo-600 text-xs ml-2" (click)="editStep(step.stepId)">
+              Go to step <mat-icon style="font-size:14px;width:14px;height:14px;">arrow_forward</mat-icon>
+            </button>
+          </li>
         </ul>
       </div>
 
@@ -316,18 +321,75 @@ import { STEP_NAMES } from '../step-registry';
 
       <!-- Step 7: Billing Setup -->
       <mat-card *ngIf="stepData['billing_setup'] as data">
-        <mat-card-content class="p-5">
+        <mat-card-content class="p-5 space-y-4">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-base font-semibold text-slate-800">Billing Setup</h3>
             <button mat-icon-button matTooltip="Edit" (click)="editStep('billing_setup')">
               <mat-icon class="text-indigo-500" style="font-size:18px;width:18px;height:18px;">edit</mat-icon>
             </button>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm">
-            <div>
-              <span class="text-slate-500">Bill Type</span>
-              <span class="text-slate-800 block">{{ data['billing']?.bill_type || '—' }}</span>
+
+          <!-- Billing Model & Frequency -->
+          <div class="bg-slate-50 rounded-lg p-3 border border-slate-100 space-y-2">
+            <span class="text-xs font-medium text-slate-500">Billing Model & Frequency</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm">
+              <div>
+                <span class="text-slate-500">Model</span>
+                <span class="text-slate-800 block">{{ getBillingModelDisplayLabel(data['billing_model']) }}</span>
+              </div>
+              <div>
+                <span class="text-slate-500">Frequency</span>
+                <span class="text-slate-800 block">{{ getBillingFrequencyDisplayLabel(data['billing_frequency']) }}</span>
+              </div>
             </div>
+          </div>
+
+          <!-- Billing Administrator -->
+          <div *ngIf="data['responsible_entity']" class="bg-slate-50 rounded-lg p-3 border border-slate-100 space-y-2">
+            <span class="text-xs font-medium text-slate-500">Billing Administrator</span>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-2 text-sm">
+              <div>
+                <span class="text-slate-500">Name</span>
+                <span class="text-slate-800 block">{{ data['responsible_entity']?.administrator_name || '—' }}</span>
+              </div>
+              <div>
+                <span class="text-slate-500">Email</span>
+                <span class="text-slate-800 block">{{ data['responsible_entity']?.email || '—' }}</span>
+              </div>
+              <div>
+                <span class="text-slate-500">Phone</span>
+                <span class="text-slate-800 block">{{ data['responsible_entity']?.phone || '—' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Self-Admin Config (conditional) -->
+          <div *ngIf="data['billing_model'] === 'self_administered' && data['self_admin_config']"
+               class="bg-amber-50 rounded-lg p-3 border border-amber-200 space-y-2">
+            <span class="text-xs font-medium text-amber-700">Self-Administered Configuration</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm">
+              <div>
+                <span class="text-slate-500">Remittance Address</span>
+                <span class="text-slate-800 block">
+                  {{ data['self_admin_config']?.remittance_address_line1 }},
+                  {{ data['self_admin_config']?.remittance_city }},
+                  {{ data['self_admin_config']?.remittance_state }}
+                  {{ data['self_admin_config']?.remittance_zip }}
+                </span>
+              </div>
+              <div>
+                <span class="text-slate-500">Admin Contact</span>
+                <span class="text-slate-800 block">
+                  {{ data['self_admin_config']?.admin_contact_name }}
+                  ({{ data['self_admin_config']?.admin_contact_email }},
+                  {{ data['self_admin_config']?.admin_contact_phone }})
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Billing Preferences & Payment -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm">
             <div>
               <span class="text-slate-500">Receive billing by mail?</span>
               <span class="text-slate-800 block capitalize">{{ data['billing']?.receive_billing_by_mail || '—' }}</span>
@@ -340,7 +402,12 @@ import { STEP_NAMES } from '../step-registry';
               <span class="text-slate-500">Amount</span>
               <span class="text-slate-800 block">{{ data['billing']?.initial_premium_amount | currency }}</span>
             </div>
+            <div *ngIf="data['billing']?.wants_initial_premium === 'yes'">
+              <span class="text-slate-500">Payment Channel</span>
+              <span class="text-slate-800 block capitalize">{{ data['billing']?.payment_channel || '—' }}</span>
+            </div>
           </div>
+
           <div *ngIf="data['confirmation']" class="mt-3 bg-green-50 rounded-lg p-3 border border-green-200 text-sm text-green-800">
             Payment confirmed — Confirmation #{{ data['confirmation']?.confirmation_number }}
           </div>
@@ -414,7 +481,7 @@ export class FinalizeComponent implements OnInit {
 
   // S3: Prerequisite enforcement
   commissionAckComplete = true;
-  incompleteSteps: string[] = [];
+  incompleteSteps: { stepId: string; label: string }[] = [];
 
   companyInfoFields = [
     { key: 'company_name', label: 'Company Name' },
@@ -446,7 +513,7 @@ export class FinalizeComponent implements OnInit {
 
   // S3: Check that commission_ack is complete before allowing finalize
   private checkPrerequisites(): void {
-    const incomplete: string[] = [];
+    const incomplete: { stepId: string; label: string }[] = [];
 
     // Check commission_ack step data for e-signature
     const commAckData = this.store.getStepData('commission_ack');
@@ -458,7 +525,10 @@ export class FinalizeComponent implements OnInit {
     const stepCompleted = commAckStep?.status === 'COMPLETED';
 
     if (!hasSignature || !stepCompleted) {
-      incomplete.push(STEP_NAMES['commission_ack'] || 'Commission Agreement Acknowledgement');
+      incomplete.push({
+        stepId: 'commission_ack',
+        label: STEP_NAMES['commission_ack'] || 'Commission Agreement Acknowledgement',
+      });
     }
 
     this.incompleteSteps = incomplete;
@@ -493,6 +563,24 @@ export class FinalizeComponent implements OnInit {
   getGSContactName(id: string, data: Record<string, any>): string {
     const c = data['contacts']?.find((ct: any) => ct.id === id);
     return c ? `${c.first_name} ${c.last_name}` : '—';
+  }
+
+  getBillingModelDisplayLabel(value: string): string {
+    const labels: Record<string, string> = {
+      'list_bill': 'List Bill',
+      'self_administered': 'Self-Administered',
+    };
+    return labels[value] || value || '—';
+  }
+
+  getBillingFrequencyDisplayLabel(value: string): string {
+    const labels: Record<string, string> = {
+      'monthly': 'Monthly',
+      'quarterly': 'Quarterly',
+      'semi_annual': 'Semi-Annual',
+      'annual': 'Annual',
+    };
+    return labels[value] || value || '—';
   }
 
   getData(): Record<string, any> {
