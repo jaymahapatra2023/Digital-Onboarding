@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -38,6 +38,20 @@ interface DisabledEmployee {
   nature_of_claim: string;
   estimated_return_date: string;
   benefit_amount: number | null;
+}
+
+function pastDateValidator(control: AbstractControl): ValidationErrors | null {
+  if (!control.value) return null;
+  const date = new Date(control.value);
+  return date < new Date() ? null : { pastDate: true };
+}
+
+function futureDateValidator(control: AbstractControl): ValidationErrors | null {
+  if (!control.value) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const date = new Date(control.value);
+  return date > today ? null : { futureDate: true };
 }
 
 @Component({
@@ -79,10 +93,12 @@ interface DisabledEmployee {
                   <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Company Name</mat-label>
                     <input matInput formControlName="company_name" readonly>
+                    <span *ngIf="prefilledFields.has('company_name')" matSuffix class="text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">Prefilled</span>
                   </mat-form-field>
                   <mat-form-field class="w-full" appearance="outline">
                     <mat-label>Number of Eligible Employees</mat-label>
                     <input matInput formControlName="eligible_employees" readonly>
+                    <span *ngIf="prefilledFields.has('eligible_employees')" matSuffix class="text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">Prefilled</span>
                   </mat-form-field>
                 </div>
 
@@ -101,6 +117,7 @@ interface DisabledEmployee {
                     <input matInput type="number" formControlName="pregnant_count" min="1">
                     <mat-error *ngIf="pregnantForm.get('pregnant_count')?.hasError('required')">Required</mat-error>
                     <mat-error *ngIf="pregnantForm.get('pregnant_count')?.hasError('min')">Must be at least 1</mat-error>
+                    <mat-error *ngIf="pregnantForm.get('pregnant_count')?.hasError('max')">Cannot exceed {{ getEligibleEmployeesCount() }} eligible employees</mat-error>
                   </mat-form-field>
                 </div>
               </mat-card-content>
@@ -204,7 +221,16 @@ interface DisabledEmployee {
                     <input matInput type="number" formControlName="disabled_count" min="1">
                     <mat-error *ngIf="disabledForm.get('disabled_count')?.hasError('required')">Required</mat-error>
                     <mat-error *ngIf="disabledForm.get('disabled_count')?.hasError('min')">Must be at least 1</mat-error>
+                    <mat-error *ngIf="disabledForm.get('disabled_count')?.hasError('max')">Cannot exceed {{ getEligibleEmployeesCount() }} eligible employees</mat-error>
                   </mat-form-field>
+
+                  <div *ngIf="employeeCountMismatch"
+                       class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                    <mat-icon class="text-amber-600 mt-0.5" style="font-size:20px;width:20px;height:20px;">warning</mat-icon>
+                    <p class="text-sm text-amber-800">
+                      You declared {{ disabledForm.get('disabled_count')?.value }} disabled employee(s) but have added {{ disabledEmployees.length }} record(s). Please add or remove records to match.
+                    </p>
+                  </div>
 
                   <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
                     <label class="text-sm font-medium text-slate-700">
@@ -220,7 +246,8 @@ interface DisabledEmployee {
                   <div class="space-y-3">
                     <div class="flex items-center justify-between">
                       <h4 class="text-sm font-semibold text-slate-700">Disabled/Not Actively At Work Employees</h4>
-                      <button mat-flat-button color="primary" (click)="addDisabledEmployee()" style="border-radius: 8px;" type="button">
+                      <button mat-flat-button color="primary" (click)="addDisabledEmployee()" style="border-radius: 8px;" type="button"
+                              [disabled]="showEmployeeForm">
                         <mat-icon>add</mat-icon> Add Employee Details
                       </button>
                     </div>
@@ -287,12 +314,14 @@ interface DisabledEmployee {
                         <mat-form-field class="w-full" appearance="outline">
                           <mat-label>Date of Birth</mat-label>
                           <input matInput type="date" formControlName="date_of_birth">
-                          <mat-error>Required</mat-error>
+                          <mat-error *ngIf="employeeDetailForm.get('date_of_birth')?.hasError('required')">Required</mat-error>
+                          <mat-error *ngIf="employeeDetailForm.get('date_of_birth')?.hasError('pastDate')">Must be a past date</mat-error>
                         </mat-form-field>
                         <mat-form-field class="w-full" appearance="outline">
                           <mat-label>Date of Disability</mat-label>
                           <input matInput type="date" formControlName="date_of_disability">
-                          <mat-error>Required</mat-error>
+                          <mat-error *ngIf="employeeDetailForm.get('date_of_disability')?.hasError('required')">Required</mat-error>
+                          <mat-error *ngIf="employeeDetailForm.get('date_of_disability')?.hasError('pastDate')">Must be a past date</mat-error>
                         </mat-form-field>
                       </div>
                       <mat-form-field class="w-full" appearance="outline">
@@ -304,13 +333,15 @@ interface DisabledEmployee {
                         <mat-form-field class="w-full" appearance="outline">
                           <mat-label>Estimated Date of Return</mat-label>
                           <input matInput type="date" formControlName="estimated_return_date">
-                          <mat-error>Required</mat-error>
+                          <mat-error *ngIf="employeeDetailForm.get('estimated_return_date')?.hasError('required')">Required</mat-error>
+                          <mat-error *ngIf="employeeDetailForm.get('estimated_return_date')?.hasError('futureDate')">Must be a future date</mat-error>
                         </mat-form-field>
                         <mat-form-field class="w-full" appearance="outline">
                           <mat-label>Benefit Amount</mat-label>
                           <span matPrefix class="text-slate-500 ml-2">$&nbsp;</span>
                           <input matInput type="number" formControlName="benefit_amount">
-                          <mat-error>Required</mat-error>
+                          <mat-error *ngIf="employeeDetailForm.get('benefit_amount')?.hasError('required')">Required</mat-error>
+                          <mat-error *ngIf="employeeDetailForm.get('benefit_amount')?.hasError('min')">Must be greater than $0</mat-error>
                         </mat-form-field>
                       </div>
                       <div class="flex justify-end gap-3">
@@ -331,9 +362,12 @@ interface DisabledEmployee {
               <button mat-button matStepperPrevious class="text-slate-600">
                 <mat-icon>arrow_back</mat-icon> Back
               </button>
-              <button mat-flat-button color="primary" matStepperNext style="border-radius: 8px;">
-                Next <mat-icon>arrow_forward</mat-icon>
-              </button>
+              <span [matTooltip]="showEmployeeForm ? 'Save or cancel the employee form before proceeding' : ''">
+                <button mat-flat-button color="primary" matStepperNext style="border-radius: 8px;"
+                        [disabled]="showEmployeeForm">
+                  Next <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </span>
             </div>
           </form>
         </mat-step>
@@ -347,6 +381,22 @@ interface DisabledEmployee {
                 <p class="text-sm text-slate-500">
                   Please review all information below before submitting. You cannot make changes after submission.
                 </p>
+
+                <!-- Summary Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-center">
+                    <p class="text-2xl font-bold text-indigo-700">{{ totalRiskFlags }}</p>
+                    <p class="text-xs text-indigo-500 font-medium mt-1">Risk Categories Flagged</p>
+                  </div>
+                  <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+                    <p class="text-2xl font-bold text-amber-700">{{ disabledEmployees.length }}</p>
+                    <p class="text-xs text-amber-500 font-medium mt-1">Disabled Employees Reported</p>
+                  </div>
+                  <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
+                    <p class="text-2xl font-bold text-emerald-700">{{ totalBenefitExposure | currency }}</p>
+                    <p class="text-xs text-emerald-500 font-medium mt-1">Total Benefit Exposure</p>
+                  </div>
+                </div>
 
                 <!-- Summary: Pregnant Employees -->
                 <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-2">
@@ -373,7 +423,7 @@ interface DisabledEmployee {
                     <span class="text-slate-800 capitalize">{{ healthForm.get('has_health_risks')?.value || '—' }}</span>
                   </div>
                   <div *ngIf="healthForm.get('has_health_risks')?.value === 'yes'" class="mt-2">
-                    <span class="text-xs font-medium text-slate-500">Selected risks:</span>
+                    <span class="text-xs font-medium text-slate-500">Selected risks ({{ totalSelectedRisks }}):</span>
                     <ul class="list-disc list-inside text-sm text-slate-700 mt-1">
                       <li *ngFor="let risk of getSelectedRiskNames()">{{ risk }}</li>
                     </ul>
@@ -421,8 +471,16 @@ interface DisabledEmployee {
                         <td mat-cell *matCellDef="let emp">{{ emp.benefit_amount | currency }}</td>
                       </ng-container>
 
+                      <ng-container matColumnDef="footer-label">
+                        <td mat-footer-cell *matFooterCellDef colspan="4" class="font-semibold text-slate-700">Total Benefit Exposure</td>
+                      </ng-container>
+                      <ng-container matColumnDef="footer-total">
+                        <td mat-footer-cell *matFooterCellDef class="font-semibold text-slate-900">{{ totalBenefitExposure | currency }}</td>
+                      </ng-container>
+
                       <tr mat-header-row *matHeaderRowDef="reviewEmployeeColumns"></tr>
                       <tr mat-row *matRowDef="let row; columns: reviewEmployeeColumns;"></tr>
+                      <tr mat-footer-row *matFooterRowDef="['footer-label', 'footer-total']"></tr>
                     </table>
                   </div>
                 </div>
@@ -490,6 +548,7 @@ export class RiskAssessmentComponent implements OnInit, OnDestroy {
   signatureForm!: FormGroup;
   employeeDetailForm!: FormGroup;
 
+  prefilledFields = new Set<string>();
   healthRisks = HEALTH_RISKS;
   disabledEmployees: DisabledEmployee[] = [];
   showEmployeeForm = false;
@@ -511,8 +570,24 @@ export class RiskAssessmentComponent implements OnInit, OnDestroy {
     this.setupConditionalValidators();
 
     const step = this.store.currentStep();
-    if (step?.data && Object.keys(step.data).length > 0) {
-      this.patchSavedData(step.data as Record<string, any>);
+    const hasSavedData = step?.data && Object.keys(step.data).length > 0;
+
+    // Prefill from client data on first visit (no saved step data yet)
+    if (!hasSavedData) {
+      const client = this.store.client();
+      if (client) {
+        this.pregnantForm.patchValue({
+          company_name: client.client_name || '',
+          eligible_employees: client.eligible_employees?.toString() || '',
+        });
+
+        if (client.client_name) this.prefilledFields.add('company_name');
+        if (client.eligible_employees) this.prefilledFields.add('eligible_employees');
+      }
+    }
+
+    if (hasSavedData) {
+      this.patchSavedData(step!.data as Record<string, any>);
     }
   }
 
@@ -550,11 +625,11 @@ export class RiskAssessmentComponent implements OnInit, OnDestroy {
     });
 
     this.employeeDetailForm = this.fb.group({
-      date_of_birth: ['', Validators.required],
-      date_of_disability: ['', Validators.required],
+      date_of_birth: ['', [Validators.required, pastDateValidator]],
+      date_of_disability: ['', [Validators.required, pastDateValidator]],
       nature_of_claim: ['', Validators.required],
-      estimated_return_date: ['', Validators.required],
-      benefit_amount: ['', Validators.required],
+      estimated_return_date: ['', [Validators.required, futureDateValidator]],
+      benefit_amount: ['', [Validators.required, Validators.min(0.01)]],
     });
   }
 
@@ -565,7 +640,10 @@ export class RiskAssessmentComponent implements OnInit, OnDestroy {
       .subscribe(val => {
         const ctrl = this.pregnantForm.get('pregnant_count')!;
         if (val === 'yes') {
-          ctrl.setValidators([Validators.required, Validators.min(1)]);
+          const maxCount = this.getEligibleEmployeesCount();
+          const validators = [Validators.required, Validators.min(1)];
+          if (maxCount > 0) validators.push(Validators.max(maxCount));
+          ctrl.setValidators(validators);
         } else {
           ctrl.clearValidators();
           ctrl.setValue('');
@@ -595,7 +673,10 @@ export class RiskAssessmentComponent implements OnInit, OnDestroy {
         const countCtrl = this.disabledForm.get('disabled_count')!;
         const waiverCtrl = this.disabledForm.get('waiver_of_premium')!;
         if (val === 'yes') {
-          countCtrl.setValidators([Validators.required, Validators.min(1)]);
+          const maxCount = this.getEligibleEmployeesCount();
+          const validators = [Validators.required, Validators.min(1)];
+          if (maxCount > 0) validators.push(Validators.max(maxCount));
+          countCtrl.setValidators(validators);
           waiverCtrl.setValidators(Validators.required);
         } else {
           countCtrl.clearValidators();
@@ -649,7 +730,18 @@ export class RiskAssessmentComponent implements OnInit, OnDestroy {
     return HEALTH_RISKS.filter((_, i) => arr.at(i)?.value === true);
   }
 
+  getEligibleEmployeesCount(): number {
+    return parseInt(this.pregnantForm.get('eligible_employees')!.value, 10) || 0;
+  }
+
+  get employeeCountMismatch(): boolean {
+    if (this.disabledForm.get('has_disabled')?.value !== 'yes') return false;
+    const declaredCount = parseInt(this.disabledForm.get('disabled_count')?.value, 10) || 0;
+    return declaredCount > 0 && declaredCount !== this.disabledEmployees.length;
+  }
+
   addDisabledEmployee(): void {
+    if (this.showEmployeeForm) return;
     this.editingEmployeeIndex = -1;
     this.employeeDetailForm.reset();
     this.showEmployeeForm = true;
@@ -684,7 +776,24 @@ export class RiskAssessmentComponent implements OnInit, OnDestroy {
     this.editingEmployeeIndex = -1;
   }
 
+  get totalRiskFlags(): number {
+    let count = 0;
+    if (this.pregnantForm.get('any_pregnant')?.value === 'yes') count++;
+    if (this.healthForm.get('has_health_risks')?.value === 'yes') count++;
+    if (this.disabledForm.get('has_disabled')?.value === 'yes') count++;
+    return count;
+  }
+
+  get totalSelectedRisks(): number {
+    return this.getSelectedRiskNames().length;
+  }
+
+  get totalBenefitExposure(): number {
+    return this.disabledEmployees.reduce((sum, emp) => sum + (emp.benefit_amount || 0), 0);
+  }
+
   getData(): Record<string, any> {
+    if (this.showEmployeeForm) this.cancelEmployeeForm();
     return {
       pregnant: this.pregnantForm.getRawValue(),
       health: {
@@ -703,6 +812,6 @@ export class RiskAssessmentComponent implements OnInit, OnDestroy {
     const healthOk = this.healthForm.valid;
     const disabledOk = this.disabledForm.valid;
     const sigOk = this.signatureForm.valid;
-    return pregnantOk && healthOk && disabledOk && sigOk;
+    return pregnantOk && healthOk && disabledOk && sigOk && !this.employeeCountMismatch;
   }
 }
