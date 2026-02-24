@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { WorkflowService } from '../../services/workflow.service';
 
 export interface VerifyStatusDialogData {
   producerName: string;
@@ -62,7 +63,20 @@ export interface VerifyStatusResult {
           <p class="text-slate-600">Verifying licensing status...</p>
         </div>
 
-        <!-- Phase 3: Result -->
+        <!-- Phase 3: Error -->
+        <div *ngIf="phase === 'error'" class="space-y-4">
+          <div class="bg-red-50 rounded-xl p-4 border border-red-200">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-red-600">error</mat-icon>
+              <div>
+                <p class="font-semibold text-slate-900">Verification Failed</p>
+                <p class="text-sm text-slate-600">{{ errorMessage }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 4: Result -->
         <div *ngIf="phase === 'result'" class="space-y-4">
           <div class="rounded-xl p-4 border" [ngClass]="resultClasses">
             <div class="flex items-center gap-3">
@@ -74,12 +88,25 @@ export interface VerifyStatusResult {
             </div>
           </div>
 
-          <div *ngIf="verifiedStatus === 'active'" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+          <!-- Active status details -->
+          <div *ngIf="verifiedStatus === 'active' && statusDetails" class="bg-slate-50 rounded-xl p-4 border border-slate-100">
             <p class="text-sm text-slate-700">
               <strong>Status:</strong> Active<br>
-              <strong>State:</strong> {{ demoState }}<br>
-              <strong>License Expiration:</strong> {{ demoExpiration }}
+              <strong>State:</strong> {{ statusDetails.state }}<br>
+              <strong>License #:</strong> {{ statusDetails.license_number }}<br>
+              <strong>License Expiration:</strong> {{ statusDetails.expiration }}
             </p>
+          </div>
+
+          <!-- Remediation guidance for non-active statuses (S6) -->
+          <div *ngIf="verifiedStatus !== 'active' && remediation" class="bg-white rounded-xl p-4 border border-slate-200 space-y-3">
+            <h4 class="text-sm font-semibold text-slate-800">{{ remediation.title }}</h4>
+            <ol class="list-decimal list-inside space-y-1.5">
+              <li *ngFor="let step of remediation.steps" class="text-sm text-slate-600">{{ step }}</li>
+            </ol>
+            <div class="pt-2 border-t border-slate-100">
+              <p class="text-xs text-slate-500">{{ remediation.contact }}</p>
+            </div>
           </div>
         </div>
       </mat-dialog-content>
@@ -89,6 +116,10 @@ export interface VerifyStatusResult {
         <button *ngIf="phase === 'input'" mat-flat-button color="primary"
                 [disabled]="ssnForm.invalid" (click)="verify()" style="border-radius: 8px;">
           Verify Status
+        </button>
+        <button *ngIf="phase === 'error'" mat-flat-button color="primary"
+                (click)="phase = 'input'" style="border-radius: 8px;">
+          Try Again
         </button>
         <button *ngIf="phase === 'result'" mat-flat-button color="primary"
                 (click)="onConfirm()" style="border-radius: 8px;">
@@ -100,14 +131,16 @@ export interface VerifyStatusResult {
 })
 export class VerifyStatusDialogComponent {
   ssnForm: FormGroup;
-  phase: 'input' | 'verifying' | 'result' = 'input';
+  phase: 'input' | 'verifying' | 'result' | 'error' = 'input';
   showSsn = false;
   verifiedStatus: 'active' | 'not_found' | 'not_active' | 'expired' = 'active';
-  demoState = 'California';
-  demoExpiration = '12/31/2027';
+  statusDetails: { state: string; license_number: string; expiration: string } | null = null;
+  remediation: { title: string; steps: string[]; contact: string } | null = null;
+  errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
+    private workflowService: WorkflowService,
     public dialogRef: MatDialogRef<VerifyStatusDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: VerifyStatusDialogData,
   ) {
@@ -120,16 +153,20 @@ export class VerifyStatusDialogComponent {
     if (this.ssnForm.invalid) return;
     this.phase = 'verifying';
 
-    // Simulate API call with random result weighted toward 'active'
-    setTimeout(() => {
-      const rand = Math.random();
-      if (rand < 0.6) this.verifiedStatus = 'active';
-      else if (rand < 0.75) this.verifiedStatus = 'not_found';
-      else if (rand < 0.9) this.verifiedStatus = 'not_active';
-      else this.verifiedStatus = 'expired';
-
-      this.phase = 'result';
-    }, 1500);
+    const ssn = this.ssnForm.value.ssn;
+    this.workflowService.verifyLicensingStatus(ssn, this.data.producerName, this.data.producerId)
+      .subscribe({
+        next: (response) => {
+          this.verifiedStatus = response.status;
+          this.statusDetails = response.details || null;
+          this.remediation = response.remediation || null;
+          this.phase = 'result';
+        },
+        error: () => {
+          this.errorMessage = 'Unable to reach the licensing verification service. Please try again.';
+          this.phase = 'error';
+        },
+      });
   }
 
   get resultClasses(): Record<string, boolean> {

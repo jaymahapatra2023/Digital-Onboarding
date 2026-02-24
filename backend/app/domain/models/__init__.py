@@ -33,6 +33,13 @@ from app.domain.models.document import (
     DocumentType,
     DocumentUpload,
 )
+from app.domain.models.licensing import (
+    RemediationInfo,
+    VerifyCodeRequest,
+    VerifyCodeResponse,
+    VerifyStatusRequest,
+    VerifyStatusResponse,
+)
 
 __all__ = [
     # User
@@ -65,4 +72,10 @@ __all__ = [
     "DocumentListResponse",
     "DocumentType",
     "DocumentUpload",
+    # Licensing
+    "RemediationInfo",
+    "VerifyCodeRequest",
+    "VerifyCodeResponse",
+    "VerifyStatusRequest",
+    "VerifyStatusResponse",
 ]

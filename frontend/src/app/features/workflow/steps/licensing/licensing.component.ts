@@ -92,6 +92,12 @@ interface WritingProducer {
                           (click)="openVerifyStatus(p)">
                     Verify Status
                   </button>
+                  <!-- S6: Inline remediation hint -->
+                  <div *ngIf="p.licensing_status !== 'active' && p.licensing_status !== 'pending'"
+                       class="text-xs mt-1"
+                       [ngClass]="p.licensing_status === 'not_found' ? 'text-yellow-600' : 'text-red-600'">
+                    {{ remediationHint(p.licensing_status) }}
+                  </div>
                 </td>
               </ng-container>
 
@@ -116,7 +122,8 @@ interface WritingProducer {
                     <input type="number" [(ngModel)]="p.commission_split"
                            (ngModelChange)="onCommissionChange()"
                            min="0" max="100" step="1"
-                           class="w-16 px-2 py-1 border border-slate-300 rounded text-sm text-right focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+                           class="w-16 px-2 py-1 border rounded text-sm text-right focus:ring-2 focus:ring-indigo-500 outline-none"
+                           [ngClass]="commissionInputClass(p.commission_split)">
                     <span class="text-sm text-slate-500">%</span>
                   </div>
                 </td>
@@ -137,23 +144,34 @@ interface WritingProducer {
               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
 
-            <!-- Total Distribution row -->
+            <!-- Total Distribution row — three-state coloring (S4) -->
             <div class="flex items-center justify-between px-4 py-3 border-t"
-                 [ngClass]="totalDistribution === 100 ? 'bg-green-50' : 'bg-red-50'">
+                 [ngClass]="totalRowClass">
               <div class="flex items-center gap-2">
                 <span class="text-sm font-semibold text-slate-700">Total Distribution:</span>
-                <span class="text-sm font-bold" [ngClass]="totalDistribution === 100 ? 'text-green-700' : 'text-red-700'">
+                <span class="text-sm font-bold" [ngClass]="totalTextClass">
                   {{ totalDistribution }}%
                 </span>
                 <mat-icon *ngIf="totalDistribution === 100" class="text-green-600" style="font-size:16px;width:16px;height:16px;">
                   check_circle
                 </mat-icon>
-                <span *ngIf="totalDistribution !== 100" class="text-xs text-red-600">(Must equal 100%)</span>
               </div>
               <button mat-button class="!text-xs !text-indigo-600" (click)="distributeEqually()">
                 <mat-icon style="font-size:14px;width:14px;height:14px;" class="mr-1">balance</mat-icon>
                 Distribute Equally
               </button>
+            </div>
+
+            <!-- Commission split warning message (S4) -->
+            <div *ngIf="totalDistribution !== 100 && producers.length > 0"
+                 class="px-4 py-2 border-t text-sm"
+                 [ngClass]="totalDistribution > 100 ? 'bg-red-50 text-red-700' : 'bg-yellow-50 text-yellow-700'">
+              <span *ngIf="totalDistribution < 100">
+                Commission splits must total 100%. {{ 100 - totalDistribution }}% remains unallocated.
+              </span>
+              <span *ngIf="totalDistribution > 100">
+                Commission splits exceed 100% by {{ totalDistribution - 100 }}%. Please reduce values.
+              </span>
             </div>
           </mat-card-content>
         </mat-card>
@@ -316,6 +334,44 @@ export class LicensingComponent implements OnInit {
       expired: 'Expired',
     };
     return labels[status] || status;
+  }
+
+  /** S6: Inline remediation hints for non-active/non-pending producers. */
+  remediationHint(status: string): string {
+    const hints: Record<string, string> = {
+      not_found: 'Re-check SSN or contact licensing support',
+      not_active: 'License reinstatement required',
+      expired: 'License renewal required before proceeding',
+    };
+    return hints[status] || '';
+  }
+
+  /** Three-state total distribution row background (S4). */
+  get totalRowClass(): Record<string, boolean> {
+    return {
+      'bg-green-50': this.totalDistribution === 100,
+      'bg-yellow-50': this.totalDistribution > 0 && this.totalDistribution < 100,
+      'bg-red-50': this.totalDistribution === 0 || this.totalDistribution > 100,
+    };
+  }
+
+  /** Three-state total text color (S4). */
+  get totalTextClass(): Record<string, boolean> {
+    return {
+      'text-green-700': this.totalDistribution === 100,
+      'text-yellow-700': this.totalDistribution > 0 && this.totalDistribution < 100,
+      'text-red-700': this.totalDistribution === 0 || this.totalDistribution > 100,
+    };
+  }
+
+  /** Per-input border color feedback (S4). */
+  commissionInputClass(value: number | null): Record<string, boolean> {
+    const v = value ?? 0;
+    return {
+      'border-slate-300': v > 0 && this.totalDistribution === 100,
+      'border-yellow-400': v > 0 && this.totalDistribution !== 100,
+      'border-red-400': v === 0 || v < 0,
+    };
   }
 
   private calculateTotal(): void {

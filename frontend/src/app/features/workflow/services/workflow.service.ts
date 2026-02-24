@@ -26,4 +26,20 @@ export class WorkflowService {
   skipStep(clientId: string, stepId: string): Observable<any> {
     return this.api.post(`/clients/${clientId}/workflow/steps/${stepId}/skip`);
   }
+
+  verifyLicensingStatus(ssn: string, producerName: string, producerId: string): Observable<any> {
+    return this.api.post('/licensing/verify-status', {
+      ssn,
+      producer_name: producerName,
+      producer_id: producerId,
+    });
+  }
+
+  verifyCompensableCode(ssn: string, producerName: string, producerId: string): Observable<any> {
+    return this.api.post('/licensing/verify-code', {
+      ssn,
+      producer_name: producerName,
+      producer_id: producerId,
+    });
+  }
 }

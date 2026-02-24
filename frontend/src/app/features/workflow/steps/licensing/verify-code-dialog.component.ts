@@ -8,6 +8,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { WorkflowService } from '../../services/workflow.service';
 
 export interface VerifyCodeDialogData {
   producerName: string;
@@ -70,7 +71,34 @@ export interface VerifyCodeResult {
           <p class="text-slate-600">Looking up compensable code...</p>
         </div>
 
-        <!-- Phase 3: Result -->
+        <!-- Phase 3: Error -->
+        <div *ngIf="phase === 'error'" class="space-y-4">
+          <div class="bg-red-50 rounded-xl p-4 border border-red-200">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-red-600">error</mat-icon>
+              <div>
+                <p class="font-semibold text-slate-900">Verification Failed</p>
+                <p class="text-sm text-slate-600">{{ errorMessage }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 4: Not Found -->
+        <div *ngIf="phase === 'not_found'" class="space-y-4">
+          <div class="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+            <div class="flex items-center gap-3 mb-2">
+              <mat-icon class="text-yellow-600">warning</mat-icon>
+              <p class="font-semibold text-slate-900">No Compensable Code Found</p>
+            </div>
+            <p class="text-sm text-slate-600">
+              No compensable code was found for this SSN. Please verify the Social Security Number
+              is correct and try again, or contact your administrator for assistance.
+            </p>
+          </div>
+        </div>
+
+        <!-- Phase 5: Result (found) -->
         <div *ngIf="phase === 'result'" class="space-y-4">
           <div class="bg-green-50 rounded-xl p-4 border border-green-200">
             <div class="flex items-center gap-3 mb-3">
@@ -80,19 +108,19 @@ export interface VerifyCodeResult {
             <div class="bg-white rounded-lg p-4 space-y-2 text-sm">
               <div class="grid grid-cols-[140px_1fr] gap-1">
                 <span class="text-slate-500 font-medium">Name:</span>
-                <span class="text-slate-900">{{ demoDetails.name }}</span>
+                <span class="text-slate-900">{{ codeDetails.name }}</span>
               </div>
               <div class="grid grid-cols-[140px_1fr] gap-1">
                 <span class="text-slate-500 font-medium">Broker Code:</span>
-                <span class="text-slate-900 font-mono">{{ demoDetails.broker_code }}</span>
+                <span class="text-slate-900 font-mono">{{ codeDetails.broker_code }}</span>
               </div>
               <div class="grid grid-cols-[140px_1fr] gap-1">
                 <span class="text-slate-500 font-medium">Company:</span>
-                <span class="text-slate-900">{{ demoDetails.company }}</span>
+                <span class="text-slate-900">{{ codeDetails.company }}</span>
               </div>
               <div class="grid grid-cols-[140px_1fr] gap-1">
                 <span class="text-slate-500 font-medium">Address:</span>
-                <span class="text-slate-900">{{ demoDetails.address }}</span>
+                <span class="text-slate-900">{{ codeDetails.address }}</span>
               </div>
             </div>
           </div>
@@ -109,6 +137,10 @@ export interface VerifyCodeResult {
                 [disabled]="ssnForm.invalid" (click)="verify()" style="border-radius: 8px;">
           Verify Code
         </button>
+        <button *ngIf="phase === 'error' || phase === 'not_found'" mat-flat-button color="primary"
+                (click)="phase = 'input'" style="border-radius: 8px;">
+          Try Again
+        </button>
         <button *ngIf="phase === 'result'" mat-flat-button color="primary"
                 (click)="onConfirm()" style="border-radius: 8px;">
           Confirm
@@ -119,19 +151,23 @@ export interface VerifyCodeResult {
 })
 export class VerifyCodeDialogComponent {
   ssnForm: FormGroup;
-  phase: 'input' | 'verifying' | 'result' = 'input';
+  phase: 'input' | 'verifying' | 'result' | 'not_found' | 'error' = 'input';
   showSsn = false;
   informationIncorrect = false;
+  errorMessage = '';
 
-  demoDetails = {
+  codeDetails = {
     name: '',
     broker_code: '',
     company: '',
     address: '',
   };
 
+  private compensableCode = '';
+
   constructor(
     private fb: FormBuilder,
+    private workflowService: WorkflowService,
     public dialogRef: MatDialogRef<VerifyCodeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: VerifyCodeDialogData,
   ) {
@@ -144,23 +180,29 @@ export class VerifyCodeDialogComponent {
     if (this.ssnForm.invalid) return;
     this.phase = 'verifying';
 
-    // Simulate API call — generate demo data based on producer name
-    setTimeout(() => {
-      const code = 'BC-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-      this.demoDetails = {
-        name: this.data.producerName,
-        broker_code: code,
-        company: 'National Benefits Group LLC',
-        address: '1234 Insurance Blvd, Suite 200, Sacramento, CA 95814',
-      };
-      this.phase = 'result';
-    }, 1500);
+    const ssn = this.ssnForm.value.ssn;
+    this.workflowService.verifyCompensableCode(ssn, this.data.producerName, this.data.producerId)
+      .subscribe({
+        next: (response) => {
+          if (response.found) {
+            this.compensableCode = response.compensable_code;
+            this.codeDetails = response.details;
+            this.phase = 'result';
+          } else {
+            this.phase = 'not_found';
+          }
+        },
+        error: () => {
+          this.errorMessage = 'Unable to reach the compensable code service. Please try again.';
+          this.phase = 'error';
+        },
+      });
   }
 
   onConfirm(): void {
     const result: VerifyCodeResult = {
-      compensable_code: this.demoDetails.broker_code,
-      details: { ...this.demoDetails },
+      compensable_code: this.compensableCode,
+      details: { ...this.codeDetails },
       information_incorrect: this.informationIncorrect,
     };
     this.dialogRef.close(result);

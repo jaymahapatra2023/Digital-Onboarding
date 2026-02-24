@@ -72,6 +72,11 @@ export class WorkflowStore {
     this._userRole.set(role);
   }
 
+  getStepData(stepId: string): Record<string, any> | null {
+    const step = this.sortedSteps().find(s => s.step_id === stepId);
+    return step?.data ? (step.data as Record<string, any>) : null;
+  }
+
   updateStepStatus(stepId: string, status: StepStatus): void {
     const wf = this._workflow();
     if (!wf) return;

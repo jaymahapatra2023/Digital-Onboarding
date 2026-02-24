@@ -250,6 +250,14 @@ export class WorkflowContainerComponent implements OnInit {
 
   async onNext(): Promise<void> {
     if (this.store.isCurrentStepRoleRestricted()) return;
+
+    // Validation gate: check isValid() before allowing step completion
+    if (this.currentComponentRef?.instance?.isValid &&
+        !this.currentComponentRef.instance.isValid()) {
+      this.notification.error('Please complete all required fields before continuing.');
+      return;
+    }
+
     const stepId = this.store.currentStepId();
 
     // Save first
