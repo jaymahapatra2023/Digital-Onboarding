@@ -1,0 +1,480 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { Subject, takeUntil } from 'rxjs';
+import { WorkflowStore } from '../../store/workflow.store';
+
+const US_STATES = [
+  'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA',
+  'ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK',
+  'OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC',
+];
+
+const MONTHS = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December',
+];
+
+@Component({
+  selector: 'app-company-info',
+  standalone: true,
+  imports: [
+    CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule,
+    MatCardModule, MatIconModule, MatSelectModule, MatRadioModule, MatStepperModule,
+    MatTabsModule, MatDatepickerModule, MatNativeDateModule,
+  ],
+  template: `
+    <div class="space-y-6">
+      <div>
+        <div class="flex items-center gap-3 mb-1">
+          <div class="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center">
+            <mat-icon class="text-indigo-600" style="font-size:20px;width:20px;height:20px;">business</mat-icon>
+          </div>
+          <h2 class="text-xl font-bold text-slate-900">Company Information</h2>
+        </div>
+        <p class="text-slate-500 ml-12">Provide company details, contribution information, and ERISA compliance</p>
+      </div>
+
+      <mat-stepper linear #stepper class="bg-transparent">
+        <!-- SUB-STEP 1: Basic Information -->
+        <mat-step [stepControl]="basicForm" label="Basic Information">
+          <form [formGroup]="basicForm" class="space-y-5 mt-6">
+            <mat-card>
+              <mat-card-content class="p-6 space-y-5">
+                <h3 class="text-base font-semibold text-slate-800">Group Details</h3>
+
+                <!-- Situs State -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Situs State</mat-label>
+                    <input matInput formControlName="situs_state" readonly>
+                  </mat-form-field>
+                  <div class="flex items-center">
+                    <label class="text-sm text-slate-700 mr-3">Is this correct?</label>
+                    <mat-radio-group formControlName="situs_state_correct" class="flex gap-4">
+                      <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
+                      <mat-radio-button value="no" color="primary">No</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                </div>
+
+                <div *ngIf="basicForm.get('situs_state_correct')?.value === 'no'"
+                     class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <mat-icon class="text-amber-600 mt-0.5" style="font-size:20px;width:20px;height:20px;">warning</mat-icon>
+                  <p class="text-sm text-amber-800">
+                    A change in situs state may require a requote. Please contact your sales representative.
+                  </p>
+                </div>
+
+                <!-- Read-only info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Group Number</mat-label>
+                    <input matInput formControlName="group_number" readonly>
+                  </mat-form-field>
+                  <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Eligible Employees</mat-label>
+                    <input matInput formControlName="eligible_employees" readonly>
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field class="w-full" appearance="outline">
+                  <mat-label>Primary Address</mat-label>
+                  <input matInput formControlName="primary_address" readonly>
+                </mat-form-field>
+
+                <!-- Effective Date -->
+                <mat-form-field class="w-full" appearance="outline">
+                  <mat-label>Effective Date</mat-label>
+                  <input matInput [matDatepicker]="picker" formControlName="effective_date"
+                         [matDatepickerFilter]="firstOfMonthFilter" [min]="minDate">
+                  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                  <mat-hint>Must be the first of a future month</mat-hint>
+                </mat-form-field>
+
+                <!-- Different group name -->
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
+                  <label class="text-sm font-medium text-slate-700">Is the group's name different from what's on file?</label>
+                  <mat-radio-group formControlName="name_is_different" class="flex gap-6">
+                    <mat-radio-button value="no" color="primary">No</mat-radio-button>
+                    <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
+                  </mat-radio-group>
+
+                  <div *ngIf="basicForm.get('name_is_different')?.value === 'yes'" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                    <mat-form-field class="w-full" appearance="outline">
+                      <mat-label>Legal Group Name</mat-label>
+                      <input matInput formControlName="legal_group_name">
+                    </mat-form-field>
+                    <mat-form-field class="w-full" appearance="outline">
+                      <mat-label>DBA (Doing Business As)</mat-label>
+                      <input matInput formControlName="dba_name">
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <!-- Organization type & Tax ID -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Customer Organization Type</mat-label>
+                    <input matInput formControlName="organization_type" readonly>
+                  </mat-form-field>
+                  <mat-form-field class="w-full" appearance="outline">
+                    <mat-label>Federal Tax ID (EIN)</mat-label>
+                    <input matInput formControlName="federal_tax_id" placeholder="XX-XXXXXXX">
+                    <mat-error *ngIf="basicForm.get('federal_tax_id')?.hasError('required')">Tax ID is required</mat-error>
+                    <mat-error *ngIf="basicForm.get('federal_tax_id')?.hasError('pattern')">Format: XX-XXXXXXX</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- Correspondence Address -->
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
+                  <label class="text-sm font-medium text-slate-700">
+                    Is the correspondence address different from the primary address?
+                  </label>
+                  <mat-radio-group formControlName="has_correspondence_address" class="flex gap-6">
+                    <mat-radio-button value="no" color="primary">No</mat-radio-button>
+                    <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
+                  </mat-radio-group>
+
+                  <div *ngIf="basicForm.get('has_correspondence_address')?.value === 'yes'" class="space-y-4 mt-3">
+                    <mat-form-field class="w-full" appearance="outline">
+                      <mat-label>Correspondence Address</mat-label>
+                      <input matInput formControlName="corr_address">
+                    </mat-form-field>
+                    <mat-form-field class="w-full" appearance="outline">
+                      <mat-label>Address Line 2</mat-label>
+                      <input matInput formControlName="corr_address2">
+                    </mat-form-field>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <mat-form-field class="w-full" appearance="outline">
+                        <mat-label>Zip Code</mat-label>
+                        <input matInput formControlName="corr_zip" maxlength="10">
+                      </mat-form-field>
+                      <mat-form-field class="w-full" appearance="outline">
+                        <mat-label>City</mat-label>
+                        <input matInput formControlName="corr_city">
+                      </mat-form-field>
+                      <mat-form-field class="w-full" appearance="outline">
+                        <mat-label>State</mat-label>
+                        <mat-select formControlName="corr_state">
+                          <mat-option *ngFor="let st of states" [value]="st">{{ st }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="flex justify-end">
+              <button mat-flat-button color="primary" matStepperNext style="border-radius: 8px;">
+                Next <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- SUB-STEP 2: Contributions -->
+        <mat-step [stepControl]="contribForm" label="Contributions">
+          <form [formGroup]="contribForm" class="space-y-5 mt-6">
+            <mat-card>
+              <mat-card-content class="p-6 space-y-4">
+                <h3 class="text-base font-semibold text-slate-800">Employer Contributions by Product</h3>
+
+                <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <mat-icon class="text-blue-600 mt-0.5" style="font-size:20px;width:20px;height:20px;">info</mat-icon>
+                  <p class="text-sm text-blue-800">
+                    If employer contribution changes more than 10% from the quoted amount, a requote may be required.
+                  </p>
+                </div>
+
+                <mat-tab-group animationDuration="200ms">
+                  <mat-tab *ngFor="let product of products; let i = index" [label]="product">
+                    <div class="pt-5 space-y-4" [formArrayName]="'contributions'">
+                      <div [formGroupName]="i" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <mat-form-field class="w-full" appearance="outline">
+                          <mat-label>Employer Contribution %</mat-label>
+                          <input matInput type="number" formControlName="employer_contribution_pct"
+                                 min="0" max="100">
+                          <span matSuffix class="text-slate-500 mr-2">%</span>
+                        </mat-form-field>
+                        <div class="flex items-center">
+                          <label class="text-sm text-slate-700 mr-3">Pre-Tax Dollars?</label>
+                          <mat-radio-group formControlName="pre_tax" class="flex gap-4">
+                            <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
+                            <mat-radio-button value="no" color="primary">No</mat-radio-button>
+                          </mat-radio-group>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-tab>
+                </mat-tab-group>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="flex justify-between">
+              <button mat-button matStepperPrevious class="text-slate-600">
+                <mat-icon>arrow_back</mat-icon> Back
+              </button>
+              <button mat-flat-button color="primary" matStepperNext style="border-radius: 8px;">
+                Next <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- SUB-STEP 3: ERISA -->
+        <mat-step [stepControl]="erisaForm" label="ERISA">
+          <form [formGroup]="erisaForm" class="space-y-5 mt-6">
+            <mat-card>
+              <mat-card-content class="p-6 space-y-5">
+                <h3 class="text-base font-semibold text-slate-800">ERISA Information</h3>
+
+                <!-- Section 125 -->
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
+                  <label class="text-sm font-medium text-slate-700">
+                    Are dental and/or vision products covered under a Section 125 (Cafeteria) Plan?
+                  </label>
+                  <mat-radio-group formControlName="section_125" class="flex gap-6">
+                    <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
+                    <mat-radio-button value="no" color="primary">No</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+
+                <!-- ERISA Language -->
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
+                  <label class="text-sm font-medium text-slate-700">
+                    Should ERISA language be included in the certificate?
+                  </label>
+                  <mat-radio-group formControlName="erisa_language" class="flex gap-6">
+                    <mat-radio-button value="yes" color="primary">Yes</mat-radio-button>
+                    <mat-radio-button value="no" color="primary">No</mat-radio-button>
+                  </mat-radio-group>
+
+                  <div *ngIf="erisaForm.get('erisa_language')?.value === 'yes'" class="space-y-4 mt-3">
+                    <mat-form-field class="w-full" appearance="outline">
+                      <mat-label>Plan Year Ends</mat-label>
+                      <mat-select formControlName="plan_year_type">
+                        <mat-option value="calendar">Calendar Year</mat-option>
+                        <mat-option value="fiscal">Fiscal Year</mat-option>
+                        <mat-option value="policy">Policy Year</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field *ngIf="erisaForm.get('plan_year_type')?.value === 'fiscal'"
+                                    class="w-full" appearance="outline">
+                      <mat-label>Fiscal Year End Month</mat-label>
+                      <mat-select formControlName="fiscal_year_month">
+                        <mat-option *ngFor="let m of months; let i = index" [value]="i + 1">{{ m }}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="flex justify-between">
+              <button mat-button matStepperPrevious class="text-slate-600">
+                <mat-icon>arrow_back</mat-icon> Back
+              </button>
+              <div>
+                <!-- Stepper's "done" state is handled by the parent workflow container -->
+              </div>
+            </div>
+          </form>
+        </mat-step>
+      </mat-stepper>
+    </div>
+  `,
+  styles: [`
+    :host ::ng-deep .mat-horizontal-stepper-header-container {
+      margin-bottom: 0;
+    }
+    :host ::ng-deep .mat-step-header .mat-step-icon-selected {
+      background-color: #4f46e5;
+    }
+  `],
+})
+export class CompanyInfoComponent implements OnInit, OnDestroy {
+  basicForm!: FormGroup;
+  contribForm!: FormGroup;
+  erisaForm!: FormGroup;
+
+  states = US_STATES;
+  months = MONTHS;
+  products = ['Dental', 'Vision', 'STD', 'LTD'];
+  minDate = new Date();
+
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private fb: FormBuilder,
+    private store: WorkflowStore,
+  ) {
+    this.buildForms();
+  }
+
+  ngOnInit(): void {
+    this.setupConditionalValidators();
+
+    const step = this.store.currentStep();
+    if (step?.data && Object.keys(step.data).length > 0) {
+      this.patchSavedData(step.data as Record<string, any>);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // Date filter: only first of month
+  firstOfMonthFilter = (d: Date | null): boolean => {
+    if (!d) return false;
+    return d.getDate() === 1;
+  };
+
+  private buildForms(): void {
+    this.basicForm = this.fb.group({
+      situs_state: [{ value: 'California', disabled: true }],
+      situs_state_correct: ['yes'],
+      group_number: [{ value: 'GRP-2024-0042', disabled: true }],
+      eligible_employees: [{ value: '150', disabled: true }],
+      primary_address: [{ value: '1000 Main Street, Sacramento, CA 95814', disabled: true }],
+      effective_date: ['', Validators.required],
+      name_is_different: ['no'],
+      legal_group_name: [''],
+      dba_name: [''],
+      organization_type: [{ value: 'Employer', disabled: true }],
+      federal_tax_id: ['', [Validators.required, Validators.pattern(/^\d{2}-\d{7}$/)]],
+      has_correspondence_address: ['no'],
+      corr_address: [''],
+      corr_address2: [''],
+      corr_zip: [''],
+      corr_city: [''],
+      corr_state: [''],
+    });
+
+    // Contributions form
+    const contributions = this.products.map(() =>
+      this.fb.group({
+        employer_contribution_pct: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+        pre_tax: ['no'],
+      })
+    );
+    this.contribForm = this.fb.group({
+      contributions: this.fb.array(contributions),
+    });
+
+    this.erisaForm = this.fb.group({
+      section_125: ['no'],
+      erisa_language: ['no'],
+      plan_year_type: [''],
+      fiscal_year_month: [''],
+    });
+  }
+
+  private setupConditionalValidators(): void {
+    // When name_is_different changes, toggle legal_group_name required
+    this.basicForm.get('name_is_different')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(val => {
+        const lgn = this.basicForm.get('legal_group_name')!;
+        if (val === 'yes') {
+          lgn.setValidators(Validators.required);
+        } else {
+          lgn.clearValidators();
+          lgn.setValue('');
+        }
+        lgn.updateValueAndValidity();
+      });
+
+    // When has_correspondence_address changes, toggle required
+    this.basicForm.get('has_correspondence_address')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(val => {
+        const fields = ['corr_address', 'corr_zip', 'corr_city', 'corr_state'];
+        fields.forEach(f => {
+          const ctrl = this.basicForm.get(f)!;
+          if (val === 'yes') {
+            ctrl.setValidators(Validators.required);
+          } else {
+            ctrl.clearValidators();
+            ctrl.setValue('');
+          }
+          ctrl.updateValueAndValidity();
+        });
+      });
+
+    // When erisa_language=yes, plan_year_type required
+    this.erisaForm.get('erisa_language')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(val => {
+        const pyt = this.erisaForm.get('plan_year_type')!;
+        if (val === 'yes') {
+          pyt.setValidators(Validators.required);
+        } else {
+          pyt.clearValidators();
+          pyt.setValue('');
+        }
+        pyt.updateValueAndValidity();
+      });
+
+    // When plan_year_type=fiscal, fiscal_year_month required
+    this.erisaForm.get('plan_year_type')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(val => {
+        const fym = this.erisaForm.get('fiscal_year_month')!;
+        if (val === 'fiscal') {
+          fym.setValidators(Validators.required);
+        } else {
+          fym.clearValidators();
+          fym.setValue('');
+        }
+        fym.updateValueAndValidity();
+      });
+  }
+
+  private patchSavedData(data: Record<string, any>): void {
+    if (data['basic']) {
+      this.basicForm.patchValue(data['basic']);
+    }
+    if (data['contributions']) {
+      const arr = this.contribForm.get('contributions') as FormArray;
+      (data['contributions'] as any[]).forEach((c, i) => {
+        if (arr.at(i)) arr.at(i).patchValue(c);
+      });
+    }
+    if (data['erisa']) {
+      this.erisaForm.patchValue(data['erisa']);
+    }
+  }
+
+  get contributionsArray(): FormArray {
+    return this.contribForm.get('contributions') as FormArray;
+  }
+
+  getData(): Record<string, any> {
+    return {
+      basic: this.basicForm.getRawValue(),
+      contributions: this.contributionsArray.getRawValue(),
+      erisa: this.erisaForm.getRawValue(),
+    };
+  }
+
+  isValid(): boolean {
+    return this.basicForm.valid && this.contribForm.valid && this.erisaForm.valid;
+  }
+}

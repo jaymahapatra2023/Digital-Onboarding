@@ -1,0 +1,3106 @@
+Small Market Digital Platform
+    Digital Front End - Portal
+
+                Group Setup
+
+
+
+
+                   Version Number
+                      Month, Year
+                                      Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Table of Contents
+1 Introduction                                                     Error! Bookmark not defined.
+  1.1    About Digital Front End Portal Documentation              Error! Bookmark not defined.
+   1.2    About this Guide                                         Error! Bookmark not defined.
+   1.3    Document Conventions                                     Error! Bookmark not defined.
+   1.4    Glossary                                                 Error! Bookmark not defined.
+   1.5    Target Audience                                          Error! Bookmark not defined.
+   1.6    Release Applicability                                    Error! Bookmark not defined.
+
+2 Processing Overview                                              Error! Bookmark not defined.
+
+3 Sold Cases (Initiate Group Setup)                                                                      5
+  3.1    Module Overview                                                                                 5
+   3.2    Assign Access                                                                                  7
+   3.3    Begin/Continue Group Setup (Offline)                                                         12
+
+4 Begin/Continue Online Group Setup                                                                    22
+
+5 Step 1: Licensing/Appointment and Compensable Code                                                   23
+  5.1     Module Overview                                                                              23
+   5.2    Add Writing Producers and Verify Status                                                      24
+   5.3    Verify Compensable Code                                                                      30
+
+6 Step 2: Company Information                                                                          38
+  6.1     Module Overview                                                                              38
+   6.2    Basic Information                                                                            38
+   6.3    Contributions                                                                                43
+   6.4    ERISA                                                                                        45
+
+7 Step 3: Risk Assessment                                                                              47
+  7.1     Module Overview                                                                              47
+   7.2    Pregnant Employees                                                                           47
+   7.3    Health Risks                                                                                 48
+   7.4    Disabled Employees                                                                           49
+   7.5    Review and Submit                                                                            52
+
+8 Step 4: Commission Agreement Acknowledgement                                                         55
+  8.1     Module Overview                                                                              55
+
+
+                                                                                           Page: 2 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+9 Step 5: Renewal Notification Period                                                                      58
+  9.1     Module Overview                                                                                  58
+   9.2     Select Renewal Notification Period                                                              58
+
+10 Step 6: Group Structure                                                                                 59
+   10.1 Module Overview                                                                                    59
+   10.2    Add a New Class                                                                                 59
+   10.3    Class Description                                                                               60
+   10.4    Locations/Subsidiaries                                                                          64
+   10.5    Billing Addresses                                                                               68
+   10.6    Departments                                                                                     71
+   10.7    Contact Information                                                                             75
+   10.8    Build Case Structure                                                                            80
+   10.9    Assign Class to Locations                                                                       83
+
+11 Step 7: Billing Setup                                                                                   86
+   11.1 Module Overview                                                                                    86
+   11.2    Billing                                                                                         86
+
+12 Step 8: Authorization                                                                                   92
+   12.1 Module Overview                                                                                    92
+   12.2    Online Access                                                                                   92
+   12.3    Privacy Notice                                                                                  93
+   12.4    Intermediary and Producer Compensation Notice                                                   94
+   12.5    Third Party Billing                                                                             95
+   12.6    Gross Up Acknowledgement                                                                        96
+   12.7    HIPAA                                                                                           97
+   12.8    Disability Taxation Authorization                                                             103
+   12.9    Certificate of Beneficial Interest                                                            105
+   12.10   No Claims                                                                                     107
+
+13 Step 9: Finalize Group Setup                                                                          110
+   13.1 Module Overview                                                                                  110
+   13.2    Review Group Setup Details                                                                    110
+
+14 Step 10: Master Application and Transition to Enrollment                                              111
+   14.1 Module Overview                                                                                  111
+   14.2    Sign the Master Application and Begin Enrollment                                              111
+
+                                                                                               Page: 3 of 115
+                                   Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+15 Error Details                                                                                  114
+
+16 Contact Us                                                                                     115
+   16.1 Documentation Support                                                                     115
+   16.2   Technical Support                                                                       115
+   16.3   Additional Information                                                                  115
+
+
+
+
+                                                                                        Page: 4 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+1 Sold Cases (Initiate Group Setup)
+1.1 Module Overview
+This is the first stage of the Group Setup process. User can view sold cases and assign portal
+access for cases where the Group Setup application has not started or is in progress. The
+following steps will be presented from Broker/GA/TPA users’ view. Employer user will have
+similar but slightly different experience.
+Broker/GA/TPA users’ view:
+
+
+
+
+ Field                 Description
+ Client Name           Name of the client that is being covered. User can search for a
+                       client using client name on the top left.
+ Primary Address       Primary Address of the client that is being covered.
+ Unique ID             An identification code assigned for a client. User can search for a
+                       client using unique ID on the top left.
+ Eligible Employees    Number of eligible lives for the company as part of this RFP.
+ Client Status         Status of the Group Setup application.
+
+
+
+                                                                                               Page: 5 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Employer user’s view:
+
+
+
+ Field                  Description
+ Client Name            Name of the client that is being covered. User can search for a
+                        client using client name on the top left.
+ Primary Address        Primary Address of the client that is being covered.
+ Group ID               System generated unique number assigned to the company.
+ Eligible Employees     Number of eligible lives for the company as part of this RFP.
+ Client Status          Status of the Group Setup application.
+
+1. User (Broker/GA/TPA users) can take the following actions from the main My Clients
+   page. Employer user will have a similar but different experience:
+   a. Search for their quote:
+      i. Enter the Client Name and ID in the top left search box to search for a specific case.
+     ii. If desired, customize the view of the quotes list by using the filter on the top right
+         and the user can filter by Client Status (Active, Inactive, Application in Progress,
+         Application Not Started). Click on Apply button after checking the box of the
+         desired filter.
+
+
+
+
+ Field                  Description
+ Client Name            Name of the client that is being covered. User can search for a
+                        client using client name on the top left.
+ Primary Address        Primary Address of the client that is being covered.
+
+                                                                                               Page: 6 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ Unique ID             An identification code assigned for a client. User can search for a
+                       client using unique ID on the top left.
+ Eligible Employees    Number of eligible lives for the company as part of this RFP.
+ Client Status         Status of the Group Setup application.
+
+
+
+1.2 Assign Access
+The first step in the Group Setup process is to assign access to define who will have portal
+access and receive notification during Group Setup.
+
+1. Click on the + button on the right to reveal the container below. User can click the minus
+   sign - again to close the container.
+
+2. Click on “Assign Group Setup Access” link to define contacts to identify who will have
+   portal access and receive notification during Group Setup. This will open up a modal
+   window Add Administrator Access on the right.
+Note:
+Ø There needs to be at least one employer assigned to begin the Group Setup process.
+
+
+
+
+ Field                 Description
+ Client Name           Name of the client that is being covered. User can search for a
+                       client using client name on the top left.
+ Primary Address       Primary Address of the client that is being covered.
+ Unique ID             An identification code assigned for a client. User can search for a
+                       client using unique ID on the top left.
+ Eligible Employees    Number of eligible lives for the company as part of this RFP.
+
+                                                                                               Page: 7 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ Client Status         Status of the Group Setup application.
+
+3. Fill in the required information to assign administrator access.
+
+
+
+
+Screen to be replaced, when the environment is updated, with online access question
+“Should this person have online access to manage ongoing maintenance?”
+
+
+ Field                 Description
+ Role Type             Type of a role that the contact plays that will be granted Group
+                       Setup access. Select from Employer, Broker, General Agent, Third
+                       Party Administrator, Broker/TPA/GA Admin.
+                       Note:
+                       Ø An Employer Direct user can only view “Employer Admin” role
+                          type from the drop down.
+ First Name            First name of the person who will receive the Group Setup access.
+ Last Name             Last name of the person who will receive the Group Setup access.
+ Email Address         Email address of the person who will receive the Group Se-up
+                       access.
+
+4. Click on Add button to save the form once completed with the appropriate information.
+   This button will be disabled until user adds at least one employer role type.
+
+
+                                                                                               Page: 8 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Screen to be replaced, when the environment is updated, with online access question
+“Should this person have online access to manage ongoing maintenance?”
+
+Once added, there will be a new administrator added under Assigned Administrator Access
+column. For the saved access contacts, user can click on Edit icon to edit the information or
+click on Delete icon to delete the information.
+
+
+
+
+Screen to be replaced, when the environment is updated, with “Begin Group Setup” instead
+of Start Group Setup
+
+
+
+
+                                                                                               Page: 9 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ Role Type             Type of a role that the contact plays that will be granted
+                       administrator access. Select from Employer, Broker, General Agent,
+                       Third Party Administrator, Broker/TPA/GA Admin. Employer Direct
+                       user can only view “Employer Admin” role type from the drop
+                       down.
+ First Name            First name of the person who will receive the Group Set-up access.
+ Last Name             Last name of the person who will receive the Group Set-up access.
+ Email Address         Email address of the person who will receive the Group Set-up
+                       access.
+ Should this person    Select Yes to grant ongoing maintenance online access to this
+ have online access    contact.
+ to manage ongoing     Select No to not grant ongoing maintenance online access to this
+ maintenance?          contact.
+
+5. Click on the Edit icon to edit the Assigned Administrator Access. The action will open up
+   a modal window Edit Administrator Access on the right. Edit the information as desired
+   and click on Save to save the information or Cancel or X button on the top right to
+   cancel the edit process.
+
+
+
+
+ Field                 Description
+ Role Type             Type of a role that the contact plays that will be granted
+                       administrator access. Select from Employer, Broker, General Agent,
+                       Third Party Administrator, Broker/TPA/GA Admin. Employer Direct
+                                                                                            Page: 10 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+                       user can only view “Employer Admin” role type from the drop
+                       down.
+ First Name            First name of the person who will receive the Group Set-up access.
+ Last Name             Last name of the person who will receive the Group Set-up access.
+ Email Address         Email address of the person who will receive the Group Set-up
+                       access.
+ Should this person    Select Yes to grant ongoing maintenance online access to this
+ have online access    contact.
+ to manage ongoing     Select No to not grant ongoing maintenance online access to this
+ maintenance?          contact.
+
+
+6. Click on the Delete icon to delete the Assigned Administrator Access. The action will
+   open up a modal window Delete Administrator Access on the right. Review the
+   information as desired and click on Delete button if they wish to delete the access
+   details or click on Cancel or X button on the top right to go back to the My Clients page
+   with access information not deleted.
+
+
+
+
+ Field                 Description
+ Role Type             Type of a role that the contact plays that will be granted
+                       administrator access. Select from Employer, Broker, General Agent,
+                       Third Party Administrator, Broker/TPA/GA Admin. Employer Direct
+
+
+                                                                                             Page: 11 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                Description
+                      user can only view “Employer Admin” role type from the drop
+                      down.
+ First Name           First name of the person who will receive the Group Set-up access.
+ Last Name            Last name of the person who will receive the Group Set-up access.
+ Email Address        Email address of the person who will receive the Group Set-up
+                      access.
+
+
+
+
+1.3 Begin/Continue Group Setup (Offline)
+Here the user has two options to begin/continue Group Setup: online and offline.
+
+Note:
+Ø If the user that marked the case sold but has not clicked the Begin Online Setup or Begin
+   Offline Setup buttons within 24 hours, email notification will go out to remind them.
+
+
+
+
+Screen to be replaced, when the environment is updated, with “Begin Group Setup” instead
+of Start Group Setup
+
+Option 1: Online Group Setup
+
+
+
+                                                                                           Page: 12 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Click Begin Group Setup button to continue with the online Group Setup process by going to
+the landing page (See Section 4). Any subsequent times after that, if the user logs out and
+comes back into Group Setup, the button will change to Continue Group Setup.
+
+Option 2: Offline Group Setup
+
+Note:
+Ø For Case has been marked sold, and no action has taken place, the user will be reached
+   out to confirm the case has sold and determine if they want to go offline or need
+   assistance using the portal.
+
+Click Begin Offline Setup button if user can wishes to complete group setup offline. When
+they click on this button and confirm that they would prefer to complete this process
+offline, the Begin Group Setup button will become inactive and they cannot proceed with
+the portal online experience.
+
+1. Once the customer contact has been added the portal user will be able to click on the
+   “Complete offline” button and a notification will pop-up asking them: “Do you wish to
+   proceed with an offline paper process?”
+   a. If the user clicks yes, they will see a second notification that states “The online group
+      setup experience will be disabled and the process will be offline. Are you sure you
+      want to continue with an offline process?”
+
+
+
+
+                                                                                             Page: 13 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+2. Once clicked Yes on the notification above, user will be directed to download the
+   applicable forms packet based on the products and situs state provided during RFP.
+
+
+
+
+ Field                Description
+ Please choose        Select Email the forms to a associate to email the downloaded
+ from one of the      and completed Group Setup forms back to for review. Once this
+ submission options   option is selected, user will be shown with the list of documents
+ below.               that need to be submitted via email to complete Group Setup.
+
+                      Select Upload Your Documents to upload the downloaded and
+                      completed Group Setup forms. Once this option is selected, user
+                      will be shown another section 3. Upload Completed Forms below.
+
+3. Click on Master Application button to access Master App.
+
+
+
+
+                                                                                           Page: 14 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+4. Click on Download XXX Form buttons under 1. Offline Group Setup Instructions section
+   to download the appropriate forms the user wishes to fill out. User can download the
+   forms and complete them offline.
+
+5. Select a submission option. User can choose to either email the associates or upload
+   the completed documents.
+   a. If Email the forms to a associate option is selected, user will be shown with the list
+       of documents that need to be submitted via email to complete Group Setup.
+
+
+
+
+   b. If Upload Your Documents option is selected, user will be shown another section 3.
+      Upload Completed Forms below.
+
+
+
+
+                                                                                            Page: 15 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+6. If the user has chosen to upload the documents, click on Upload a File button, which will
+   unlock a modal window Upload a File on the right. On the modal window, user can input
+   basic information about the file they are about to upload including file description and
+   the file type.
+
+
+
+
+                                                                                            Page: 16 of 115
+                                           Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+7. After filling in the basic information, click on Next to proceed to uploading the file.
+
+
+
+
+                                                                                              Page: 17 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ File Description      Free-form field where user can input the description of the file they
+                       are uploading.
+ Select File Type      Dropdown options: Master App, Data Gathering Tool, Census
+                       Template, Commission Agreement Acknowledgement,
+                       Supplemental Document.
+
+
+8. Click on Choose File button to select the appropriate file the user wishes to upload.
+
+
+
+
+                                                                                            Page: 18 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Scenario 1: The file has been successfully uploaded
+If there was no error in uploading the file, user will get the notification with the message
+“Your file has successfully been uploaded”. If user wishes to upload another file, click on
+Upload Another File button. After all applicable files have been uploaded, Implementation
+will be notified of this, so they can begin the manual offline process. Otherwise, click on
+Close or the X button on top right to go back to the Continue Group Setup Offline screen.
+
+
+
+
+                                                                                            Page: 19 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Scenario 2: There was an error in uploading the file
+If there was an error in uploading the file, user will get the notification with the message
+“Oops, there was a problem uploading your file”. User will be asked to try again. Click on
+Start Over button to re-upload the appropriate file with no error. Otherwise, click on Close
+or the X button on top right to go back to the Continue Group Setup Offline screen.
+
+
+
+
+Uploaded files will be shown under the table below.
+
+
+
+
+                                                                                            Page: 20 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                Description
+ File Name            Name of the file the user has uploaded.
+ Date                 Date of the file that was uploaded.
+ File Type            Type of the file that was uploaded (Master App, Data Gathering
+                      Tool, Census Template, Commission Agreement Acknowledgement,
+                      Supplemental Document).
+ Action               User can click on the Trash icon to delete the uploaded file (this
+                      functionality will be available in the future).
+
+9. After uploading all the required documents, click on Submit to submit the Group Setup
+   forms and user will see the Submit Confirmation, notifying the user that the documents
+   will now be reviewed by . User will have to upload all the required documents to be
+   able to submit.
+
+
+
+
+                                                                                           Page: 21 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+2 Begin/Continue Online Group Setup
+Once the case has been marked sold, Group Setup access has been assigned and broker
+required information is complete, user can click “Start or Continue Group Setup” to be
+directed to a portal landing page. Here, user can see “Welcome to Group Setup” page, with
+a read-only list of required actions to complete the Group Setup process.
+
+On the Welcome to Group Setup landing page, the user (Broker/Employer/TPA /GA) can
+review their required information regarding Group Setup. Some steps might be grayed out
+(as indicated below) if they do not apply to certain type of users. The following view is from
+Employer’s perspective as an example:
+
+
+
+Once user has clicked on the Get Started, the button will show as Continue.
+
+Note:
+Ø Broker/GA/TPA user can complete all of Group Setup steps with the exception of
+   providing the e-signatures on the Authorizations and signing the Master App. These two
+   steps are only available to Employer users.
+Ø User can view and retrieve important information to support their group setup on the
+   right of the screen including Applicable Cost & Benefits Summary, Benefit Summaries for
+   Sold Products, etc.
+
+
+
+
+                                                                                             Page: 22 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+3 Step 1: Licensing/Appointment and
+  Compensable Code
+3.1 Module Overview
+This step is only applicable for Broker/GA/TPA users. During this step, users can verify the
+licensing/appointment status and compensable code for each writing producer assigned to
+this case. Detailed steps are presented below under Section 5.2 and 5.3.
+
+
+
+
+ Field                Description
+ Writing Producer     Writing producer’s name, role type and email.
+ Licensing /          Licensing status of the writing producer. Status could be: Active, Not
+ Appointment          Active, Expired, or Not Found.
+ Status
+ Compensable          Broker’s Compensable code. Click on Verify Code to get the
+ Code                 appropriate compensable code.
+ Commission Split     Percentage of the commission split. The total should add up to
+                      100%.
+
+                                                                                            Page: 23 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ Action                Actions that user can take in the Assigned Writing Producers table.
+                       User can delete the assigned writing producer information by
+                       clicking the Delete icon.
+
+
+Aside from licensing and verifying Compensable Code, users can take following actions
+during this step:
+
+1. If there are multiple brokers, the user has the option to split the commissions by
+   entering the Commission Split percentages in the appropriate field under the
+   Commission Split column. If there’s a single broker, the commission amount would be
+   100%. For the last row Total Distribution, users can click on Distribute Equally to
+   distribute 100% equally among the assigned writing producers.
+Note:
+Ø Total amount of the split must equal 100% and the user can view the total distribution
+   amount at the bottom of the sheet after filling out the columns (only if commission split
+   is entered).
+2.   Click on the Delete icon under the Action column to delete an entry.
+3.   Click on the Next button to go to the next step.
+4.   Click on the Cancel button to cancel the process.
+5.   Click on the Save as Draft button to save the progress as a draft and come back later
+     before submitting.
+Note:
+Ø Once commission has been assigned to each broker, Commission Agreement
+   Acknowledgement forms for all assigned brokers will be generated. If the writing
+   producers were not verified in systems or commission was not assigned, user
+   (Broker/GA/TPA) won’t be able to proceed with Commission Agreement
+   Acknowledgement.
+Ø User will be notified of any errors in confirming their licensing and
+   appointment/compensable code so that they can continue with Group Setup process.
+
+
+3.2 Add Writing Producers and Verify Status
+After notice of sale, user can manage all writing producers on the case. They can add and
+verify status of the writing producers. Any Broker/GA/TPA that was added when assigning
+Group Set-up/Administrator access, will be carried forward into the
+Licensing/Appointment/Compensable Code section.
+
+1. If applicable, click on Add new writing producer link to add a new writing producer. Fill
+   out the required information and click on Save to complete adding the new writing
+   producer. Saved new writing producer will be listed under the table. Click on Cancel if
+   user wishes to cancel the process.
+
+
+                                                                                             Page: 24 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ Role Type             Type of a role that the contact plays that will be granted
+                       administrator access. Select from Broker, General Agent, Third
+                       Party Administrator.
+ First Name            First name of the person who will receive the administrator access.
+ Last Name             Last name of the person who will receive the administrator access.
+ Email Address         Email address of the person who will receive the administrator
+                       access.
+ Should this person    Select Yes to grant ongoing maintenance online access to this
+ have online access    contact.
+ to manage ongoing     Select No to not grant ongoing maintenance online access to this
+ maintenance?          contact.
+
+2. To verify status, click on Verify Status link and the user will be prompted to enter a
+   social security number for the writing producer.
+
+
+
+
+                                                                                             Page: 25 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ Writing Producer      Writing producer’s name, role type and email.
+ Licensing /           Licensing status of the writing producer. Status could be: Active, Not
+ Appointment           Active, Expired, or Not Found.
+ Status
+ Compensable           Broker’s Compensable code. Click on Verify Code to get the
+ Code                  appropriate compensable code.
+ Commission Split      Percentage of the commission split. The total should add up to
+                       100%.
+ Action                Actions that user can take in the Assigned Writing Producers table.
+                       User can delete the assigned writing producer information by
+                       clicking the Delete icon.
+
+Click on Verify button to verify after entering a social security number for the writing
+producer or click on Cancel button to cancel the verification process. If user clicks on the
+Show/Hide icon, social security number being entered will be revealed. Otherwise, the
+social security number will be masked(hidden) as entered.
+
+
+
+
+                                                                                             Page: 26 of 115
+                                           Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ Social Security       Social Security Number of the writing producer.
+ Number
+
+
+Upon clicking on Verify button, there are three different scenarios user might encounter:
+Active, Not Found and Not Active (or Expired).
+
+Scenario 1: Active
+If the licensing status is active for the situs state and products, then user can proceed with
+the Group Setup process and sign the commission agreement acknowledgement.
+
+
+
+
+After clicking on Close upon confirming the Active Licensing status, user can see the status
+reflected in the Writing Producer table.
+
+
+                                                                                              Page: 27 of 115
+                                       Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Scenario 2: Not Found
+If the licensing status is not found, this is a new Broker that must become Licensed and
+Appointed with , therefore has and no compensable code is available yet. User can
+continue with Group Setup but will not be able to sign the commission agreement
+acknowledgement or complete the group setup process. If L&A process is delayed, the
+Broker can reassign to another broker in their brokerage. Once the compensable code
+becomes available to the user, they will be required to re-verify the L&A and compensable
+code details and are then allowed to sign the commission agreement acknowledgement and
+customer can finalize Group Setup.
+
+
+
+
+                                                                                          Page: 28 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Click on OK (Actually: Email Button – Environment to update) and user will have to send an
+email to . Click on Send and go back to the original Assigned Writing Producer screen.
+
+
+
+Scenario 3: Not Active or Expired (Verify Code link is still enabled)
+If the broker has an expired appointment, the status will be marked “Expired” or if not
+licensed, the status will be marked “Not Active”. and User would have to click on Email
+button to send an email to Corporate Licensing. User can also click on Cancel button to
+cancel the verification process.
+
+
+
+
+Upon clicking on Next, user will be directed to an applicable email template and offline
+corporate licensing process. User should populate required fields in the on-screen email
+template and click on Send to send the email or Cancel to not send the email and go back to
+the original screen.
+
+
+
+Upon clicking on Send, user will see a confirmation screen that says has received their
+request. User will be contacted if further action is necessary and on how to proceed. User
+can click on Okay button after confirming. After the email, the user would still have to come
+back on the portal and re-verify the status.
+
+
+
+
+                                                                                            Page: 29 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Clicking on OK button will lead the user back to the original Assigned Writing Producer
+screen.
+
+
+3.3 Verify Compensable Code
+After verifying the writing producer’s status, user can click on Verify Code button to find the
+appropriate Compensable Code for the writing producer.
+
+
+
+
+Click on Verify button to verify after entering a social security number for the writing
+producer or click on Cancel button to cancel. If user clicks on the Show/Hide icon, social
+security number being entered will be revealed. Otherwise, the social security number will
+be masked(hidden) as entered.
+
+
+                                                                                             Page: 30 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Upon clicking on Verify Code button, there are four different scenarios user might
+encounter: Compensable Code Not Found, Multiple Codes Found, Code Found but
+information is inaccurate and Appropriate Code Found.
+
+Scenario 1: Compensable Code Not Found
+Even if there is no compensable code found, user can get a new code through the email
+process below. In that case, user would be asked to send an email regarding the missing
+compensable code. Click on Next button to proceed or click on Cancel button to cancel.
+
+
+
+
+                                                                                            Page: 31 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Upon clicking on Email button, user will be directed to an applicable email template to
+inform GBR team that there is no compensable code found. Click on Send to send the email
+or Cancel to not send the email and go back to the original screen.
+
+
+
+
+Upon clicking on Send, user will see a confirmation screen that says has received their
+request. User will be contacted if further action is necessary and on how to proceed. User
+can click on OK button after confirming.
+
+
+
+
+                                                                                            Page: 32 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Clicking on Okay button will lead the user to the original Assigned Writing Producer screen.
+On the table, the particular compensable code column will indicate “Code Not Found”. User
+can continue with Group Setup but cannot sign the commission agreement
+acknowledgement or complete until they have compensable code. After the email and the
+GBR team has confirmed they have made applicable updates, the user would still have to
+come back on the portal and re-verify the status. Once compensable code is obtained, user
+can regenerate to update status in the portal to enable e-signature and allow Group Setup
+finalization.
+
+
+
+
+Scenario 2: Multiple Compensable Codes Found
+When multiple compensable codes are found, user can select only one code to proceed. If
+compensable code is inaccurate, user can indicate with checkbox "This information is
+                                                                                            Page: 33 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+inaccurate". Click on Next to proceed and user will see the appropriate compensable code
+indicated on the table.
+
+
+
+
+ Field                Description
+ Producer Name        Writing producer’s name
+ Broker Code          Broker Compensable code
+ Organization         Name of the writing producer organization/company
+ Name
+ Business Address     Address of the writing producer’s organization/company
+ Payment Address      Address where payment will be mailed
+
+In the event that user indicates that information is inaccurate, in the next step, an email
+template will be generated for user to complete and send to "gbr@ .com". User is directed
+to give comment on what needs to be updated for the compensable code within the body of
+the email.
+
+Once selecting the appropriate code and clicking on Next, user will be see the Compensable
+Code column marked with the code the user has selected.
+
+
+
+Scenario 3: Compensable Code Found but Inaccurate
+
+If compensable code was found but is inaccurate, user can indicate with checkbox "This
+information is inaccurate". Click on Next to report the inaccurate information to via email.
+
+
+
+
+                                                                                            Page: 34 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+In the event that user indicates that information is inaccurate, in the next step, an email
+template will be generated for user to complete and send to "gbr@ .com". User is directed
+to give comment on what needs to be updated for the compensable code within the body of
+the email.
+
+
+
+
+Scenario 4: Appropriate Compensable Code Found
+
+
+
+
+                                                                                           Page: 35 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+If single compensable code is found, user can select the code. Again, if compensable code is
+inaccurate, user can indicate with checkbox "This information is inaccurate". Click on Next
+to proceed and user will see the appropriate compensable code indicated on the table.
+
+
+
+
+On the table, the particular compensable code column will indicate with the appropriate
+code. After all the required appropriate information has been filled in, click on Next to
+proceed to the next step of the Group Setup, or if not ready to proceed, click on Save as
+Draft to save for now or Cancel to cancel the process.
+
+
+
+
+                                                                                            Page: 36 of 115
+                                     Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Field              Description
+Producer Name      Writing producer’s name
+Broker Code        Broker Compensable code
+Organization       Name of the writing producer organization/company
+Name
+Business Address   Address of the writing producer’s organization/company
+Payment Address    Address where payment will be mailed
+
+
+
+
+                                                                                        Page: 37 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+4 Step 2: Company Information
+4.1 Module Overview
+In this step, all user types (Employer/Broker/GA/TPA) would be able to review and update
+the company information along with contribution. This step is further divided in 3 sub-steps:
+1. Company Information
+2. Contributions
+3. ERISA
+
+
+4.2 Basic Information
+The client information is pre-populated from the RFP. As a broker/employer/GA/TPA user,
+they can view and update the customer information.
+
+1. Fill in the appropriate information required.
+
+
+
+
+                                                                                            Page: 38 of 115
+                                      Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Field              Description
+Is this Correct?   On the Client Information/Basic Information screen, the Situs State
+                   will be pre-populated on the screen to the situs state that was used
+                   during the RFP stage. User will be asked: “Is the above information
+                   accurate? (Y/N)
+                   If user selects Yes: User can proceed with Group Setup.
+
+                                                                                         Page: 39 of 115
+                                       Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Field               Description
+                    If user selects No: System records as a requote flow, where user will
+                    be directed to the Underwriting process Step 1: Enter Company
+                    Information to modify the RFP.
+Group Number        System generated unique number assigned to the company.
+Number of           Estimated number of eligible lives for the company as part of this
+Eligible Lives      Group Setup.
+Primary Address     Street address of the company’s primary location.
+Effective Date      The date that the proposal will become effective. This is
+                    prepopulated from RFP.
+
+                    If needed, user can edit the effective date. The “Date picker” should
+                    only allow for first of the month effective dates. Only future dates
+                    are allowed, no back dating.
+                    Note: If the effective date is changed, this will not require a requote
+                    during Group Setup, it will be evaluated during the Final Rating
+                    process
+Is your Legal       If selected Yes, user will provided with additional questions
+Group Name          regarding Legal Group Name and Doing Business As (optional field).
+different from      If selected No, user can proceed to answering the rest of the
+your company?       questions on the section.
+Legal Group Name Legally registered name of the group that’s being covered.
+Doing Business As   Preferred name of the group other than the legally registered one. A
+                    company is said to be "Doing Business As" when the name under
+                    which they operate their business differs from its legal, registered
+                    name.
+Customer            Default to the Employer and user cannot change.
+Organization Type
+Federal Tax ID      Federal Tax ID assigned for the group.
+Do you require a    This is the address that will be used for any mail other than billing
+separate address    statements.
+for                 • If yes, user will need to enter:
+correspondence      o [Address 1]
+                    o [Address 2] (optional field)
+                    o [City]
+                    o [State]
+                    o [Zip]
+
+                    User can click “Cancel”, “Save as Draft” or click “Next”
+
+                                                                                          Page: 40 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field               Description
+ Address             Address of the company’s correspondence.
+ Zip Code            Zip Code of the company’s correspondence.
+ City                City of the company’s correspondence.
+ State               State of the company’s correspondence.
+
+2. Under Important Information on the very right side, the user can view and download
+   various forms. This will be available in the portal throughout Group Setup:
+   a. Click on Download C&B summary for Sold Proposal to access sold proposal.
+   b. Click on Download Benefits Summaries to view appropriate benefits summaries.
+   c. Click on Download Slipsheet for Dental and/or Vision Verification Process to
+       download the Slipsheet. This form us only applicable if dental and/or vision sold.
+   d. Click on Dental HMO Continuing Orthodontic Treatment Request Form to download
+       the Request Form. This will only show if DHMO sold and if takeover group.
+   e. Click on Outlines of Coverage to download Outlines of Coverage (OOC). This will only
+       show if A&H products are sold.
+
+
+
+
+                                                                                           Page: 41 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+After user has clicked on Next on basic information screen, they will be redirected to the
+next step which is Contributions.
+
+Note:
+Ø The user will be informed of error messages in customer information and contact
+   information so that they can continue the group setup process.
+
+
+                                                                                            Page: 42 of 115
+                                      Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Ø In the event where user selects No on “Is this correct”, user will be asked to do a
+  requote. After clicking on Un-finalize Proposal button, user will be taken to the
+  Underwriting process Step 1: Company Information to make modifications to the RFP.
+
+
+
+
+4.3 Contributions
+1. Review the Employer Contribution to Employee Premium and click on Next to proceed.
+
+
+
+
+Note:
+
+                                                                                         Page: 43 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Ø If the user changes the Employer Contribution to Employee Premium amount outside
+  the thresh-hold (provided in the table below), user will be taken to Underwriting for a
+  requote process. User will be taken to the Underwriting process to make modifications
+  to the RFP.
+
+
+ Field               Description
+ Employer            This the percentage of plan the employer pays, and the percentage
+ Contribution to     employees are responsible for.
+ Employee
+ Premium             Note:
+                     Ø If User changes the employer contribution, but the new amount
+                        stays within the contribution thresh-hold, then a requote will not
+                        be required.
+
+                         •   For Dental PPO, the minimum participation requirement is
+                             100% for non-contributory, 50-99% for Contributory (the
+                             greater of 50% of all eligible employees or 5 employees
+                             enrolled), greater 25% for Voluntary (the greater of 25% of all
+                             eligible employees or 5 employees enrolled).
+
+                         •   For Dental HMO (DHMO), the minimum participation
+                             requirement is 100% for non-contributory, 50-99% for
+                             Contributory (the greater of 50% of all eligible employees or
+                             5 employees enrolled), greater 25% for Voluntary (the
+                             greater of 25% of all eligible employees or 5 employees
+                             enrolled).
+
+                         •   For Vision , the minimum participation requirement is 100%
+                             for non-contributory, 50-99% for Contributory (the greater of
+                             50% of all eligible employees or 5 employees enrolled),
+                             greater 25% for Voluntary (the greater of 25% of all eligible
+                             employees or 5 employees enrolled).
+
+                         •   For STD the minimum participation requirement is 100% for
+                             non-contributory, 50-99% for Contributory (the greater of
+                             50% of all eligible employees or 5 employees enrolled),
+                             greater 25% for Voluntary (the greater of 25% of all eligible
+                             employees or 5 employees enrolled).
+
+                         •   For LTD the minimum participation requirement is 100% for
+                             non-contributory, 50-99% for Contributory (the greater of
+                             50% of all eligible employees or 5 employees enrolled),
+                             greater 25% for Voluntary (the greater of 25% of all eligible
+                             employees or 5 employees enrolled).
+                                                                                           Page: 44 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                Description
+
+                         •   For Basic Life/AD&D and Basic Dependent Life, the minimum
+                             participation requirement is 100% for non-contributory, 50-
+                             99% for ER Contributions (the greater of 75% of all eligible
+                             employees or 5 employees enrolled)
+
+                         •   For Supplemental Life/AD&D, the minimum participation
+                             requirement is greater of 25% of all eligible employees or 5
+                             employees enrolled for Voluntary.
+
+                         •   For Supplemental Dependent Life/AD&D, the minimum
+                             participation requirement is greater of 25% of all eligible
+                             employees with dependents or 2 enrolled lives for Voluntary.
+                         •   For Accident, the minimum participation requirement is Non-
+                             Contributory (100% participation for), Voluntary (greater
+                             than 10% of all eligible employees or 2 employees enrolled.
+                             This is available only to groups of 10+ eligible lives.
+
+                         •   For Hospital Indemnity, the minimum participation
+                             requirement is Non-Contributory (100% participation for),
+                             Voluntary (greater than 10% of all eligible employees or 2
+                             employees enrolled. This is available only to groups of 10+
+                             eligible lives.
+
+                         •   For Critical Illness, the minimum participation requirement is
+                             Non-Contributory (100% participation for), Voluntary
+                             (greater than 10% of all eligible employees or 2 employees
+                             enrolled. This is available only to groups of 10+ eligible lives.
+
+ Employee             This question should only be displayed if Long Term Disability and/or
+ Contributes with     Short Term Disability and/or Critical Illness and/or Accident and/or
+ Pre-tax Dollars?     Hospital products sell.
+ (Y/N)
+
+
+2. User can click on Next to proceed to the next section: ERISA.
+
+
+4.4 ERISA
+1. Under ERISA (Employee Retirement Income Security Act) step, the user can update
+   ERISA details by filling out the fields or update their section 125 if applicable.
+
+
+
+                                                                                            Page: 45 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Pending updated screen when environment is ready with question rephrased as “Should
+ERISA language be included in your certificate?”
+
+ Field                Description
+ Is your policy       This question will only appear if Dental/Vision products were
+ covered under        selected and will be product specific. Section 125 allows employees
+ section 125? (y/n)   to pay their health insurance premiums with tax-free dollars.
+                      If Yes, it should apply to all sold products.
+
+                      If No, then section 125 does not apply.
+ Should ERISA         If Yes, then the question "Plan Year Ends?" should appear.
+ language be          If No, no further information is required.
+ included in your
+ certificate?
+ Plan Year Ends       When the ERISA plan year ends. Drop-down menu of: Calendar year,
+                      Fiscal Year, Policy Year.
+                      If fiscal year is selected, then show another drop down below where
+                      user can select specific month (e.g. Jan, Feb, March, April).
+ Fiscal Year Month    Fiscal year month when the plan ends (e.g. Jan, Feb, March, April).
+2. Click on Save As Draft to save the draft for now, Cancel to cancel the process, or Next
+   button to go to the next step.
+
+
+
+
+                                                                                            Page: 46 of 115
+                                           Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+5 Step 3: Risk Assessment
+5.1 Module Overview
+This step applies to the following products: Life, Disability, Critical Illness and Hospital
+products. Depending on what product has been selected, different questions would be
+shown.
+
+Note:
+Ø User will be notified of any errors in their Risk assessment such that they can continue
+   with Group Setup
+
+
+5.2 Pregnant Employees
+Note:
+Ø This section is only shown when STD is one of the selected coverages.
+
+If STD is one of the selected coverages then Pregnant employees related questions will be
+shown. Fill out the required fields and click on Next to proceed. If the user does wish to
+submit the form for now, they can click on Save as Draft to save or Cancel to cancel the
+process.
+
+
+
+If selected Yes to the question “Are any employees currently pregnant?”, users need to
+provide the number of pregnant employees:
+
+
+
+
+ Field                 Description
+ Company Name          Name of the client’s company.
+ Number of             Number of eligible employees at the company.
+ Eligible
+ Employees
+ Are any               Select Yes, if there is any employee currently pregnant at the
+ employees             company.
+ currently             Select No, if there is no employee currently pregnant at the
+ pregnant?             company.
+ How many              If Yes to the question above, provide the number of employees that
+ employees are         are currently pregnant at the company.
+
+
+                                                                                              Page: 47 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                Description
+ currently
+ pregnant?
+
+
+
+
+5.3 Health Risks
+This section asks about the potential health risks within the employee population. Fill out
+the required fields and click on Next to proceed. If the user does wish to submit the form for
+now, they can click on Save as Draft to save or Cancel to cancel the process.
+
+
+
+If selected Yes to the question “Are there any significant health risks within employee
+population?”, users need to provide what type of health risks are involved:
+
+
+
+
+                                                                                             Page: 48 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                Description
+ Company Name         Name of the client’s company.
+ Number of            Number of eligible lives at the company.
+ Eligible Lives
+ Are there any        If selected Yes, then the case should be kicked back and reviewed by
+ significant health   Underwriting for final approval and the following request will
+ risks within         appear: “You indicated there are health risks present. Please choose
+ employee             all risks that apply.”
+ population?
+                      If selected No, then the process may still automate.
+ You indicated        If Yes from the question above, select all applicable health risks from
+ there are health     the provided list. If other, provide applicable information in the text
+ risks present.       input field:
+ Please choose all
+ risks that apply.    Cardiac or cardiovascular disorder
+                      Stroke or circulatory disorder
+                      Cancer, Hodgkin’s disease, lymphoma or tumors
+                      Leukemia or other blood disorder
+                      COPD, emphysema or other lung disease
+                      Stomach, hepatitis or other liver disorder
+                      Neurological disorders
+                      Epstein-Barr, chronic fatigue syndrome or fibromyalgia
+                      Multiple Sclerosis, ALS or muscular dystrophy
+                      Mental, anxiety, depression, attempted suicide or nervous disorder
+                      Acquired Immunodeficiency Syndrome (AIDS), AIDS Related Complex
+                      (ARC), or the Human Immunodeficiency Virus (HIV)
+                      Other
+
+
+
+5.4 Disabled Employees
+This section asks about disabled and/or not actively at work employees. Fill out the required
+fields and click on Next to proceed. If the user does not feel ready to submit the form, they
+can click on Save as Draft to save for now or Cancel to cancel the process.
+
+
+
+
+ Field                Description
+ Are there            If selected Yes, follow-up questions on the number of disabled lives
+ currently any        and Waiver of Premium and Terminal Liability will be provided. The
+ Disabled/Not
+
+                                                                                            Page: 49 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ Actively at Work      case will be kicked back and reviewed by Underwriting for final
+ employees?            approval.
+
+                       Note: Actively at Work or Active Work means that employees or
+                       associates are performing all of the usual and customary duties of
+                       their job. This must be done at the Group Policyholder’s place of
+                       business, an alternate place approved by the Group Policyholder, or
+                       a place to which the Group Policyholder’s business requires travel.
+ How many              Number of employees currently disabled/not actively at work at the
+ employees are         company.
+ currently             Depending on number input, Disabled/Not Actively At Work Details
+ Disabled/Not          table would be generated to be updated.
+ actively at work?
+ Does the current      This question will show only for Life Products and if there is a prior
+ carrier have          coverage and answered Yes to the question above regarding
+ Waiver of             disabled/actively at work.
+ Premium and
+ Terminal Liability?   Select Yes, if the current carrier have Waiver of Premium and
+                       Terminal Liability.
+
+                       Select No, if the current carrier does not have Waiver of Premium
+                       and Terminal Liability.
+
+
+When user clicks on the link, it will open the Add employees details side drawer panel. User
+can add as many employees as needed every time they click on this link.
+
+
+
+
+                                                                                             Page: 50 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+User will need to answer all of the questions and when they click on Save button, it will save
+their answers and return them to the Disabled Employees Page.
+
+ Field                Description
+ Date of Birth        Date of birth of the employee.
+ Date of Disability   Date of disability of the employee.
+ Nature of Claim      The kind of incident being claimed for
+ Estimated Date of    Date that employee intends to return to work after disability
+ Return
+ Benefit Amount       Amount payable when a claim is raised
+
+Every time a user enters information about a disabled employee, the data will be populated
+into this table. On clicking Edit icon Add Employee Details Drawer with prepopulated fields
+will open where user can edit information. Delete icon will open up drawer where user can
+only delete information.
+
+
+
+
+ Field                Description
+ Are there            If Yes, follow-up questions on the number of disabled lives and
+ currently any        Waiver of Premium and Terminal Liability will be provided.
+ Disabled/Not
+
+                                                                                             Page: 51 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ Actively at Work
+ employees?
+ How many              Number of employees currently disabled/not actively at work at the
+ employees are         company.
+ currently
+ Disabled/Not
+ actively at work?
+ Does the current      Yes, if the current carrier have Waiver of Premium and Terminal
+ carrier have          Liability.
+ Waiver of             No, if the current carrier does not have Waiver of Premium and
+ Premium and           Terminal Liability.
+ Terminal Liability?
+
+
+
+5.5 Review and Submit
+This section asks users to review the Risk Assessment form and provide electronic signature.
+
+
+
+ Field                 Description
+ Company Name          Name of the client’s company.
+ Number of             Number of eligible lives at the company.
+ Eligible Lives
+ Are any               Yes, if there is any employee currently pregnant at the company.
+ employees             No, if there is no employee currently pregnant at the company.
+ currently
+ pregnant?
+ How many              If Yes, to the question above, provide the number of employees that
+ employees are         are currently pregnant at the company.
+ currently
+ pregnant?
+ Are there any         If Yes, then customer data sent to Underwriters for a review and the
+ significant health    user will be required below to provide additional information on
+ risks within          health risk.
+ employee              If No, proceed with the Risk Assessment.
+ population?
+ You indicated         If Yes from the question above, select all applicable health risks from
+ there are health      the provided list. If other, provide applicable information in the text
+ risks present.        input field.
+ Please select all
+
+                                                                                             Page: 52 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+ that apply from
+ the following list.
+ Are there             If Yes, follow-up questions on the number of disabled lives and
+ currently any         Waiver of Premium and Terminal Liability will be provided.
+ Disabled/Not
+ Actively at Work
+ employees?
+ How many              Number of employees currently disabled/not actively at work at the
+ employees are         company.
+ currently
+ Disabled/Not
+ actively at work?
+ Does the current      Yes, if the current carrier have Waiver of Premium and Terminal
+ carrier have          Liability.
+ Waiver of             No, if the current carrier does not have Waiver of Premium and
+ Premium and           Terminal Liability.
+ Terminal Liability?
+
+ Accepted By           Electronic signature of the person accepting the terms of the Risk
+                       Assessment.
+
+
+If the user’s Risk Assessment requires review by Underwriter based on the answers provided
+by the user, they will receive a notice (screen below). User can still continue with group
+setup even if RAS is not completed.
+
+
+
+
+                                                                                             Page: 53 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Note:
+Ø Even if the Underwriter approves the dirty RAS/product, any employees that have been
+   indicated as Not Actively at Work on the RAS, would not be eligible on the enrollment
+   file.
+
+If Risk Assessment was declined by the Underwriter due to adverse risk on the Risk
+Assessment Form, the user will receive the notice below upon accessing Sold Cases page.
+
+
+
+
+                                                                                           Page: 54 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+6 Step 4: Commission Agreement
+  Acknowledgement
+6.1 Module Overview
+This step requires the user (Broker only) to e-sign the commission agreement
+acknowledgement.
+
+Before the actual group setup and after compensable code is verified, the broker user will
+need to complete their commission agreement acknowledgement. The user can receive
+information around any commission agreement acknowledgment process (if applicable).
+
+Scenario 1: If the logged in Broker has not verified a code in the Verify Compensable Code
+step.
+
+There will be a notification message displayed as shown below. User can proceed to the
+next step but will need to revisit this step before they can complete Group Setup.
+
+
+
+Scenario 2: If the logged in Broker has verified a compensable code in the Verify
+Compensable Code step.
+
+1. Review all the Commission Agreement information.
+
+
+
+
+                                                                                            Page: 55 of 115
+                                    Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Field             Description
+Company Name      Full name of the company
+Group Number      System generated unique number assigned to the company.
+Experience        Number that is assigned to the company by . It will be pre-
+Number            populated with the Group Number
+Situs State       State representing the company’s location for legal purposes
+Effective Date    Effective date of the Group Setup, in MM/DD/YYYY format
+Product Name      Name of the product; prepopulated.
+Commission Rate   Commission rate of the writing producers.
+% Split           Commission % split of the writing producers as entered in Step 1:
+Commission        Licensing/Appointment and Compensable Code.
+Broker Code       Broker’s compensable code
+Broker Email      Broker’s email address
+Address
+Payee Name        Name of the Payee
+Payee Broker      Payee broker’s compensable code
+Code
+Payee Address     Address of the Payee
+
+                                                                                       Page: 56 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                Description
+ Vice President       Signature of Vice President
+ Signature
+ Accepted By          Electronic signature of the person accepting the terms
+
+2. Click on Disclosure Agreement to review and click on the checkboxes to acknowledge
+   the terms and conditions. After e-signing, click on Submit & Next to go to the next step.
+
+
+
+
+                                                                                            Page: 57 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+7 Step 5: Renewal Notification Period
+7.1 Module Overview
+This step requires users to choose the renewal notification for the group. Renewal
+Notification Period is the number of days prior to renewal date that renewal notices are
+sent.
+
+
+7.2 Select Renewal Notification Period
+User is required to select renewal notification period for the group. They can select either
+60 days or 90 days for the renewal notification period.
+
+
+
+
+ Field                Description
+ Select the number Renewal Notification Period. Select between 60 Days (Standard) and
+ of days ahead of  90 Days.
+ renewal date that
+ renewal notices
+ are sent.
+
+
+
+
+                                                                                             Page: 58 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+8 Step 6: Group Structure
+8.1 Module Overview
+This is a multi-step process where the user is taken through various section to complete the
+group structure. Here user will be able to define the group structure details such as class,
+location, department, Contacts, billing address etc.
+
+
+8.2 Add a New Class
+This step displays the classes added in RFP during Underwriting. Here user can add a new
+class that was not added during RFP and/or define the group structure using the existing
+RFP classes.
+
+The Class IDs and Class Descriptions pre-populated from RFP.
+
+
+
+
+Click on Add Additional Class link to open a Add Additional Class modal window for user to
+add as many classes as needed. Select the class they’d like to mirror plan designs for and
+click on Save to add the class. If the user does not want to add the class, click on Cancel to
+cancel the process.
+
+
+
+
+                                                                                             Page: 59 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+8.3 Class Description
+User can update and validate class descriptions during this step. Click on the appropriate
+class link to define the class description.
+
+
+
+
+If the user tries to move on to the next class without reviewing the first/previous class, they
+will be notified to review them first.
+
+                                                                                             Page: 60 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Fill out the Class Description form accordingly. Click on Save button after completing the
+form to save the Class Description. If the user isn’t ready to submit the form, click on Cancel
+button to cancel the process.
+
+
+
+
+                                                                                             Page: 61 of 115
+                                      Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Field               Description
+Class Description   Definition of the class. Users can select from the predefined list of
+                    job titles, custom description to define the class, or All Active Full-
+                    Time Employees or All Other Active Full-Time Employees depending
+                    on whether it’s a single class or a multiple class. For instance, if
+                    single class, they have an option to select, “All Active Full-Time
+                    Employees”. If multiple classes, they will not have the All Active
+                                                                                         Page: 62 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+                       Full-Time Employees option but do have the an option on the last
+                       class to select “All Other Active Full-Time Employees.”
+                       Note:
+                       Ø An employee cannot be a member of more than one class for
+                           any coverage.
+                       Ø Each eligible employee must be included in a class.
+
+ Full Time             Possible values include all number between 24 and 40. 17.5 can be
+ Definition (Hours)    selected if situs state is Vermont.
+ Earnings Definition   Only applicable to Life and Disability products. Dropdown values
+                       include: Basic Earnings, W2, K1/Partner, S-Corp, Annual Contract
+ Earnings Include      This question is only displayed if “Basic Earnings” was selected in
+                       the Earnings Definition field. If any other Earnings Definition is
+                       selected, this field should not appear. Dropdown values should
+                       include: No additional earnings included, Commissions, Bonuses,
+                       Commissions & Bonuses.
+ Averaged Over         This question is only played if “Commissions”, “Bonuses” or
+                       “Commission & Bonuses" was selected in the Earnings Included
+                       field. In No additional earnings included value was selected for the
+                       Earnings include field, this question should not appear. Values
+                       include: 12, 24, 36 Months.
+ Do you wish you       If selected Yes, the system will consider 0 days as the waiting period
+ waive the waiting     for the current employees.
+ period for your
+ current               If selected No, the system will populate current period field with
+ employees?            the values that are populated in the future waiting periods answers
+                       as indicated under the question below: “Is the waiting period the
+                       same for all products in this class?”
+ Is the waiting        If selected Yes, user can indicate the Waiting Period for All Products
+ period the same       by showing one free-form field that will be applied to all coverages
+ for all products in   in the class.
+ this class?
+                       If selected No, there will be questions displayed below, broken out
+                       for each products.
+ First of the Month    Free form fields for the user to enter the numeric values/waiting
+ Following             periods for all or each sold products in the class.
+
+After saving the Class Description, users can click on Next to move onto the next step for
+Group Structure. Users would need to at least click on all the classes added in the order to
+
+
+                                                                                             Page: 63 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+review before proceeding. If not ready, user can click on Save as Draft to save the
+information for now and come back to it later, or click on Cancel to cancel the progress.
+
+
+
+
+Updated screen needed (w/o Part Time Definition) when Environment is updated
+
+If the user entered a custom class description while completing the Class Description, upon
+clicking on Next, the following message will appear. Click on OK to proceed.
+
+
+
+
+8.4 Locations/Subsidiaries
+Users can list out the physical locations for the group. They can update their pre-populated
+addresses and/or add additional locations. Billing addresses will be asked separately in the
+next step.
+
+
+
+
+                                                                                            Page: 64 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Scenario 1: User wishes to update the group’s Primary Address.
+1. Click on Update button on the right to update the primary address. This will open up a
+   modal window Update Primary Address on the right.
+2. Update the fields accordingly and click on Save button when they are ready to be saved.
+   If the user wishes to cancel the update, click on Cancel or the X button on the top right.
+
+
+
+
+ Field                  Description
+ Address                Street address of the group’s primary location
+ City                   City for the group’s primary location
+
+
+                                                                                            Page: 65 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ State                  State for the group’s primary location
+
+ Zip Code               Zip Code for the group’s primary location
+
+
+Scenario 2: User wishes to add additional locations for the group.
+
+1. Click on Add Additional Location to add additional addresses. This will open up a modal
+   window on the right where they can insert a new address.
+2. Update the fields accordingly and click on Save button when they are ready to be saved.
+   If the user wishes to cancel the update, click on Cancel or the X button on the top right
+
+
+
+
+ Field                  Description
+ Are there any active Select Yes if there is any active participants at this address.
+ participants at this Select No if there is no active participants at this address. In this
+ location?            case, this location will be a subsidiary and will not be part of the
+                      group’s structure. The location will only be included in the policy.
+
+                                                                                            Page: 66 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                   Description
+ Location Name           Description of the location. User can enter in any description they
+                         would like.
+ Is the Federal Tax      If selected Yes, it will default to the primary’s address TIN #.
+ ID# for this location   If selected No, the user will be presented with a Federal Tax ID #
+ the same as your        field to enter the new TIN.
+ main/primary
+ location?
+ Address                 Street address of the group’s primary location
+ City                    City for the group’s primary location
+ State                   State for the group’s primary location
+
+ Zip Code                Zip Code for the group’s primary location
+
+User’s added Additional Locations will be displayed on the table below.
+
+
+
+
+                                                                                             Page: 67 of 115
+                                           Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                   Description
+ Location Name           Identifiable name of the address.
+ Federal Tax ID          Federal Tax ID assigned for the group.
+ Location Address        Address of the location.
+ Participants            Indicated Yes if there is any active participants at this address.
+                         Indicated No if there is no active participants at this address.
+ Action                  Click on Edit icon to update the information.
+
+3. Once the user has added the locations that they want, they can click on Save as Draft if
+   not ready to proceed with the filled in information, Cancel to cancel the progress or click
+   on Next to move to the next step.
+
+Note:
+
+Ø The following text will be displayed if the user indicates that the location added has no
+  active participants: "You will not be able to map this subsidiary location"
+
+
+8.5 Billing Addresses
+This step lets the user provide the billing address to which the billing statement will be sent.
+User must add at least one billing address to continue to the next step.
+
+1. Answer the required question with a Yes or No: “Will you be using a Third Party to
+   administer your billing and remit premiums?”
+   a. If selected Yes, user can just proceed to the next step by clicking on Next
+   b. If selected No, user can add additional billing addresses.
+
+
+
+
+ Field                   Description
+ Will you be using a     If selected Yes, user can just proceed to the next step and would
+ Third Party to          not be able to see the ability to add any additional billing
+ administer your         addresses. Billing address will be defaulted and locked to Group
+ billing and remit       Primary Address and Contact will be defaulted and locked to
+ premiums?               whoever user indicates as Group Executive Contact in the next
+                         step. Additionally, there will be a disclaimer shown below: “Note:
+                         The customer will be required to work with their TPA to complete
+                         Confirmation and Agreement form (C&A) that will be provided
+                         later in the Group Setup process. Until the completed form is
+                         received back, billing will be defaulted to the group’s primary
+
+
+                                                                                              Page: 68 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+                        address. Once the C&A is received back, will update the TPA
+                        details.“
+
+                        If selected No, user will see the ability to add other billing
+                        addresses.
+
+2. If selected No for the previous question, user can click on Add Other Billing Address for
+   which the billing statements should be mailed for all locations to add any additional
+   addresses to send bills to. This will display a modal window on the right.
+3. Fill in the fields accordingly and click on Save button when they are ready to be saved. If
+   the user wishes to cancel the update, click on Cancel or the X button on the top right.
+
+
+
+
+New Screen needed with “Add Other Billing Address” when environment is updated
+
+ Field                  Description
+ Address                Street address of the group’s billing location
+ City                   City for the group’s billing location
+ State                  State for the group’s billing location
+
+ Zip Code               Zip Code for the group’s billing location
+
+   a. User has the option to use the primary address by checking on the box next to Prefill
+      with primary address. This will complete the form with the primary address.
+
+
+
+
+                                                                                             Page: 69 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Field                 Description
+Address               Street address of the group’s billing location
+City                  City for the group’s billing location
+State                 State for the group’s billing location
+
+Zip Code              Zip Code for the group’s billing location
+
+  b. Alternatively, user can fill out the form manually.
+
+
+
+
+Field                 Description
+Address               Street address of the group’s billing location
+City                  City for the group’s billing location
+
+                                                                                           Page: 70 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ State                  State for the group’s billing location
+
+ Zip Code               Zip Code for the group’s billing location
+
+4. Once saved, review the Billing Addresses and click on Next to proceed to the next step
+   of the Group Structure. If the user does not feel ready to proceed, click on Save as Draft
+   to save for now or the Cancel button to cancel the process.
+
+
+
+
+8.6 Departments
+This step lets users to subtotal employees on the bill by department code and is optional
+where the user can move on to the next step if there are no departments applicable.
+
+
+
+
+                                                                                             Page: 71 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ Department             Description of the Department that the user is defining as grouping
+ Description            category for the bill. This can be alpha-numeric with no character
+                        limit.
+ Department Code        Code of the Department that the user is defining as grouping
+                        category for the bill. This can be alpha-numeric with no character
+                        limit.
+
+1. If the user wishes to add a department, fill in the information appropriately and click on
+   Add Department, which would then populate the data from the fields into the table
+   below. There is no limit on how many departments that user can enter.
+
+
+
+
+                                                                                             Page: 72 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ Department             Description of the Department that the user is defining as grouping
+ Description            category for the bill. This can be alpha-numeric with no character
+                        limit.
+ Department Code        Code of the Department that the user is defining as grouping
+                        category for the bill. This can be alpha-numeric with no character
+                        limit.
+
+After entering the appropriate data into the fields, click on Add Department.
+
+
+
+
+                                                                                            Page: 73 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ Department             Description of the Department that the user is defining as grouping
+ Description            category for the bill. This can be alpha-numeric with no character
+                        limit.
+ Department Code        Code of the Department that the user is defining as grouping
+                        category for the bill. This can be alpha-numeric with no character
+                        limit.
+
+2. If the user wishes to delete the department information listed, click on the Delete icon
+   under Action column to delete. It will show a pop-up notification asking if the user is
+   sure about deleting the information. Click on Yes to continue deleting the information or
+   Cancel to not delete.
+
+
+
+
+                                                                                            Page: 74 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ Department             Description of the Department that the user is defining as grouping
+ Description            category for the bill. This can be alpha-numeric with no character
+                        limit.
+ Department Code        Code of the Department that the user is defining as grouping
+                        category for the bill. This can be alpha-numeric with no character
+                        limit.
+
+3. After taken all desired actions on the Departments page, click on Next to proceed to the
+   next step of the Group Structure. If the user does not feel ready to proceed, click on
+   Save as Draft to save for now or the Cancel button to cancel the process.
+
+
+8.7 Contact Information
+An Executive Contact is required here; however, for other role types the step is optional. If
+user does not pick benefit administrator contact role type below, then the executive contact
+will default to a benefit administrator for all the locations.
+
+1. Fill in the fields with the appropriate information for the Executive Contact.
+
+
+
+
+                                                                                             Page: 75 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Field                  Description
+First Name             First Name of the Executive Contact.
+Last Name              Last Name of the Executive Contact.
+Email                  Email of the Executive Contact.
+Work Phone             Work Phone of the Executive Contact.
+Cell Phone             Cell Phone Number of the Executive Contact. This field is optional.
+Fax Number             Fax Number of the Executive Contact. This field is optional.
+Does this contact      Select Yes if this Executive Contact requires online access. An email
+require online         will be sent to the user to register them for portal access.
+access?                Select No if this Executive Contact does not require online access.
+Is the Executive       Select Yes if this Executive Contact is the same with all other roles.
+Contact the same       This will populate and copy the same information under Additional
+for all other roles?   Roles section.
+                       Select No if this Executive Contact is not the same with all other
+                       roles.
+
+
+                                                                                           Page: 76 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+If answered Yes to the last question “Is the Executive Contact the same for all other roles?”,
+the same information will be populated and copied under Additional Roles section.
+
+
+
+
+ Field                  Description
+ First Name             First Name of the Executive Contact.
+ Last Name              Last Name of the Executive Contact.
+ Email                  Email of the Executive Contact.
+ Work Phone             Work Phone of the Executive Contact.
+ Cell Phone             Cell Phone Number of the Executive Contact. This field is optional.
+ Fax Number             Fax Number of the Executive Contact. This field is optional.
+ Does this contact      Select Yes if this Executive Contact requires online access. An email
+ require online         will be sent to the user to register them for portal access.
+ access?                Select No if this Executive Contact does not require online access.
+ Is the Executive       Select Yes if this Executive Contact is the same with all other roles.
+ Contact the same       This will populate and copy the same information under Additional
+ for all other roles?   Roles section.
+
+
+                                                                                             Page: 77 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                 Description
+                       Select No if this Executive Contact is not the same with all other
+                       roles.
+
+2. If the user wishes to update the contact, click on Update on the right and the modal
+   window will open on the right. Update the contact as desired and click on Update
+   Contact to save the updated information or Cancel to cancel the update.
+
+
+
+
+ Field                 Description
+ Choose Role           Choose the roles that this contact will play. Values include All
+                       Roles, Benefit Administrator, Billing Contact, and Claims Contact.
+ First Name            First Name of the Contact.
+ Last Name             Last Name of the Contact.
+ Email                 Email of the Contact.
+ Work Phone            Work Phone of the Contact.
+ Cell Phone            Cell Phone Number of the Contact. This field is optional.
+ Fax Number            Fax Number of the Contact. This field is optional.
+ Does this contact     Select Yes if this Contact requires online access. An email will be
+ require online        sent to the user to register them for portal access.
+ access?               Select No if this Contact does not require online access.
+
+
+
+                                                                                            Page: 78 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+3. If the user wishes to add an additional contact, click on Add Additional Roles on the
+   bottom and the modal window will open on the right. Fill in the fields with the
+   appropriate information and click on Add Contact to save the new information or Cancel
+   to cancel the addition.
+
+
+
+
+ Field                 Description
+ Choose Role           Choose the roles that this contact will play. Values include All
+                       Roles, Benefit Administrator, Billing Contact, and Claims Contact.
+ First Name            First Name of the Contact.
+ Last Name             Last Name of the Contact.
+ Email                 Email of the Contact.
+ Work Phone            Work Phone of the Contact.
+ Cell Phone            Cell Phone Number of the Contact. This field is optional.
+ Fax Number            Fax Number of the Contact. This field is optional.
+ Does this contact     Select Yes if this Contact requires online access. An email will be
+ require online        sent to the user to register them for portal access.
+ access?               Select No if this Contact does not require online access.
+
+
+
+
+                                                                                           Page: 79 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+4. After taken all desired actions on Contact Information page, click on Next to proceed to
+   the next step of the Group Structure. If the user does not feel ready to proceed, click on
+   Save as Draft to save for now or the Cancel button to cancel the process.
+
+
+
+
+8.8 Build Case Structure
+In this step, users can build a case structure by inputting appropriate information. They may
+create an unlimited number of instances for case structure.
+
+
+
+
+                                                                                             Page: 80 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ Choose a location      Select a location from the list of locations that were added by the
+                        user. The group's main Primary Address should also be listed in the
+                        dropdown as well and will be required to be mapped to structure.
+ Choose a billing       Select a billing address from the list of billing addresses that were
+ entity address         added by the user.
+ Choose                 Select a department from the list of departments that were added
+ Departments            by the user.
+ Choose contact         Select a contact from the list of contacts that were added by the
+                        user.
+
+1. After user inputs all the appropriate information for building a case structure, click on
+   Add Another Structure. The information will be populated under the Case Structure
+   Chart table.
+
+
+
+
+                                                                                             Page: 81 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+If the user tries to move onto the next process by clicking on Next button without adding a
+single structure, a notification is displayed: “Please add a structure”. User cannot proceed
+without adding a structure.
+
+
+
+
+                                                                                            Page: 82 of 115
+                                           Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Clicking on Add Another Structure after filling in the appropriate information will populate
+and save the information under the Case Structure Chart table. If the user wishes to delete
+the case structure, they can click on Delete icon under Action column.
+
+
+
+
+2. After taken all desired actions on Build Case Structure page, click on Next to proceed to
+   the next step of the Group Structure. If the user does not feel ready to proceed, click on
+   Save as Draft to save for now or the Cancel button to cancel the process.
+
+
+8.9 Assign Class to Locations
+Lastly, assign the classes to the appropriate locations. This would be the last step of the
+Group Structure process.
+
+
+
+
+                                                                                              Page: 83 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ Billing Address        Billing address of the particular location populated from the
+                        structures created by the user in the previous Build Case Structure
+                        step.
+ Departments            Department of the particular location populated from the
+                        structures created by the user in the previous Build Case Structure
+                        step.
+ Contact Names          Contact names of the particular location populated from the
+                        structures created by the user in the previous Build Case Structure
+                        step.
+
+1. Click on the dropdown menu Choose to select a class to map to a location. The class
+   descriptions will be populated from the names of classes user created in Class
+   Description step. At least one class must be mapped to all locations before user can
+   proceed to the next step.
+
+
+
+
+                                                                                            Page: 84 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ Billing Address        Billing address of the particular address.
+ Departments            Department of the particular address.
+ Contact Names          Contact names of the particular address.
+
+2. After assigning classes to locations, click on Next to complete the Group Structure and
+   proceed to the next step. If the user does not feel ready to proceed, click on Save as
+   Draft to save for now or the Cancel button to cancel the process.
+
+
+
+
+                                                                                            Page: 85 of 115
+                                           Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+9 Step 7: Billing Setup
+9.1 Module Overview
+During this step, user can see what their billing method is, define their bill delivery method
+and pay their initial premium payment if they choose.
+
+
+9.2 Billing
+Depending on the user type, the bill type will be listed differently. If the user type is
+GA/Broker/Direct, they can see that “List Bill” is going to be the standard bill type. If the
+user type is TPA group, they can see that “Self Administered Premium (SAP) Bill” as the
+standard.
+
+Note:
+Ø If List Bill customer wants to change to SAP billing (or vice versa), then offline exception
+   will be required and is not part of group setup experience.
+
+1. Select the Bill Delivery Method and answer the question regarding initial premium
+   payments.
+
+
+
+
+ Field                   Description
+ Bill Delivery           Select Yes to receive billing statements and correspondence by
+ Method                  mail, otherwise select No.
+ Would you like to       If selected Yes, there will be subsequent questions listed below.
+ pay an initial          If selected No, user can proceed to the next step upon clicking on
+ premium payment?        Next.
+
+
+                                                                                              Page: 86 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+2. If selected Yes on the question “Would you like to pay an initial premium payment?”,
+   there will be subsequent questions listed. Answer the questions accordingly.
+
+
+
+
+ Field                 Description
+ Bill Delivery         Select Yes to receive billing statements and correspondence by
+ Method                mail, otherwise select No.
+ Would you like to     If selected Yes, there will be subsequent questions listed below.
+ pay an initial        If selected No, user can proceed to the next step upon clicking on
+ premium payment?      Next.
+ How much do you       Enter the Initial Premium Amount. Numeric values only allowed.
+ want to pay?
+ How do you want       Select Online if the user wishes to pay with Credit/Debit Card,
+ to pay?               Wire, Electronic Funds Transfer. If the user selects this option,
+                       there will be an Add Payment Method link where user can add
+                       their payment Details.
+                       Select Offline if the user wishes to pay with Mail in a Check. If user
+                       selects this option, there will be a clickable link View Offline
+                       Instructions and Download Cover Sheet which provides the user
+                       with the Offline Payment instructions modal window.
+                                                                                            Page: 87 of 115
+                                    Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+a. When selected Offline payment: Click on the link View Offline Instructions and
+   Download Cover Sheet to see the modal window about Offline Payment
+   Instructions. The wire transfer information would differ depending on the bill type.
+   User can click on the Print icon to print, Download icon to download and Cancel or X
+   button to close the window.
+
+
+
+
+b. When selected Online Payment: Click on the Add Payment Method link to add user’s
+   payment details. After adding the payment method, they can modify the payment
+   method details if necessary by clicking the Modify Payment Method button.
+
+
+
+
+                                                                                       Page: 88 of 115
+                                       Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Clicking on Add New Payment Method will trigger a modal window on the right.
+
+
+
+
+User can choose a payment method between Banking Account and Credit/Debit Card.
+
+
+
+
+                                                                                          Page: 89 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+After adding the payment method, it will be presented under Payment Details.
+
+
+
+
+   c. After completed with filling in the Billing information, user can click on Next to
+      proceed and will be asked to review the payment. After e-signing, click on Submit to
+      submit the payment and billing form.
+
+
+
+
+                                                                                           Page: 90 of 115
+                                   Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+d. Upon submitting the payment and the form, user will see a modal window
+   confirming the payment. Click on Download button to download the payment
+   confirmation details and/or Continue button to proceed to the next Group Setup
+   step.
+
+
+
+
+                                                                                      Page: 91 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+10 Step 8: Authorization
+10.1 Module Overview
+Authorization step will ask the user to sign and acknowledge all the applicable forms.
+
+
+10.2 Online Access
+During this step, user can identify their preference for how they would like all ongoing
+group-level documents and forms (certificates and policies for all applicable sold products)
+delivered to them.
+
+1. Review Online Access related information. Employer would have to grant Online
+   Ongoing Maintenance Access to the entities they work with.
+
+
+
+
+Screen to be replaced with Y/N radio button when environment is updated.
+
+ Field                  Description
+ Should your            Select Yes to grant online access for ongoing maintenance to
+ Broker/TPA/GA          Broker/TPA/GA.
+ have online access     Select No to not grant online access for ongoing maintenance to
+ to ongoing             Broker/TPA/GA.
+ maintenance?
+ Choose your            Select Electronic/Email if the user prefers to receive certificates,
+ preference for         policies, documents and forms over the email. The email address
+ receiving              will be defaulted to the Benefit Administrator’s (BA) email. If there
+ certificates,
+
+                                                                                            Page: 92 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ policies, and          is no BA assigned, then it will be defaulted to Executive Contact’s
+ ongoing documents      email.
+ and forms for this     Select Paper/Mail if the user prefers to receive certificates,
+ group.                 policies, documents and forms over the physical mail. If they do
+                        not indicate the correspondence address, then default to the
+                        primary address.
+
+
+2. Click on e-consent information form and it will trigger a modal window for the user to
+   review.
+
+
+
+
+3. After completing the Online Access form, click on Next to proceed to the next step of the
+   Authorization process. If the user does not feel ready to proceed, click on Save as Draft
+   to save for now or the Cancel button to cancel the process.
+
+
+
+
+10.3 Privacy Notice
+1. Click on the Privacy Notice hyper link to review the terms and conditions.
+2. Check on the checkbox to acknowledge.
+3. Click on Next to move onto the next step.
+
+
+
+
+                                                                                            Page: 93 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+10.4 Intermediary and Producer Compensation Notice
+During this step, user can open, read, and acknowledge the intermediary producer
+compensation notice.
+
+1. Click on the link Intermediary and Producer Compensation Notice and review
+   Intermediary and Producer Compensation Notice. User must click and open the link
+   before they can click on the checkbox and acknowledge.
+
+2. After reviewing the notice, click on the checkbox to acknowledge.
+
+
+
+
+                                                                                           Page: 94 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+3. After completing the acknowledgement, click on Next to proceed to the next step of the
+   Authorization process. If the user does not feel ready to proceed, click on Save as Draft
+   to save for now or the Cancel button to cancel the process.
+
+
+10.5 Third Party Billing
+This section is only applicable to Employer users. If the Employer user had selected “Yes” to
+the Will you be using a Third Party to administer your billing and remit premiums? question
+in the Billing Addresses section, then this section will appear.
+
+1. Click on the link Download the Confirmation & Agreement form and instructions for
+   filling out. The user (Employer) would have to work with their Billing Third Party to
+   complete the form. Both parties must review, complete and sign.
+
+
+
+
+                                                                                             Page: 95 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+2. Once completed, return the form to by emailing to the address provided.
+3. Click on Next to proceed to the next step.
+
+
+10.6 Gross Up Acknowledgement
+During this step, user can open, read, and e-sign the gross up letter. This step will only show
+if Disability products were sold with Gross Up.
+
+1. Review the Gross Up letter.
+
+2. After reviewing the notice, click on the checkbox to acknowledge. User must
+   acknowledge before they proceed.
+
+
+
+
+                                                                                             Page: 96 of 115
+                                           Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+3. After completing the acknowledgement, click on Next to proceed to the next step of the
+   Authorization process. If the user does not feel ready to proceed, click on Save as Draft
+   to save for now or the Cancel button to cancel the process.
+
+
+10.7 HIPAA
+This section is only applicable if Dental and/or Vision products are sold. Here the user is
+asked a set of questions related to HIPAA including Claims Access, HIPAA Authorization
+Request, Privacy, etc.
+
+1. Click on Yes or No to the question of having access to employees’ dental/vision claims
+   information.
+
+
+
+
+                                                                                              Page: 97 of 115
+                                      Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Field                Description
+Do you want access   If selected Yes, there will be a question regarding Claim Access
+to Dental and/or     asked below. User will be required to answer these questions
+Vision claims        before proceeding.
+information or
+protected health     If selected No, there will be a download link: HIPAA Information
+information (PHI)    for new group Dental and/or Vision insurance customers
+for employees?       generated below. User can download and review the information
+                     and proceed with clicking Next.
+
+
+
+
+                                                                                         Page: 98 of 115
+                                      Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Field                Description
+Do you want access   If selected Yes, there will be a question regarding Claim Access
+to Dental and/or     asked below. User will be required to answer these questions
+Vision claims        before proceeding.
+information or
+protected health     If selected No, there will be a download link: HIPAA Information
+information (PHI)    for new group Dental and/or Vision insurance customers
+for employees?       generated below. User can download and review the information
+                     and proceed with clicking Next.
+Claims Access
+Claims Access        Select between two options:
+                     A. I want access to claims. Please include 's language as
+                         included in the Sample HIPAA document in the employee
+                         certificates. (provide hyperlink to view HIPAA info for new
+                         group dental and/or vision insurance customers).
+                                                                                         Page: 99 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+                        B. I want access to claims but I have my own HIPAA plan sponsor
+                           form and I will submit a copy.
+
+                        If Option A is selected, user will be asked to provide additional
+                        section HIPAA Authorization Request below.
+
+2. Click on the desired option on Claims Access question. Depending on which option is
+   selected, there will be additional section populated below.
+
+Scenario 1: If selected “I want access to claims. Please include 's language as included in
+the Sample HIPAA document in the employee certificates. (provide hyperlink to view
+HIPAA info for new group dental and/or vision insurance customers).” on Claims Access
+question.
+
+
+
+
+ Field                  Description
+ Do you want access     If selected Yes, there will be a question regarding Claim Access
+ to Dental and/or       asked below. User will be required to answer these questions
+ Vision claims          before proceeding.
+                                                                                           Page: 100 of 115
+                                           Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Field                    Description
+information or
+protected health         If selected No, there will be a download link: HIPAA Information
+information (PHI)        for new group Dental and/or Vision insurance customers
+for employees?           generated below. User can download and review the information
+                         and proceed with clicking Next.
+Claims Access
+Claims Access            Select between two options:
+                         A. I want access to claims. Please include 's language as
+                             included in the Sample HIPAA document in the employee
+                             certificates. (provide hyperlink to view HIPAA info for new
+                             group dental and/or vision insurance customers).
+                         B. I want access to claims but I have my own HIPAA plan sponsor
+                             form and I will submit a copy.
+
+                         If Option A is selected, user will be asked to provide additional
+                         section HIPAA Authorization Request below.
+HIPAA Authorization Request
+Employee Title or        Title of the Employee. Select from the dropdown (e.g. Account
+Other Identifier         Manager, Benefit Administrator, Chief Executive Officer, etc).
+Should the term          Select Yes if the organization’s Privacy Officer oversees resolving
+"Privacy Officer" be     issues of HIPAA noncompliance and complaints, to include the
+included in Section      term “or Privacy Officer” in the plan document HIPAA Privacy
+iii (C) Sharing of PHI   language.
+with the Plan
+Sponsor of the           Select No if the organization’s Privacy Officer does not oversee
+Dental and/or            resolving issues of HIPAA noncompliance and complaints.
+Vision Plan
+Document? (Y/N)
+Should Section IV.       This question is optional.
+"Participant's
+Rights" be included
+in the Dental            Participants Rights: Covered entities are required to provide a
+and/or Vision Plan       notice in plain language that describes, among other things, the
+Document? (this is       individual’s rights with respect to the information and how the
+an optional              individual may exercise these rights, including how the individual
+section). (Y/N)          may complain to the covered entity. For the fully-insured plans, is
+                         the covered entity and will provide a HIPAA Notice of Privacy
+                         Practices that includes the rights as required. If it is appropriate for
+                         the organization to use a different Privacy Notice, will it include
+                         the Participants Rights?
+
+
+                                                                                             Page: 101 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                  Description
+ Should Section V.      This question is optional.
+ "Privacy
+ Complaints/Issues"
+ be included in the     Complaints: This paragraph outlines timelines and guidelines that
+ Dental and/or          the Plan Administrator or Privacy Officer will follow to respond to
+ Vision Plan            complaints. The organization has the option of including this
+ Document? (this is     language in the plan documents or to omit it.
+ an optional section)
+
+Scenario 2: If selected “I want access to claims but I have my own HIPAA plan sponsor
+form and I will submit a copy.” on Claims Access question. User will be asked to upload a
+copy of HIPAA plan sponsor form. Click on Add a File to add the form.
+
+
+
+
+3. Click on Next after answering all the required questions. User can then review and e-
+   sign. Click on the link for HIPAA Information and click the checkboxes. Click on Next to
+   proceed.
+
+
+
+
+                                                                                           Page: 102 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+10.8 Disability Taxation Authorization
+During this step, the user can select who will issue the disability W2, whether they are using
+a payroll vendor, and acknowledge the Disability Tax Authorization. This step will only
+displayed when Disability product (LTD/STD) is sold.
+
+1. Fill out the Disability Taxation Authorization. After filling out the Authorization and if
+   selected Yes to the question “Are you using a payroll vendor?”, acknowledge the Terms
+   and Conditions below by checking the box.
+
+
+
+
+                                                                                            Page: 103 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                Description
+ Disability           Select Customer will issue disability W-2’s if the customer will issue
+ Taxation             the W-2 form for disability.
+ Authorization        Select will issue disability W-2’s if the will issue the W-2 form for
+                      disability. If this option is selected, there will be a subsequent
+                      question below asking the user “Will you be using a payroll vendor?”
+ Will you be using    This question will be only displayed if selected will issue disability
+ a payroll vendor?    W-2’s on the previous question.
+                      If selected Yes: If you have a Payroll Vendor but want to issue
+                      Disability W-2’s, please complete the following authorization: Have
+                      you discussed with your Payroll Vendor who should be issuing W-2s
+                      for taxable disability benefit payments (Third Party Sick Pay)? If you
+                      have not discussed this matter and obtained an agreement with
+                      your Payroll Vendor you may experience W-2 and tax reporting
+                      issues at the end of the tax year.
+                      If selected No: Continue with authorizations.
+                      Note:
+                      If No is selected, the terms and conditions box would not appear.
+
+If LTD and STD are both selected, they will show the W2 questions separately.
+
+
+
+
+                                                                                           Page: 104 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+2. After completing the Authorization, click on Next to proceed to the next step of the
+   Authorization process. If the user does not feel ready to proceed, click on Save as Draft
+   to save for now or the Cancel button to cancel the process.
+
+
+10.9 Certificate of Beneficial Interest
+During this step, the user can acknowledge the Certificate of Beneficial Interest form. This
+step will only displayed if portability is sold with any of the Life products during
+Underwriting/RFP. This step won’t be displayed if Situs State is Alaska.
+
+1. Review the Certificate of Beneficial Interest Terms and Conditions.
+
+2. After reviewing the Agreement, click on the checkbox to acknowledge.
+
+
+
+
+                                                                                            Page: 105 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Screen to be replaced with new name when the environment is updated
+
+3. After completing the acknowledgement, click on Next to proceed to the next step of the
+   Authorization process. If the user does not feel ready to proceed, click on Save as Draft
+   to save for now or the Cancel button to cancel the process.
+
+
+
+
+Screen to be replaced with new name when the environment is updated
+
+
+
+
+                                                                                           Page: 106 of 115
+                                           Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+10.10 No Claims
+This step is only applicable if Life, Disability, Critical Illness, Accident and/or Hospital
+Indemnity products are sold and notice of sale is equal to or after effective date. In that
+case, user must acknowledge that no claims have occurred since effective date.
+
+1. Select appropriate options regarding claims that have or have not occurred between the
+   coverage effective date and the current date.
+
+
+
+
+Screen to be replaced with new name when the environment is updated
+
+Depending on the option the user selects, they will be required to provide an additional
+information regarding their claims.
+
+
+
+
+                                                                                             Page: 107 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Screen to be replaced with new name when the environment is updated
+
+ Field                Description
+ Have there been      If No claims have been occurred is selected, user will be allowed to
+ any claims           proceed to next screen after e-signing the acknowledgement.
+ occurred between
+ the requested        If Claims have been occurred is selected, user will be required to
+ coverage effective   enter claim information by clicking on Add Another Claim button
+ date and today?      that shows up.
+
+Add Another Claim modal screen TBD when the updated environment is available.
+
+After adding the claim information, user will see the reflected information under the Claim
+Information table.
+
+
+
+
+                                                                                           Page: 108 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+Screen to be replaced with new name when the environment is updated
+
+ Field                 Description
+ Product               Type of the product which the claims that have been occurred
+                       between the coverage effective date and the current date.
+ Date Of           Date of the claim incurrence. What date did this claim incur?
+ Expected/Occurred
+ Claim
+ Nature of         Type of claim/disability (i.e. pregnancy, Broke leg, etc.) for the user
+ Expected/Occurred who has a claim.
+ Claim
+ Additional            Optional; Additional comments to provide further detail on the
+ Comments              claim.
+ Action                Click on Edit icon to edit the claim information.
+
+After answering all the required questions, user can click on Next to proceed to the next
+section. Upon clicking on Next and if there were any claim information provided, user will
+see a notification. Click on Continue to continue to the next step.
+
+
+
+
+                                                                                           Page: 109 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+11 Step 9: Finalize Group Setup
+11.1 Module Overview
+Once the user has proceeded through their authorizations, user will be able to look at the
+finalize the Group Setup page. During this step, user has opportunity to review all group
+setup data elements and edit certain Group Setup details.
+
+
+11.2 Review Group Setup Details
+1. If user needs to edit and update certain data elements, user can click on the Pencil icon.
+   They are then redirected to that specific screen with the data field listed to make the
+   applicable change.
+
+Note:
+Ø Authorization forms will not be editable, but will be displayed for record that they were
+   e-signed by user.
+Ø Once the user is done editing the appropriate section, they can click on the Next button
+   on that screen and then user has to go back through all the screens by clicking on Next
+   to get back to Review and Finalize screen to see updated info reflected.
+2. Click on the Print this Screen button to print finalized group setup information. Print will
+   be a full view of the entire page and will not be a generated PDF.
+3. After user has reviewed their finalize Group Setup page and ready to submit, user can
+   click on Confirm and Next in order to proceed to the next step. If user is not ready to
+   proceed, click on Save as Draft to save for now or Cancel to cancel the process.
+Note:
+Ø Once Group Setup has been submitted on this page, users lose ability to go back and
+   change any information captured prior to this step.
+
+
+
+
+                                                                                            Page: 110 of 115
+                                          Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+12 Step 10: Master Application and
+  Transition to Enrollment
+12.1 Module Overview
+After Group Setup is submitted, user will be directed to transitin page prior to starting
+Enrollment that summarizes their classes, location, department ID numbers needed for
+Enrollment purposes.
+
+
+12.2 Sign the Master Application and Begin Enrollment
+1. Click on the View & Sign Master Application link and a modal window, Application for
+   Group Insurance will pop up.
+
+
+
+
+2. User can review the information and e-sign the form. They are required to enter the
+   Title, City and State based on who is e-signing. Then they will check on the box to
+   acknowledge the terms and conditions. They can click on Sign & Submit button to
+   submit their application.
+
+
+
+
+                                                                                            Page: 111 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+ Field                Description
+ Title                The role of the person signing.
+
+ City                 City where the Master App has been signed.
+
+ State                State where the Master App has been signed.
+
+ Date                 Current date when the Master App has been signed.
+
+3. Upon submission, user will see a Confirmation screen. Here, user can click on Download
+   button to download a copy of the Group Structure. The system will count down from 90
+   seconds while Core is loading the Group Setup details. After 90 seconds, Begin
+   Enrollment button will be activated and the user can click on the button to transition to
+   the Enrollment process.
+
+
+
+ Field                Description
+ Group Number         System generated unique number assigned to the company.
+ Effective Date       Effective date of the Group Setup, in MM/DD/YYYY format
+ Classes              Classes that are part of the RFP.
+ Departments          Departments that were added during Group Setup.
+
+4. User will be then taken to the Dashboard to begin Enrollment. Please refer to the “SMD
+   Platform Portal User Guide_Enrollment” document for the Enrollment process.
+
+                                                                                           Page: 112 of 115
+Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+                                                  Page: 113 of 115
+                                         Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+13 Error Details
+Errors in the portal are broadly classified into the following types:
+    a. Business/Admin errors are the known errors that usually arise out of failing certain
+        business/product validations. The resolution for this kind of errors will normally
+        involve entering appropriate input data.
+    b. System/Technical errors are those which have occurred because of some other
+        unknown system failure. Resolution of these errors generally requires technical
+        analysis. You may contact your System Administrator for further assistance on these
+        errors.
+
+
+ Error Message                              Description | Example
+                                            Error pop-ups with different messages will
+                                            show up when the requirement is not satisfied
+                                            and/or information is missing.
+                                            Error message is displayed in red color under
+                                            the text box.
+
+
+
+
+                                                                                           Page: 114 of 115
+                                        Digital Front End Portal – User Guide | Small Market Digital Platform
+
+
+
+
+14 Contact Us
+The following section provides information on how to obtain support for documentation
+and software.
+
+
+14.1 Documentation Support
+For any questions, comments or suggestions on the documentation, you can contact by
+email at xxx@us.ibm.com
+
+
+14.2 Technical Support
+If you have any problems, questions or suggestions regarding this software contact by email
+at xxx@us.ibm.com. While contacting technical support, please have the following
+information ready:
+   •   Your name, e-mail address, telephone number and / or fax number
+   •   The type of hardware
+   •   IE, office version
+   •   The Operating System
+   •   A description of the steps leading to the problem
+   •   The exact message that appeared when the problem occurred or any other message
+       that appeared on your screen
+
+
+14.3 Additional Information
+Please contact: IBM via email
+Email: xxx@us.ibm.com
+
+
+
+
+                                                                                          Page: 115 of 115
+

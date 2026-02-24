@@ -1,0 +1,134 @@
+// 1. Material theme setup
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$frontend-primary: mat.define-palette(mat.$indigo-palette);
+$frontend-accent: mat.define-palette(mat.$deep-purple-palette, A200, A100, A400);
+$frontend-warn: mat.define-palette(mat.$red-palette);
+
+$frontend-theme: mat.define-light-theme((
+  color: (
+    primary: $frontend-primary,
+    accent: $frontend-accent,
+    warn: $frontend-warn,
+  ),
+  typography: mat.define-typography-config(
+    $font-family: 'Inter, system-ui, sans-serif',
+  ),
+  density: 0
+));
+
+@include mat.all-component-themes($frontend-theme);
+
+// 2. Tailwind (preflight disabled in tailwind.config.js)
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// 3. Minimal custom reset (replacing Preflight)
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #1e293b;
+  background: #f8fafc;
+}
+
+// 4. Material overrides — modern look
+// Rounded form fields
+.mat-mdc-form-field {
+  .mdc-notched-outline__leading {
+    border-radius: 10px 0 0 10px;
+  }
+  .mdc-notched-outline__trailing {
+    border-radius: 0 10px 10px 0;
+  }
+}
+
+// Toolbar gradient
+.mat-toolbar.mat-primary {
+  background: linear-gradient(135deg, #312e81 0%, #4338ca 50%, #4f46e5 100%);
+}
+
+// Rounded cards with subtle shadow
+.mat-mdc-card {
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  padding: 16px;
+}
+
+// Table header styling
+.mat-mdc-table {
+  .mat-mdc-header-row {
+    background: #f8fafc;
+  }
+  .mat-mdc-header-cell {
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .mat-mdc-row {
+    transition: background 0.15s ease;
+    &:hover {
+      background: #f1f5f9;
+    }
+  }
+  .mat-mdc-header-row,
+  .mat-mdc-row {
+    border-bottom: 1px solid #e2e8f0;
+  }
+}
+
+// Raised buttons
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button {
+  border-radius: 8px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+// Flat primary button gradient
+.mat-mdc-unelevated-button.mat-primary {
+  background: linear-gradient(135deg, #4338ca, #4f46e5);
+}
+
+// Dialog rounded
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 16px;
+}
+
+// Paginator clean look
+.mat-mdc-paginator {
+  background: transparent;
+  border-top: 1px solid #e2e8f0;
+}
+
+// 5. App utility classes
+.page-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200;
+}
+
+// Status colors
+.status-not-started { @apply text-gray-600 bg-gray-100; }
+.status-in-progress { @apply text-blue-700 bg-blue-100; }
+.status-completed { @apply text-green-700 bg-green-100; }
+.status-offline { @apply text-orange-700 bg-orange-100; }
+.status-pending { @apply text-yellow-700 bg-yellow-100; }
+.status-skipped { @apply text-purple-700 bg-purple-100; }
