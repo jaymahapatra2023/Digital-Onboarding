@@ -63,10 +63,14 @@ class NotificationHandler:
 
     async def handle_workflow_submitted(self, event: WorkflowSubmitted) -> None:
         renewal = event.servicing_payload.get("renewal_notification_period")
+        billing = event.servicing_payload.get("billing")
+        billing_model = billing.get("billing_model") if billing else None
+        billing_freq = billing.get("billing_frequency") if billing else None
         logger.info(
             f"Workflow submitted for client {event.client_id} "
             f"(workflow_instance_id={event.workflow_instance_id}, "
-            f"renewal_notification_period={renewal})"
+            f"renewal_notification_period={renewal}, "
+            f"billing_model={billing_model}, billing_frequency={billing_freq})"
         )
 
 

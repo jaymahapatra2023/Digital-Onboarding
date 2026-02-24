@@ -51,7 +51,7 @@ const BILLING_FREQUENCY_OPTIONS: { value: BillingFrequency; label: string }[] = 
         <p class="text-slate-500 ml-12">Configure billing preferences and initial premium payment</p>
       </div>
 
-      <mat-stepper linear #stepper class="bg-transparent">
+      <mat-stepper #stepper class="bg-transparent">
 
         <!-- SUB-STEP 1: Billing Model -->
         <mat-step [stepControl]="billingModelForm" label="Billing Model">
@@ -692,6 +692,7 @@ export class BillingSetupComponent implements OnInit, OnDestroy {
   }
 
   isValid(): boolean {
+    const ok = (f: FormGroup) => f.valid || f.disabled;
     return this.isStep1Valid() && this.isStep2Valid();
   }
 

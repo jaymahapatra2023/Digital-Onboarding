@@ -468,6 +468,36 @@ class WorkflowService:
                 )
 
         renewal_data = step_data.get("renewal_period", {})
+        billing_data = step_data.get("billing_setup", {})
+
+        # Normalize billing into a structured top-level key
+        billing_output = None
+        if billing_data:
+            billing_output = {
+                "billing_model": billing_data.get("billing_model"),
+                "billing_frequency": billing_data.get("billing_frequency"),
+                "responsible_entity": billing_data.get("responsible_entity"),
+                "self_admin_config": billing_data.get("self_admin_config"),
+                "receive_billing_by_mail": billing_data.get("billing", {}).get(
+                    "receive_billing_by_mail"
+                ),
+                "initial_premium": {
+                    "requested": billing_data.get("billing", {}).get(
+                        "wants_initial_premium"
+                    )
+                    == "yes",
+                    "amount": billing_data.get("billing", {}).get(
+                        "initial_premium_amount"
+                    ),
+                    "channel": billing_data.get("billing", {}).get(
+                        "payment_channel"
+                    ),
+                    "payment_confirmed": billing_data.get(
+                        "payment_confirmed", False
+                    ),
+                    "confirmation": billing_data.get("confirmation"),
+                },
+            }
 
         return {
             "client_id": str(instance.client_id),
@@ -476,6 +506,7 @@ class WorkflowService:
             "renewal_notification_period": renewal_data.get(
                 "renewal_notification_period"
             ),
+            "billing": billing_output,
             "steps": step_data,
         }
 
