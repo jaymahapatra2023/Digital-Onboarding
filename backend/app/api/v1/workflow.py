@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user, get_db
@@ -104,6 +104,7 @@ async def save_step_data(
 async def complete_step(
     client_id: UUID,
     step_id: str,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: UserORM = Depends(get_current_user),
 ):
@@ -114,6 +115,8 @@ async def complete_step(
             client_id=client_id,
             step_id=step_id,
             user_id=current_user.id,
+            request_ip=request.client.host if request.client else None,
+            request_user_agent=request.headers.get("user-agent"),
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))

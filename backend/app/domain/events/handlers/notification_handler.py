@@ -66,11 +66,15 @@ class NotificationHandler:
         billing = event.servicing_payload.get("billing")
         billing_model = billing.get("billing_model") if billing else None
         billing_freq = billing.get("billing_frequency") if billing else None
+        auth = event.servicing_payload.get("authorization")
+        auth_signer = auth.get("accepted_by") if auth else None
+        auth_timestamp = auth.get("server_timestamp") if auth else None
         logger.info(
             f"Workflow submitted for client {event.client_id} "
             f"(workflow_instance_id={event.workflow_instance_id}, "
             f"renewal_notification_period={renewal}, "
-            f"billing_model={billing_model}, billing_frequency={billing_freq})"
+            f"billing_model={billing_model}, billing_frequency={billing_freq}, "
+            f"auth_signer={auth_signer}, auth_timestamp={auth_timestamp})"
         )
 
 

@@ -34,6 +34,7 @@ export interface HipaaData {
   participants_rights: string;
   privacy_complaints: string;
   hipaa_file_uploaded: boolean;
+  hipaa_document_ids: string[];
   hipaa_terms_accepted: boolean;
   esign_declaration: boolean;
   esign_group_name: string;
@@ -73,6 +74,10 @@ export interface FinalSignatureData {
   final_declaration: boolean;
   accepted_by: string;
   signature_date: string;
+  signer_user_agent: string;
+  client_timestamp: string;
+  server_timestamp?: string;
+  signer_ip?: string;
 }
 
 export interface AuthorizationData {

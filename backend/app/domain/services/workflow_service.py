@@ -224,6 +224,13 @@ class WorkflowService:
         if not step:
             raise ValueError(f"Step {step_id} not found")
 
+        # Immutability guard: prevent modification of completed authorization step
+        if step_id == "authorization" and step.status == "COMPLETED":
+            raise ValueError(
+                "Authorization step has been completed and is now locked. "
+                "Data cannot be modified after final signature."
+            )
+
         now = datetime.now(timezone.utc)
         await self.repo.update_step_instance(step.id, data=data, last_saved_at=now)
 
@@ -251,6 +258,8 @@ class WorkflowService:
         client_id: UUID,
         step_id: str,
         user_id: UUID | None = None,
+        request_ip: str | None = None,
+        request_user_agent: str | None = None,
     ) -> dict:
         """Mark a step as completed and advance to the next pending step.
 
@@ -271,6 +280,16 @@ class WorkflowService:
         await self.repo.update_step_instance(
             step.id, status="COMPLETED", completed_at=now
         )
+
+        # Stamp server-side signer metadata on authorization step completion
+        if step_id == "authorization" and step.data:
+            data = step.data if isinstance(step.data, dict) else {}
+            final_sig = data.get("final_signature", {})
+            final_sig["server_timestamp"] = now.isoformat()
+            final_sig["signer_ip"] = request_ip
+            final_sig["server_user_agent"] = request_user_agent
+            data["final_signature"] = final_sig
+            await self.repo.update_step_instance(step.id, data=data)
 
         # Determine the next step and whether all steps are done
         refreshed = await self.repo.get_instance_by_client(client_id)
@@ -499,6 +518,32 @@ class WorkflowService:
                 },
             }
 
+        # Normalize authorization into a structured top-level key
+        authorization_data = step_data.get("authorization", {})
+        authorization_output = None
+        if authorization_data:
+            final_sig = authorization_data.get("final_signature", {})
+            authorization_output = {
+                "accepted_by": final_sig.get("accepted_by"),
+                "signature_date": final_sig.get("signature_date"),
+                "server_timestamp": final_sig.get("server_timestamp"),
+                "client_timestamp": final_sig.get("client_timestamp"),
+                "signer_ip": final_sig.get("signer_ip"),
+                "signer_user_agent": final_sig.get("signer_user_agent"),
+                "sections_completed": {
+                    "online_access": bool(authorization_data.get("online_access")),
+                    "privacy_notice": authorization_data.get("privacy_notice", {}).get("privacy_notice_acknowledged", False),
+                    "intermediary": authorization_data.get("intermediary", {}).get("intermediary_notice_received", False),
+                    "third_party_billing": authorization_data.get("third_party_billing", {}).get("agreement_reviewed", False),
+                    "gross_up": authorization_data.get("gross_up", {}).get("gross_up_acknowledged", False),
+                    "hipaa": authorization_data.get("hipaa", {}).get("hipaa_terms_accepted", False),
+                    "disability_tax": bool(authorization_data.get("disability_tax")),
+                    "cert_beneficial": authorization_data.get("cert_beneficial", {}).get("portability_agreement_acknowledged", False),
+                    "no_claims": authorization_data.get("no_claims", {}).get("customer_esign", False),
+                },
+                "hipaa_document_ids": authorization_data.get("hipaa", {}).get("hipaa_document_ids", []),
+            }
+
         return {
             "client_id": str(instance.client_id),
             "workflow_instance_id": str(instance.id),
@@ -507,6 +552,7 @@ class WorkflowService:
                 "renewal_notification_period"
             ),
             "billing": billing_output,
+            "authorization": authorization_output,
             "steps": step_data,
         }
 

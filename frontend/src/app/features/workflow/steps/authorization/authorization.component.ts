@@ -16,6 +16,7 @@ import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angu
 import { Subject, takeUntil } from 'rxjs';
 import { WorkflowStore } from '../../store/workflow.store';
 import { FileUploaderComponent } from '../../../../shared/components/file-uploader/file-uploader.component';
+import { FileUploadService } from '../../../../core/services/file-upload.service';
 import { EConsentDialogComponent } from './e-consent-dialog.component';
 import { ClaimEntry } from './authorization.interfaces';
 
@@ -967,6 +968,8 @@ export class AuthorizationComponent implements OnInit, OnDestroy {
   // HIPAA state
   employeeTitleOptions = EMPLOYEE_TITLE_OPTIONS;
   hipaaFileUploaded = false;
+  hipaaUploadedDocumentIds: string[] = [];
+  hipaaUploading = false;
 
   // Claims state
   claims: ClaimEntry[] = [];
@@ -990,6 +993,7 @@ export class AuthorizationComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private dialog: MatDialog,
     private store: WorkflowStore,
+    private fileUploadService: FileUploadService,
   ) {
     this.buildForms();
   }
@@ -1187,6 +1191,7 @@ export class AuthorizationComponent implements OnInit, OnDestroy {
         });
       }
       this.hipaaFileUploaded = hipaa.hipaa_file_uploaded || false;
+      this.hipaaUploadedDocumentIds = hipaa.hipaa_document_ids || [];
     }
     if (data['disability_tax']) this.disabilityTaxForm.patchValue(data['disability_tax']);
     if (data['cert_beneficial']) this.certBeneficialForm.patchValue(data['cert_beneficial']);
@@ -1240,7 +1245,28 @@ export class AuthorizationComponent implements OnInit, OnDestroy {
 
   // --- HIPAA File Upload ---
   onHipaaFileSelected(files: File[]): void {
-    this.hipaaFileUploaded = files.length > 0;
+    if (files.length === 0) return;
+    const clientId = this.store.client()?.id;
+    if (!clientId) return;
+
+    this.hipaaUploading = true;
+    const file = files[0];
+    this.fileUploadService.upload(
+      clientId,
+      file,
+      'HIPAA_AUTHORIZATION',
+      'HIPAA Custom Authorization Form',
+      this.store.workflow()?.id,
+    ).subscribe({
+      next: (response) => {
+        this.hipaaFileUploaded = true;
+        this.hipaaUploadedDocumentIds = [response.id];
+        this.hipaaUploading = false;
+      },
+      error: () => {
+        this.hipaaUploading = false;
+      },
+    });
   }
 
   // --- E-Consent Dialog ---
@@ -1306,6 +1332,7 @@ export class AuthorizationComponent implements OnInit, OnDestroy {
         ...this.hipaaForm.getRawValue(),
         employee_titles: this.employeeTitles.controls.map(c => ({ title: c.value })),
         hipaa_file_uploaded: this.hipaaFileUploaded,
+        hipaa_document_ids: this.hipaaUploadedDocumentIds,
       },
       disability_tax: this.disabilityTaxForm.getRawValue(),
       cert_beneficial: this.certBeneficialForm.getRawValue(),
@@ -1313,7 +1340,11 @@ export class AuthorizationComponent implements OnInit, OnDestroy {
         ...this.noClaimsForm.getRawValue(),
         claims: this.claims,
       },
-      final_signature: this.finalSignatureForm.getRawValue(),
+      final_signature: {
+        ...this.finalSignatureForm.getRawValue(),
+        signer_user_agent: navigator.userAgent,
+        client_timestamp: new Date().toISOString(),
+      },
       document_gates: { ...this.documentGates },
     };
   }
