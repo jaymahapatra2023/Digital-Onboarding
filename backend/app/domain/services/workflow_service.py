@@ -220,6 +220,13 @@ class WorkflowService:
         if not instance:
             raise ValueError("No workflow found for this client")
 
+        # Workflow-level immutability guard
+        if instance.status == "COMPLETED":
+            raise ValueError(
+                "This workflow has been submitted and is now locked. "
+                "No further changes are permitted."
+            )
+
         step = await self.repo.get_step_instance(instance.id, step_id)
         if not step:
             raise ValueError(f"Step {step_id} not found")
@@ -271,6 +278,10 @@ class WorkflowService:
         instance = await self.repo.get_instance_by_client(client_id)
         if not instance:
             raise ValueError("No workflow found for this client")
+
+        # Workflow-level immutability guard
+        if instance.status == "COMPLETED":
+            raise ValueError("This workflow has been submitted. Steps cannot be modified.")
 
         step = await self.repo.get_step_instance(instance.id, step_id)
         if not step:
@@ -344,6 +355,10 @@ class WorkflowService:
         instance = await self.repo.get_instance_by_client(client_id)
         if not instance:
             raise ValueError("No workflow found for this client")
+
+        # Workflow-level immutability guard
+        if instance.status == "COMPLETED":
+            raise ValueError("This workflow has been submitted. Steps cannot be skipped.")
 
         step = await self.repo.get_step_instance(instance.id, step_id)
         if not step:

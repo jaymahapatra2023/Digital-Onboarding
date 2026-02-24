@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -165,6 +166,7 @@ export class MasterAppComponent implements OnInit, OnDestroy {
   constructor(
     private dialog: MatDialog,
     private store: WorkflowStore,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -275,7 +277,7 @@ export class MasterAppComponent implements OnInit, OnDestroy {
   }
 
   beginEnrollment(): void {
-    // In production, this would navigate to the enrollment module
+    this.router.navigate(['/sold-cases']);
   }
 
   getData(): Record<string, any> {

@@ -14,7 +14,7 @@ import { SoldCasesService } from '../../../sold-cases/services/sold-cases.servic
 import { NotificationService } from '../../../../core/services/notification.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { STEP_REGISTRY, STEP_NAMES } from '../../steps/step-registry';
-import { StepStatus } from '../../../../core/models/workflow.model';
+import { StepStatus, WorkflowStatus } from '../../../../core/models/workflow.model';
 import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store';
 
 @Component({
@@ -50,6 +50,17 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
           </div>
 
           <div *ngIf="!store.loading()" class="p-8 max-w-4xl">
+            <!-- Post-submit banner -->
+            <div *ngIf="store.isWorkflowSubmitted()" class="mb-6 px-5 py-4 bg-green-50 border border-green-200 rounded-xl">
+              <div class="flex items-center gap-3">
+                <mat-icon class="text-green-600" style="font-size:20px;width:20px;height:20px;">check_circle</mat-icon>
+                <div>
+                  <p class="text-sm font-semibold text-green-800">Group Setup Submitted</p>
+                  <p class="text-xs text-green-600 mt-0.5">This workflow has been submitted. All steps are locked and read-only.</p>
+                </div>
+              </div>
+            </div>
+
             <!-- Role-restricted step: handoff banner -->
             <div *ngIf="store.isCurrentStepRoleRestricted() && !handoffSent"
                  class="mb-6 px-5 py-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3">
@@ -90,7 +101,7 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
               <h1 class="text-xl font-bold text-slate-900">
                 {{ currentStepName }}
               </h1>
-              <button mat-stroked-button (click)="onSave()"
+              <button *ngIf="!store.isWorkflowSubmitted()" mat-stroked-button (click)="onSave()"
                       [disabled]="store.saving() || store.isCurrentStepRoleRestricted()"
                       class="text-slate-600">
                 <mat-icon class="mr-1">save</mat-icon> Save Draft
@@ -117,7 +128,7 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
                       class="text-slate-600">
                 <mat-icon>arrow_back</mat-icon> Previous
               </button>
-              <div class="flex gap-3">
+              <div *ngIf="!store.isWorkflowSubmitted()" class="flex gap-3">
                 <button mat-button (click)="onSkip()" class="text-slate-400"
                         [disabled]="store.isCurrentStepRoleRestricted()">Skip</button>
                 <button mat-flat-button color="primary" (click)="onNext()"
@@ -125,6 +136,12 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
                         style="border-radius: 10px; padding: 0 24px;">
                   {{ isLastStep ? 'Complete' : 'Save & Continue' }}
                   <mat-icon>{{ isLastStep ? 'check' : 'arrow_forward' }}</mat-icon>
+                </button>
+              </div>
+              <div *ngIf="store.isWorkflowSubmitted()">
+                <button mat-flat-button color="primary" (click)="returnToCases()"
+                        style="border-radius: 10px; padding: 0 24px;">
+                  Return to Cases <mat-icon>arrow_forward</mat-icon>
                 </button>
               </div>
             </div>
@@ -282,6 +299,7 @@ export class WorkflowContainerComponent implements OnInit {
   }
 
   async saveCurrentStepData(): Promise<void> {
+    if (this.store.isWorkflowSubmitted()) return;
     if (!this.currentComponentRef?.instance?.getData) return;
     const data = this.currentComponentRef.instance.getData();
     const stepId = this.store.currentStepId();
@@ -299,6 +317,7 @@ export class WorkflowContainerComponent implements OnInit {
   }
 
   async onSave(): Promise<void> {
+    if (this.store.isWorkflowSubmitted()) return;
     if (this.store.isCurrentStepRoleRestricted()) return;
     if (!this.currentComponentRef?.instance?.getData) return;
     const data = this.currentComponentRef.instance.getData();
@@ -321,6 +340,7 @@ export class WorkflowContainerComponent implements OnInit {
   }
 
   async onNext(): Promise<void> {
+    if (this.store.isWorkflowSubmitted()) return;
     if (this.store.isCurrentStepRoleRestricted()) return;
 
     // Clear previous validation errors
@@ -384,8 +404,8 @@ export class WorkflowContainerComponent implements OnInit {
   private submitWorkflow(): void {
     this.workflowService.submitWorkflow(this.clientId).subscribe({
       next: () => {
+        this.store.updateWorkflowStatus(WorkflowStatus.COMPLETED);
         this.notification.success('Group setup submitted successfully!');
-        this.router.navigate(['/sold-cases']);
       },
       error: () => {
         // Submission failed but steps are still completed — notify user
@@ -394,7 +414,12 @@ export class WorkflowContainerComponent implements OnInit {
     });
   }
 
+  returnToCases(): void {
+    this.router.navigate(['/sold-cases']);
+  }
+
   onSkip(): void {
+    if (this.store.isWorkflowSubmitted()) return;
     if (this.store.isCurrentStepRoleRestricted()) return;
     const stepId = this.store.currentStepId();
     this.workflowService.skipStep(this.clientId, stepId).subscribe({

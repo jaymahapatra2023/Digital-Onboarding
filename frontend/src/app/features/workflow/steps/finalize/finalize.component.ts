@@ -53,7 +53,7 @@ import { STEP_NAMES } from '../step-registry';
       </div>
 
       <!-- S3: Disabled wrapper when prerequisites not met -->
-      <div [ngClass]="{'opacity-60 pointer-events-none': !commissionAckComplete}">
+      <div [ngClass]="{'opacity-60 pointer-events-none': !allPrerequisitesComplete}">
 
       <!-- Note about editing -->
       <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
@@ -479,8 +479,12 @@ export class FinalizeComponent implements OnInit {
 
   stepData: Record<string, Record<string, any>> = {};
 
-  // S3: Prerequisite enforcement
-  commissionAckComplete = true;
+  // S3: Prerequisite enforcement — all 8 prior steps must be COMPLETED
+  private readonly REQUIRED_PRIOR_STEPS = [
+    'licensing', 'company_info', 'risk_assessment', 'commission_ack',
+    'renewal_period', 'group_structure', 'billing_setup', 'authorization',
+  ];
+  allPrerequisitesComplete = true;
   incompleteSteps: { stepId: string; label: string }[] = [];
 
   companyInfoFields = [
@@ -511,28 +515,23 @@ export class FinalizeComponent implements OnInit {
     }
   }
 
-  // S3: Check that commission_ack is complete before allowing finalize
+  // S3: Check all 8 prior steps are COMPLETED before allowing finalize
   private checkPrerequisites(): void {
     const incomplete: { stepId: string; label: string }[] = [];
+    const steps = this.store.sortedSteps();
 
-    // Check commission_ack step data for e-signature
-    const commAckData = this.store.getStepData('commission_ack');
-    const hasSignature = commAckData?.['terms']?.['e_signature'] === true
-      && !!commAckData?.['terms']?.['accepted_by'];
-
-    // Also verify the step status is COMPLETED
-    const commAckStep = this.store.sortedSteps().find(s => s.step_id === 'commission_ack');
-    const stepCompleted = commAckStep?.status === 'COMPLETED';
-
-    if (!hasSignature || !stepCompleted) {
-      incomplete.push({
-        stepId: 'commission_ack',
-        label: STEP_NAMES['commission_ack'] || 'Commission Agreement Acknowledgement',
-      });
+    for (const requiredId of this.REQUIRED_PRIOR_STEPS) {
+      const step = steps.find(s => s.step_id === requiredId);
+      if (!step || step.status !== 'COMPLETED') {
+        incomplete.push({
+          stepId: requiredId,
+          label: STEP_NAMES[requiredId] || requiredId,
+        });
+      }
     }
 
     this.incompleteSteps = incomplete;
-    this.commissionAckComplete = incomplete.length === 0;
+    this.allPrerequisitesComplete = incomplete.length === 0;
   }
 
   editStep(stepId: string): void {
@@ -588,6 +587,15 @@ export class FinalizeComponent implements OnInit {
   }
 
   isValid(): boolean {
-    return this.commissionAckComplete;
+    return this.allPrerequisitesComplete;
+  }
+
+  getValidationErrors(): string[] {
+    if (this.allPrerequisitesComplete) return [];
+    return this.incompleteSteps.map(s => `${s.label} has not been completed.`);
+  }
+
+  markFormsAsTouched(): void {
+    this.checkPrerequisites();
   }
 }

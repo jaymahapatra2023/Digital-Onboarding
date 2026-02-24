@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { WorkflowInstance, WorkflowStepInstance, StepStatus } from '../../../core/models/workflow.model';
+import { WorkflowInstance, WorkflowStepInstance, WorkflowStatus, StepStatus } from '../../../core/models/workflow.model';
 import { Client } from '../../../core/models/client.model';
 
 @Injectable({ providedIn: 'root' })
@@ -45,6 +45,11 @@ export class WorkflowStore {
     return allowed.length > 0 && !allowed.includes(role);
   });
 
+  isWorkflowSubmitted = computed(() => {
+    const wf = this._workflow();
+    return wf?.status === WorkflowStatus.COMPLETED;
+  });
+
   setWorkflow(workflow: WorkflowInstance | null): void {
     this._workflow.set(workflow);
     if (workflow?.current_step_id) {
@@ -87,6 +92,12 @@ export class WorkflowStore {
       ),
     };
     this._workflow.set(updated);
+  }
+
+  updateWorkflowStatus(status: WorkflowStatus): void {
+    const wf = this._workflow();
+    if (!wf) return;
+    this._workflow.set({ ...wf, status });
   }
 
   updateStepStatus(stepId: string, status: StepStatus): void {
