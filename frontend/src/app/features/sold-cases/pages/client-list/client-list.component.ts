@@ -194,7 +194,7 @@ export class ClientListComponent implements OnInit {
   }
 
   onContinueSetup(client: Client): void {
-    this.router.navigate(['/workflow', client.id]);
+    this.router.navigate(['/group-setup', client.id]);
   }
 
   onStartOnline(client: Client): void {
@@ -221,7 +221,7 @@ export class ClientListComponent implements OnInit {
             this.service.startOnlineSetup(client.id).subscribe({
               next: () => {
                 this.notification.success('Group setup started');
-                this.router.navigate(['/workflow', client.id]);
+                this.router.navigate(['/group-setup', client.id]);
               },
               error: (err) => this.notification.error(err.error?.detail || 'Failed to start setup'),
             });

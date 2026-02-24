@@ -31,6 +31,7 @@ export interface WorkflowStepInstance {
   status: StepStatus;
   assigned_to_user_id?: string;
   assigned_role?: string;
+  allowed_roles?: string[];
   data: Record<string, any>;
   started_at?: string;
   completed_at?: string;

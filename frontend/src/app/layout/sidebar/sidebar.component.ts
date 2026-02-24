@@ -46,6 +46,5 @@ export class SidebarComponent {
 
   navItems: NavItem[] = [
     { label: 'My Clients', route: '/clients', icon: 'business' },
-    { label: 'Group Setup', route: '/group-setup', icon: 'assignment' },
   ];
 }

@@ -12,7 +12,7 @@ export const routes: Routes = [
     loadChildren: () => import('./features/sold-cases/sold-cases.routes').then(m => m.SOLD_CASES_ROUTES),
   },
   {
-    path: 'group-setup',
+    path: 'group-setup/:clientId',
     canActivate: [authGuard],
     loadChildren: () => import('./features/group-setup/group-setup.routes').then(m => m.GROUP_SETUP_ROUTES),
   },

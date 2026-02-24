@@ -1,14 +1,18 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { WorkflowInstance, WorkflowStepInstance, StepStatus } from '../../../core/models/workflow.model';
+import { Client } from '../../../core/models/client.model';
 
 @Injectable({ providedIn: 'root' })
 export class WorkflowStore {
   private _workflow = signal<WorkflowInstance | null>(null);
+  private _client = signal<Client | null>(null);
   private _currentStepId = signal<string>('');
   private _loading = signal<boolean>(false);
   private _saving = signal<boolean>(false);
+  private _userRole = signal<string | null>(null);
 
   workflow = this._workflow.asReadonly();
+  client = this._client.asReadonly();
   currentStepId = this._currentStepId.asReadonly();
   loading = this._loading.asReadonly();
   saving = this._saving.asReadonly();
@@ -33,11 +37,23 @@ export class WorkflowStore {
     return steps.length > 0 ? (this.completedCount() / steps.length) * 100 : 0;
   });
 
+  isCurrentStepRoleRestricted = computed(() => {
+    const step = this.currentStep();
+    const role = this._userRole();
+    if (!step || !role) return false;
+    const allowed = step.allowed_roles || [];
+    return allowed.length > 0 && !allowed.includes(role);
+  });
+
   setWorkflow(workflow: WorkflowInstance | null): void {
     this._workflow.set(workflow);
     if (workflow?.current_step_id) {
       this._currentStepId.set(workflow.current_step_id);
     }
+  }
+
+  setClient(client: Client | null): void {
+    this._client.set(client);
   }
 
   setCurrentStepId(stepId: string): void {
@@ -50,6 +66,10 @@ export class WorkflowStore {
 
   setSaving(saving: boolean): void {
     this._saving.set(saving);
+  }
+
+  setUserRole(role: string | null): void {
+    this._userRole.set(role);
   }
 
   updateStepStatus(stepId: string, status: StepStatus): void {

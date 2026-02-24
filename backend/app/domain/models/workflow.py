@@ -50,6 +50,7 @@ class WorkflowStepInstance(BaseModel):
     status: StepStatus = StepStatus.PENDING
     assigned_to_user_id: UUID | None = None
     assigned_role: str | None = None
+    allowed_roles: list[str] = []
     data: dict | None = None
     started_at: datetime | None = None
     completed_at: datetime | None = None

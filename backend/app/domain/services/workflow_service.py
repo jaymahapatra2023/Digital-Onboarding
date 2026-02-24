@@ -35,11 +35,32 @@ class WorkflowService:
     # ------------------------------------------------------------------
 
     async def get_workflow(self, client_id: UUID) -> WorkflowInstance | None:
-        """Get the workflow instance for a client, including all step instances."""
+        """Get the workflow instance for a client, including all step instances.
+
+        Enriches each step instance with ``allowed_roles`` from the workflow
+        definition so the frontend can enforce role-based step access.
+        """
         instance = await self.repo.get_instance_by_client(client_id)
-        if instance:
-            return WorkflowInstance.model_validate(instance)
-        return None
+        if not instance:
+            return None
+
+        workflow = WorkflowInstance.model_validate(instance)
+
+        # Enrich with allowed_roles from the definition
+        definition = await self.repo.get_definition("group_setup")
+        if definition:
+            steps_def = (
+                definition.steps
+                if isinstance(definition.steps, list)
+                else json.loads(definition.steps)
+            )
+            roles_map = {
+                s["step_id"]: s.get("allowed_roles", []) for s in steps_def
+            }
+            for step in workflow.step_instances:
+                step.allowed_roles = roles_map.get(step.step_id, [])
+
+        return workflow
 
     async def get_step_data(self, client_id: UUID, step_id: str) -> dict:
         """Get saved data for a specific step.

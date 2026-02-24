@@ -7,18 +7,22 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { WorkflowNavComponent } from '../workflow-nav/workflow-nav.component';
 import { WorkflowProgressComponent } from '../workflow-progress/workflow-progress.component';
+import { ContextPanelComponent } from '../context-panel/context-panel.component';
 import { WorkflowStore } from '../../store/workflow.store';
 import { WorkflowService } from '../../services/workflow.service';
+import { SoldCasesService } from '../../../sold-cases/services/sold-cases.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { STEP_REGISTRY, STEP_NAMES } from '../../steps/step-registry';
 import { StepStatus } from '../../../../core/models/workflow.model';
+import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store';
 
 @Component({
   selector: 'app-workflow-container',
   standalone: true,
   imports: [
     CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule,
-    WorkflowNavComponent, WorkflowProgressComponent,
+    WorkflowNavComponent, WorkflowProgressComponent, ContextPanelComponent,
   ],
   template: `
     <div class="h-full flex flex-col bg-slate-50">
@@ -34,6 +38,7 @@ import { StepStatus } from '../../../../core/models/workflow.model';
           <app-workflow-nav
             [steps]="store.sortedSteps()"
             [currentStepId]="store.currentStepId()"
+            [userRole]="userRole"
             (stepSelect)="navigateToStep($event)">
           </app-workflow-nav>
         </aside>
@@ -45,12 +50,21 @@ import { StepStatus } from '../../../../core/models/workflow.model';
           </div>
 
           <div *ngIf="!store.loading()" class="p-8 max-w-4xl">
+            <!-- Read-only banner for role-restricted steps -->
+            <div *ngIf="store.isCurrentStepRoleRestricted()" class="mb-6 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3">
+              <mat-icon class="text-amber-600" style="font-size:20px;width:20px;height:20px;">info</mat-icon>
+              <p class="text-sm text-amber-800">
+                This step is assigned to <strong>{{ currentStepAssignedRole }}</strong>. You can view but not edit.
+              </p>
+            </div>
+
             <!-- Step header -->
             <div class="flex items-center justify-between mb-8">
               <h1 class="text-xl font-bold text-slate-900">
                 {{ currentStepName }}
               </h1>
-              <button mat-stroked-button (click)="onSave()" [disabled]="store.saving()"
+              <button mat-stroked-button (click)="onSave()"
+                      [disabled]="store.saving() || store.isCurrentStepRoleRestricted()"
                       class="text-slate-600">
                 <mat-icon class="mr-1">save</mat-icon> Save Draft
               </button>
@@ -66,8 +80,10 @@ import { StepStatus } from '../../../../core/models/workflow.model';
                 <mat-icon>arrow_back</mat-icon> Previous
               </button>
               <div class="flex gap-3">
-                <button mat-button (click)="onSkip()" class="text-slate-400">Skip</button>
+                <button mat-button (click)="onSkip()" class="text-slate-400"
+                        [disabled]="store.isCurrentStepRoleRestricted()">Skip</button>
                 <button mat-flat-button color="primary" (click)="onNext()"
+                        [disabled]="store.isCurrentStepRoleRestricted()"
                         style="border-radius: 10px; padding: 0 24px;">
                   {{ isLastStep ? 'Complete' : 'Save & Continue' }}
                   <mat-icon>{{ isLastStep ? 'check' : 'arrow_forward' }}</mat-icon>
@@ -76,6 +92,14 @@ import { StepStatus } from '../../../../core/models/workflow.model';
             </div>
           </div>
         </main>
+
+        <!-- Right-rail context panel (hidden on smaller screens) -->
+        <aside class="hidden lg:block w-80 border-l border-gray-200 overflow-y-auto bg-white">
+          <app-context-panel
+            [client]="store.client()"
+            [clientId]="clientId">
+          </app-context-panel>
+        </aside>
       </div>
     </div>
   `,
@@ -86,18 +110,24 @@ export class WorkflowContainerComponent implements OnInit {
 
   private currentComponentRef: ComponentRef<any> | null = null;
   clientId: string = '';
+  userRole: string = '';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     public store: WorkflowStore,
     private workflowService: WorkflowService,
+    private soldCasesService: SoldCasesService,
     private notification: NotificationService,
+    private auth: AuthService,
   ) {}
 
   ngOnInit(): void {
     this.clientId = this.route.snapshot.paramMap.get('clientId') || '';
+    this.userRole = this.auth.userRole() || '';
+    this.store.setUserRole(this.userRole);
     this.loadWorkflow();
+    this.loadClient();
   }
 
   loadWorkflow(): void {
@@ -127,8 +157,21 @@ export class WorkflowContainerComponent implements OnInit {
     });
   }
 
+  loadClient(): void {
+    this.soldCasesService.getClient(this.clientId).subscribe({
+      next: (client) => this.store.setClient(client),
+      error: () => {},
+    });
+  }
+
   get currentStepName(): string {
     return STEP_NAMES[this.store.currentStepId()] || this.store.currentStepId();
+  }
+
+  get currentStepAssignedRole(): string {
+    const step = this.store.currentStep();
+    const roles = step?.allowed_roles || [];
+    return roles.map(r => r.charAt(0) + r.slice(1).toLowerCase()).join(', ') || 'another role';
   }
 
   get isFirstStep(): boolean {
@@ -187,6 +230,7 @@ export class WorkflowContainerComponent implements OnInit {
   }
 
   async onSave(): Promise<void> {
+    if (this.store.isCurrentStepRoleRestricted()) return;
     if (!this.currentComponentRef?.instance?.getData) return;
     const data = this.currentComponentRef.instance.getData();
     const stepId = this.store.currentStepId();
@@ -205,6 +249,7 @@ export class WorkflowContainerComponent implements OnInit {
   }
 
   async onNext(): Promise<void> {
+    if (this.store.isCurrentStepRoleRestricted()) return;
     const stepId = this.store.currentStepId();
 
     // Save first
@@ -236,6 +281,7 @@ export class WorkflowContainerComponent implements OnInit {
   }
 
   onSkip(): void {
+    if (this.store.isCurrentStepRoleRestricted()) return;
     const stepId = this.store.currentStepId();
     this.workflowService.skipStep(this.clientId, stepId).subscribe({
       next: () => {
