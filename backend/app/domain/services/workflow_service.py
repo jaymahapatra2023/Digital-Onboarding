@@ -8,13 +8,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.events.client_events import GroupSetupStarted, OfflineSetupChosen
 from app.domain.events.event_bus import event_bus
+from sqlalchemy import select
+
 from app.domain.events.workflow_events import (
+    WorkflowHandoffRequested,
     WorkflowStepCompleted,
     WorkflowStepSaved,
     WorkflowStepSkipped,
     WorkflowSubmitted,
 )
 from app.domain.models.workflow import WorkflowInstance
+from app.infrastructure.database.models.access_orm import ClientAccessORM
+from app.infrastructure.database.models.user_orm import UserORM
 from app.infrastructure.repositories.client_repo import ClientRepository
 from app.infrastructure.repositories.workflow_repo import WorkflowRepository
 
@@ -337,6 +342,115 @@ class WorkflowService:
         )
 
         return {"step_id": step_id, "status": "SKIPPED"}
+
+    # ------------------------------------------------------------------
+    # Employer handoff
+    # ------------------------------------------------------------------
+
+    async def request_employer_handoff(
+        self,
+        client_id: UUID,
+        user_id: UUID | None = None,
+        broker_name: str = "",
+    ) -> dict:
+        """Hand off the workflow to the employer for their role-restricted steps.
+
+        Sets the workflow status to PENDING_EMPLOYER, looks up the employer
+        associated with the client, and publishes a ``WorkflowHandoffRequested``
+        domain event so that notification handlers can send an email.
+
+        Raises ``ValueError`` if the workflow is not in a valid state for handoff
+        or no employer is found.
+        """
+        instance = await self.repo.get_instance_by_client(client_id)
+        if not instance:
+            raise ValueError("No workflow found for this client")
+
+        if instance.status not in ("IN_PROGRESS", "PENDING_EMPLOYER"):
+            raise ValueError("Workflow is not in a valid state for handoff")
+
+        # Find the next pending employer-only step
+        definition = await self.repo.get_definition("group_setup")
+        if not definition:
+            raise ValueError("No active workflow definition found")
+
+        steps_def = (
+            definition.steps
+            if isinstance(definition.steps, list)
+            else json.loads(definition.steps)
+        )
+        roles_map = {
+            s["step_id"]: s.get("allowed_roles", []) for s in steps_def
+        }
+        names_map = {s["step_id"]: s.get("name", s["step_id"]) for s in steps_def}
+
+        steps_sorted = sorted(instance.step_instances, key=lambda s: s.step_order)
+        next_employer_step = None
+        for s in steps_sorted:
+            if s.status in ("COMPLETED", "SKIPPED", "NOT_APPLICABLE"):
+                continue
+            allowed = roles_map.get(s.step_id, [])
+            if "EMPLOYER" in allowed:
+                next_employer_step = s
+                break
+
+        if not next_employer_step:
+            raise ValueError("No pending employer step found")
+
+        next_step_name = names_map.get(next_employer_step.step_id, next_employer_step.step_id)
+
+        # Look up employer: first try ClientAccessORM, then fall back to UserORM
+        result = await self.session.execute(
+            select(ClientAccessORM).where(
+                ClientAccessORM.client_id == client_id,
+                ClientAccessORM.role_type == "EMPLOYER",
+            )
+        )
+        access = result.scalars().first()
+
+        if access:
+            employer_email = access.email
+            employer_name = f"{access.first_name} {access.last_name}"
+        else:
+            # Fallback: find any user with EMPLOYER role
+            user_result = await self.session.execute(
+                select(UserORM).where(UserORM.role == "EMPLOYER")
+            )
+            employer_user = user_result.scalars().first()
+            if not employer_user:
+                raise ValueError("No employer user found for this client")
+            employer_email = employer_user.email
+            employer_name = f"{employer_user.first_name} {employer_user.last_name}"
+
+        # Get client name
+        client = await self.client_repo.get_by_id(client_id)
+        client_name = client.client_name if client else "Unknown"
+
+        # Update workflow status
+        instance.status = "PENDING_EMPLOYER"
+        await self.session.flush()
+
+        # Publish domain event
+        await event_bus.publish(
+            WorkflowHandoffRequested(
+                client_id=client_id,
+                user_id=user_id,
+                workflow_instance_id=instance.id,
+                target_role="EMPLOYER",
+                target_email=employer_email,
+                target_name=employer_name,
+                client_name=client_name,
+                next_step_name=next_step_name,
+                broker_name=broker_name,
+            )
+        )
+
+        return {
+            "status": "PENDING_EMPLOYER",
+            "employer_email": employer_email,
+            "employer_name": employer_name,
+            "next_step_name": next_step_name,
+        }
 
     # ------------------------------------------------------------------
     # Submission (downstream output)

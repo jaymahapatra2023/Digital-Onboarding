@@ -31,6 +31,10 @@ export class WorkflowService {
     return this.api.post(`/clients/${clientId}/workflow/steps/${stepId}/skip`);
   }
 
+  requestHandoff(clientId: string): Observable<any> {
+    return this.api.post(`/clients/${clientId}/workflow/handoff`);
+  }
+
   verifyLicensingStatus(ssn: string, producerName: string, producerId: string): Observable<any> {
     return this.api.post('/licensing/verify-status', {
       ssn,

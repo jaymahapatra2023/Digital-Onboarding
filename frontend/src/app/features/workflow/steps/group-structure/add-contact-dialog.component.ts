@@ -9,6 +9,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Contact } from './group-structure.interfaces';
+import { PhoneMaskDirective } from '../../../../shared/directives/phone-mask.directive';
 
 export interface AddContactDialogData {
   contact?: Contact;
@@ -22,6 +23,7 @@ const AVAILABLE_ROLES = ['Benefit Administrator', 'Billing Contact', 'Claims Con
   imports: [
     CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
     MatInputModule, MatCheckboxModule, MatRadioModule, MatButtonModule, MatIconModule,
+    PhoneMaskDirective,
   ],
   template: `
     <div class="p-2">
@@ -80,18 +82,20 @@ const AVAILABLE_ROLES = ['Benefit Administrator', 'Billing Contact', 'Claims Con
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <mat-form-field appearance="outline">
               <mat-label>Work Phone</mat-label>
-              <input matInput formControlName="work_phone">
+              <input matInput appPhoneMask formControlName="work_phone">
+              <mat-hint>123-456-7890</mat-hint>
               <mat-error>Required</mat-error>
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Cell Phone (Optional)</mat-label>
-              <input matInput formControlName="cell_phone">
+              <input matInput appPhoneMask formControlName="cell_phone">
+              <mat-hint>123-456-7890</mat-hint>
             </mat-form-field>
           </div>
 
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Fax (Optional)</mat-label>
-            <input matInput formControlName="fax">
+            <input matInput appPhoneMask formControlName="fax">
           </mat-form-field>
 
           <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">

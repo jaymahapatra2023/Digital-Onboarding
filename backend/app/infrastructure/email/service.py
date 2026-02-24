@@ -59,6 +59,50 @@ class EmailService:
         await self._backend.send_email(message)
         logger.info(f"Access invitation sent to {to_email} for client '{client_name}'")
 
+    async def send_handoff_notification(
+        self,
+        to_email: str,
+        to_name: str,
+        client_name: str,
+        next_step_name: str,
+        broker_name: str,
+        workflow_url: str,
+    ) -> None:
+        """Send a notification when a broker hands off to the employer."""
+        html_body = f"""
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <h2 style="color: #4338ca;">Action Required: Complete Your Onboarding Steps</h2>
+  <p>Hello {to_name},</p>
+  <p>
+    <strong>{broker_name}</strong> has completed their portion of the group setup
+    for <strong>{client_name}</strong>. Your input is now needed to continue.
+  </p>
+  <p>
+    The next step awaiting your action is: <strong>{next_step_name}</strong>.
+  </p>
+  <p>
+    <a href="{workflow_url}"
+       style="display: inline-block; padding: 12px 24px; background-color: #4338ca;
+              color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold;">
+      Continue Setup
+    </a>
+  </p>
+  <p style="color: #64748b; font-size: 14px;">
+    Please log in with your employer credentials to complete the remaining steps.
+  </p>
+</div>
+"""
+        message = EmailMessage(
+            to_email=to_email,
+            to_name=to_name,
+            subject=f"Action Required: Complete {next_step_name} for {client_name}",
+            html_body=html_body,
+        )
+        await self._backend.send_email(message)
+        logger.info(
+            f"Handoff notification sent to {to_email} for client '{client_name}'"
+        )
+
     async def send_access_unlocked(
         self,
         to_email: str,

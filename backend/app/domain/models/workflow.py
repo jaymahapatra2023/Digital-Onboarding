@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict
 class WorkflowStatus(str, Enum):
     NOT_STARTED = "NOT_STARTED"
     IN_PROGRESS = "IN_PROGRESS"
+    PENDING_EMPLOYER = "PENDING_EMPLOYER"
     COMPLETED = "COMPLETED"
     OFFLINE = "OFFLINE"
     OFFLINE_SUBMITTED = "OFFLINE_SUBMITTED"

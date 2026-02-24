@@ -17,6 +17,7 @@ import { AddPaymentMethodDialogComponent } from './add-payment-method-dialog.com
 import { OfflineInstructionsDialogComponent } from './offline-instructions-dialog.component';
 import { PaymentConfirmationDialogComponent } from './payment-confirmation-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { PhoneMaskDirective } from '../../../../shared/directives/phone-mask.directive';
 
 const BILLING_MODEL_OPTIONS: { value: BillingModel; label: string }[] = [
   { value: 'list_bill', label: 'List Bill' },
@@ -36,7 +37,7 @@ const BILLING_FREQUENCY_OPTIONS: { value: BillingFrequency; label: string }[] = 
   imports: [
     CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatButtonModule, MatCardModule, MatIconModule, MatRadioModule,
-    MatStepperModule, MatDialogModule,
+    MatStepperModule, MatDialogModule, PhoneMaskDirective,
   ],
   template: `
     <div class="space-y-6">
@@ -97,7 +98,8 @@ const BILLING_FREQUENCY_OPTIONS: { value: BillingFrequency; label: string }[] = 
                     </mat-form-field>
                     <mat-form-field appearance="outline">
                       <mat-label>Phone</mat-label>
-                      <input matInput formControlName="administrator_phone">
+                      <input matInput appPhoneMask formControlName="administrator_phone">
+                      <mat-hint>123-456-7890</mat-hint>
                       <mat-error>Required</mat-error>
                     </mat-form-field>
                   </div>
@@ -153,7 +155,8 @@ const BILLING_FREQUENCY_OPTIONS: { value: BillingFrequency; label: string }[] = 
                           </mat-form-field>
                           <mat-form-field appearance="outline">
                             <mat-label>Contact Phone</mat-label>
-                            <input matInput formControlName="admin_contact_phone">
+                            <input matInput appPhoneMask formControlName="admin_contact_phone">
+                            <mat-hint>123-456-7890</mat-hint>
                             <mat-error>Required</mat-error>
                           </mat-form-field>
                         </div>

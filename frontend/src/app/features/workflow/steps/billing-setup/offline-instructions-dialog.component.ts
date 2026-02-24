@@ -39,7 +39,7 @@ import { MatIconModule } from '@angular/material/icon';
           <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-2">
             <h4 class="text-sm font-semibold text-slate-700">Mailing Address 2</h4>
             <p class="text-sm text-slate-600">
-              JPMC MetLife<br>
+              JPMC Lincoln Financial<br>
               PO Box 71112<br>
               Charlotte, NC 28272-1112
             </p>

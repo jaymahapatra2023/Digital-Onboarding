@@ -441,10 +441,17 @@ const WAITING_PERIOD_TYPES = [
                   </button>
                 </div>
 
-                <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <div *ngIf="contacts.length === 0" class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
                   <mat-icon class="text-amber-600 mt-0.5" style="font-size:20px;width:20px;height:20px;">warning</mat-icon>
                   <p class="text-sm text-amber-800">
                     At least one executive contact is required. Additional role-specific contacts can be added for
+                    benefit administration, billing, and claims.
+                  </p>
+                </div>
+                <div *ngIf="contacts.length > 0" class="flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
+                  <mat-icon class="text-green-600 mt-0.5" style="font-size:20px;width:20px;height:20px;">check_circle</mat-icon>
+                  <p class="text-sm text-green-800">
+                    {{ contacts.length }} contact{{ contacts.length > 1 ? 's' : '' }} added. You may add additional role-specific contacts for
                     benefit administration, billing, and claims.
                   </p>
                 </div>
@@ -707,11 +714,24 @@ const WAITING_PERIOD_TYPES = [
             </mat-card>
 
             <form [formGroup]="assignForm" style="display:none;"></form>
+
+            <!-- Success state after validation passes -->
+            <div *ngIf="structureValidated && validationErrors.length === 0"
+                 class="bg-green-50 border border-green-200 rounded-xl p-4">
+              <div class="flex items-center gap-3">
+                <mat-icon class="text-green-600" style="font-size:24px;width:24px;height:24px;">check_circle</mat-icon>
+                <div>
+                  <p class="text-sm font-semibold text-green-800">Group structure is complete and valid</p>
+                  <p class="text-xs text-green-600 mt-0.5">Click "Save &amp; Continue" below to proceed to the next step.</p>
+                </div>
+              </div>
+            </div>
+
             <div class="flex justify-between">
               <button mat-button matStepperPrevious class="text-slate-600">
                 <mat-icon>arrow_back</mat-icon> Back
               </button>
-              <button mat-flat-button color="primary" (click)="computeValidationErrors()" type="button"
+              <button mat-flat-button color="primary" (click)="validateAndHighlight()" type="button"
                       style="border-radius: 8px;">
                 <mat-icon>checklist</mat-icon> Validate Structure
               </button>
@@ -753,6 +773,7 @@ export class GroupStructureComponent implements OnInit, OnDestroy {
   caseStructures: CaseStructure[] = [];
   classLocationAssignments: ClassLocationAssignment[] = [];
   validationErrors: string[] = [];
+  structureValidated = false;
 
   // Table columns
   classColumns = ['class_id', 'description', 'actions'];
@@ -1288,6 +1309,12 @@ export class GroupStructureComponent implements OnInit, OnDestroy {
   getCoveredDepartmentCount(): number {
     const coveredIds = new Set(this.caseStructures.filter(cs => cs.department_id).map(cs => cs.department_id));
     return coveredIds.size;
+  }
+
+  // --- Validate and highlight (last sub-step) ---
+  validateAndHighlight(): void {
+    this.computeValidationErrors();
+    this.structureValidated = true;
   }
 
   // --- Bulk assignment ---

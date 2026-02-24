@@ -158,6 +158,25 @@ async def get_submission_payload(
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+@router.post("/handoff")
+async def request_handoff(
+    client_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserORM = Depends(get_current_user),
+):
+    """Request handoff to the employer for their role-restricted steps."""
+    service = WorkflowService(db)
+    try:
+        result = await service.request_employer_handoff(
+            client_id=client_id,
+            user_id=current_user.id,
+            broker_name=f"{current_user.first_name} {current_user.last_name}",
+        )
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 @router.post("/steps/{step_id}/skip")
 async def skip_step(
     client_id: UUID,

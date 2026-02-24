@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewContainerRef, ViewChild, ComponentRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, ViewChild, ComponentRef, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -50,12 +50,39 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
           </div>
 
           <div *ngIf="!store.loading()" class="p-8 max-w-4xl">
-            <!-- Read-only banner for role-restricted steps -->
-            <div *ngIf="store.isCurrentStepRoleRestricted()" class="mb-6 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3">
-              <mat-icon class="text-amber-600" style="font-size:20px;width:20px;height:20px;">info</mat-icon>
-              <p class="text-sm text-amber-800">
-                This step is assigned to <strong>{{ currentStepAssignedRole }}</strong>. You can view but not edit.
-              </p>
+            <!-- Role-restricted step: handoff banner -->
+            <div *ngIf="store.isCurrentStepRoleRestricted() && !handoffSent"
+                 class="mb-6 px-5 py-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3">
+              <div class="flex items-center gap-3">
+                <mat-icon class="text-amber-600" style="font-size:20px;width:20px;height:20px;">info</mat-icon>
+                <p class="text-sm text-amber-800">
+                  This step is assigned to <strong>{{ currentStepAssignedRole }}</strong>. You can view but not edit.
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                <button mat-flat-button color="primary" (click)="onRequestHandoff()"
+                        [disabled]="handoffLoading" style="border-radius: 10px;">
+                  <mat-icon>send</mat-icon>
+                  {{ handoffLoading ? 'Sending...' : 'Send to Employer' }}
+                </button>
+                <span class="text-xs text-amber-600">
+                  This will notify the employer via email that their steps are ready.
+                </span>
+              </div>
+            </div>
+
+            <!-- Handoff success banner -->
+            <div *ngIf="store.isCurrentStepRoleRestricted() && handoffSent"
+                 class="mb-6 px-5 py-4 bg-green-50 border border-green-200 rounded-xl">
+              <div class="flex items-center gap-3">
+                <mat-icon class="text-green-600" style="font-size:20px;width:20px;height:20px;">check_circle</mat-icon>
+                <div>
+                  <p class="text-sm font-semibold text-green-800">Sent to {{ handoffEmployerName }}</p>
+                  <p class="text-xs text-green-600 mt-0.5">
+                    A notification was sent to {{ handoffEmployerEmail }}. They can now log in to complete their steps.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <!-- Step header -->
@@ -70,11 +97,8 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
               </button>
             </div>
 
-            <!-- Dynamic step component container -->
-            <ng-container #stepContainer></ng-container>
-
-            <!-- Validation error banner -->
-            <div *ngIf="validationErrors.length > 0" class="bg-red-50 border border-red-300 rounded-xl p-4 space-y-2 mt-6">
+            <!-- Validation error banner (above step content so it's always visible) -->
+            <div #errorBanner *ngIf="validationErrors.length > 0" class="mb-6 bg-red-50 border border-red-300 rounded-xl p-4 space-y-2">
               <div class="flex items-center gap-2">
                 <mat-icon class="text-red-600" style="font-size:20px;width:20px;height:20px;">error</mat-icon>
                 <h3 class="text-sm font-semibold text-red-800">Please fix the following before continuing:</h3>
@@ -83,6 +107,9 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
                 <li *ngFor="let err of validationErrors" class="text-sm text-red-700">{{ err }}</li>
               </ul>
             </div>
+
+            <!-- Dynamic step component container -->
+            <ng-container #stepContainer></ng-container>
 
             <!-- Navigation bar -->
             <div class="flex justify-between items-center mt-10 pt-6 border-t border-gray-200">
@@ -118,11 +145,17 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
 export class WorkflowContainerComponent implements OnInit {
   @ViewChild('stepContainer', { read: ViewContainerRef, static: false })
   stepContainer!: ViewContainerRef;
+  @ViewChild('errorBanner', { read: ElementRef, static: false })
+  errorBanner?: ElementRef;
 
   private currentComponentRef: ComponentRef<any> | null = null;
   clientId: string = '';
   userRole: string = '';
   validationErrors: string[] = [];
+  handoffSent = false;
+  handoffLoading = false;
+  handoffEmployerEmail = '';
+  handoffEmployerName = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -196,8 +229,27 @@ export class WorkflowContainerComponent implements OnInit {
     return steps.length > 0 && steps[steps.length - 1].step_id === this.store.currentStepId();
   }
 
+  onRequestHandoff(): void {
+    this.handoffLoading = true;
+    this.workflowService.requestHandoff(this.clientId).subscribe({
+      next: (result) => {
+        this.handoffSent = true;
+        this.handoffLoading = false;
+        this.handoffEmployerName = result.employer_name;
+        this.handoffEmployerEmail = result.employer_email;
+        this.notification.success('Handoff notification sent to employer');
+      },
+      error: () => {
+        this.handoffLoading = false;
+        this.notification.error('Failed to send handoff notification');
+      },
+    });
+  }
+
   async navigateToStep(stepId: string): Promise<void> {
     this.validationErrors = [];
+    this.handoffSent = false;
+    this.handoffLoading = false;
 
     // Save current step data first
     if (this.currentComponentRef?.instance?.getData) {
@@ -234,6 +286,9 @@ export class WorkflowContainerComponent implements OnInit {
     const data = this.currentComponentRef.instance.getData();
     const stepId = this.store.currentStepId();
 
+    // Update the in-memory store so other steps see the latest data
+    this.store.updateStepData(stepId, data);
+
     this.store.setSaving(true);
     try {
       await this.workflowService.saveStepData(this.clientId, stepId, data).toPromise();
@@ -248,6 +303,9 @@ export class WorkflowContainerComponent implements OnInit {
     if (!this.currentComponentRef?.instance?.getData) return;
     const data = this.currentComponentRef.instance.getData();
     const stepId = this.store.currentStepId();
+
+    // Update the in-memory store so other steps see the latest data
+    this.store.updateStepData(stepId, data);
 
     this.store.setSaving(true);
     this.workflowService.saveStepData(this.clientId, stepId, data).subscribe({
@@ -280,12 +338,14 @@ export class WorkflowContainerComponent implements OnInit {
       if (this.currentComponentRef.instance.getValidationErrors) {
         this.validationErrors = this.currentComponentRef.instance.getValidationErrors();
       }
-      const count = this.validationErrors.length;
-      if (count > 0) {
-        this.notification.error(`${count} issue${count > 1 ? 's' : ''} need${count === 1 ? 's' : ''} attention before continuing.`);
-      } else {
-        this.notification.error('Please complete all required fields before continuing.');
+      // Fallback: ensure at least one error message is shown inline
+      if (this.validationErrors.length === 0) {
+        this.validationErrors = ['Please complete all required fields before continuing.'];
       }
+      // Scroll to the error banner after it renders
+      setTimeout(() => {
+        this.errorBanner?.nativeElement?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       return;
     }
 
@@ -294,6 +354,7 @@ export class WorkflowContainerComponent implements OnInit {
     // Save first
     if (this.currentComponentRef?.instance?.getData) {
       const data = this.currentComponentRef.instance.getData();
+      this.store.updateStepData(stepId, data);
       await this.workflowService.saveStepData(this.clientId, stepId, data).toPromise();
     }
 

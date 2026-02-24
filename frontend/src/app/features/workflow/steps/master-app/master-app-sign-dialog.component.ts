@@ -99,9 +99,9 @@ const US_STATES = [
               <span class="text-sm text-slate-700">
                 I have reviewed the above and declare that all information given is true and complete
                 to the best of my knowledge and belief. I understand that this information will be used
-                by MetLife to determine an individual's eligibility for benefits. I understand that by
+                by Lincoln Financial to determine an individual's eligibility for benefits. I understand that by
                 entering my name below and clicking the "Submit" button I am signing and submitting the
-                Master Application to Metropolitan Life Insurance Company. This is a legally binding
+                Master Application to Lincoln National Corporation. This is a legally binding
                 electronic signature.
               </span>
             </mat-checkbox>

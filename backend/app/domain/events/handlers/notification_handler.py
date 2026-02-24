@@ -6,7 +6,7 @@ from app.domain.events.client_events import (
     InvitationSent,
     OfflinePacketSubmitted,
 )
-from app.domain.events.workflow_events import WorkflowSubmitted
+from app.domain.events.workflow_events import WorkflowHandoffRequested, WorkflowSubmitted
 from app.domain.events.event_bus import event_bus
 
 logger = logging.getLogger(__name__)
@@ -37,6 +37,30 @@ class NotificationHandler:
             f"(workflow_instance_id={event.workflow_instance_id})"
         )
 
+    async def handle_handoff_requested(self, event: WorkflowHandoffRequested) -> None:
+        from app.config import settings
+        from app.infrastructure.email.console_backend import ConsoleEmailBackend
+        from app.infrastructure.email.service import EmailService
+
+        workflow_url = (
+            f"{settings.FRONTEND_URL}/workflow/{event.client_id}"
+            f"?step={event.next_step_name}"
+        )
+
+        email_service = EmailService(ConsoleEmailBackend())
+        await email_service.send_handoff_notification(
+            to_email=event.target_email,
+            to_name=event.target_name,
+            client_name=event.client_name,
+            next_step_name=event.next_step_name,
+            broker_name=event.broker_name,
+            workflow_url=workflow_url,
+        )
+        logger.info(
+            f"Handoff notification sent to {event.target_email} "
+            f"for client {event.client_id}"
+        )
+
     async def handle_workflow_submitted(self, event: WorkflowSubmitted) -> None:
         renewal = event.servicing_payload.get("renewal_notification_period")
         logger.info(
@@ -55,5 +79,6 @@ def setup_notification_handlers() -> None:
     event_bus.subscribe(GroupSetupStarted, handler.handle_setup_started)
     event_bus.subscribe(OfflinePacketSubmitted, handler.handle_offline_packet_submitted)
     event_bus.subscribe(WorkflowSubmitted, handler.handle_workflow_submitted)
+    event_bus.subscribe(WorkflowHandoffRequested, handler.handle_handoff_requested)
 
     logger.info("Notification handlers registered")

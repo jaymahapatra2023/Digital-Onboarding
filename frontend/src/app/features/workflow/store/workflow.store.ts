@@ -77,6 +77,18 @@ export class WorkflowStore {
     return step?.data ? (step.data as Record<string, any>) : null;
   }
 
+  updateStepData(stepId: string, data: Record<string, any>): void {
+    const wf = this._workflow();
+    if (!wf) return;
+    const updated = {
+      ...wf,
+      step_instances: wf.step_instances.map(s =>
+        s.step_id === stepId ? { ...s, data } : s
+      ),
+    };
+    this._workflow.set(updated);
+  }
+
   updateStepStatus(stepId: string, status: StepStatus): void {
     const wf = this._workflow();
     if (!wf) return;

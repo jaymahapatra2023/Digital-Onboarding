@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Subject } from 'rxjs';
 import { WorkflowStore } from '../../store/workflow.store';
 
@@ -25,7 +26,7 @@ interface CommissionRate {
   imports: [
     CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule,
     MatCheckboxModule, MatButtonModule, MatCardModule, MatIconModule,
-    MatTableModule, MatChipsModule,
+    MatTableModule, MatChipsModule, MatDialogModule,
   ],
   template: `
     <div class="space-y-6">
@@ -243,15 +244,22 @@ interface CommissionRate {
                 <p class="text-sm font-medium text-slate-800">I have read and consent to the following:</p>
 
                 <div class="flex items-center gap-2">
-                  <mat-checkbox formControlName="disclosure_agreement" color="primary">
-                    <a href="javascript:void(0)" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium underline"
-                       (click)="$event.preventDefault()">
+                  <mat-checkbox formControlName="disclosure_agreement" color="primary"
+                                [disabled]="!disclosureOpened">
+                    <a href="javascript:void(0)"
+                       class="text-sm font-medium underline"
+                       [ngClass]="disclosureOpened ? 'text-green-700' : 'text-indigo-600 hover:text-indigo-800'"
+                       (click)="$event.preventDefault(); openDisclosure()">
                       Disclosure Agreement
+                      <mat-icon *ngIf="disclosureOpened" class="text-green-600 align-middle"
+                                style="font-size:14px;width:14px;height:14px;">check_circle</mat-icon>
                     </a>
                   </mat-checkbox>
                 </div>
-                <div *ngIf="termsForm.get('disclosure_agreement')?.touched && termsForm.get('disclosure_agreement')?.invalid"
-                     class="text-xs text-red-600 mt-1">You must read and agree to the Disclosure Agreement</div>
+                <div *ngIf="!disclosureOpened && termsForm.get('disclosure_agreement')?.touched"
+                     class="text-xs text-amber-600 mt-1">You must open and read the Disclosure Agreement before checking this box</div>
+                <div *ngIf="disclosureOpened && termsForm.get('disclosure_agreement')?.touched && termsForm.get('disclosure_agreement')?.invalid"
+                     class="text-xs text-red-600 mt-1">You must agree to the Disclosure Agreement</div>
               </div>
             </mat-card-content>
           </mat-card>
@@ -265,9 +273,9 @@ interface CommissionRate {
                   <span class="text-sm text-slate-700">
                     I have reviewed the above and declare that all information given is true and complete to the best of
                     my knowledge and belief. I understand that by entering my name below and clicking the "Submit"
-                    button I am signing and submitting to Metropolitan Life Insurance Company. By electronically
-                    signing this document, I am also indicating I have read and agree to Metropolitan Life Insurance
-                    Company's agreements. This is a legally binding electronic signature.
+                    button I am signing and submitting to Lincoln National Corporation. By electronically
+                    signing this document, I am also indicating I have read and agree to Lincoln Financial's
+                    agreements. This is a legally binding electronic signature.
                   </span>
                 </mat-checkbox>
                 <div *ngIf="termsForm.get('e_signature')?.touched && termsForm.get('e_signature')?.invalid"
@@ -324,11 +332,15 @@ export class CommissionAckComponent implements OnInit, OnDestroy {
   acknowledgementStatus: 'pending' | 'acknowledged' = 'pending';
   acknowledgedAt: string | null = null;
 
+  // Disclosure gate: user must open the agreement before checking the box
+  disclosureOpened = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private store: WorkflowStore,
+    private dialog: MatDialog,
   ) {
     this.buildForms();
   }
@@ -337,13 +349,12 @@ export class CommissionAckComponent implements OnInit, OnDestroy {
     const step = this.store.currentStep();
     const hasSavedData = step?.data && Object.keys(step.data).length > 0;
 
+    // Always pull latest data from prior steps (company-info, licensing, client store)
+    this.prefillFromPriorSteps();
+
+    // Overlay user-editable saved data (terms form) on top
     if (hasSavedData) {
       this.patchSavedData(step!.data as Record<string, any>);
-    }
-
-    // S1: Prefill from client store and prior step data on first visit
-    if (!hasSavedData) {
-      this.prefillFromPriorSteps();
     }
 
     // S5: Check licensing step prerequisites
@@ -369,6 +380,7 @@ export class CommissionAckComponent implements OnInit, OnDestroy {
     const client = this.store.client();
     const companyInfoData = this.store.getStepData('company_info');
     const licensingData = this.store.getStepData('licensing');
+
 
     // Client store → infoForm
     if (client) {
@@ -562,25 +574,21 @@ export class CommissionAckComponent implements OnInit, OnDestroy {
   }
 
   private patchSavedData(data: Record<string, any>): void {
-    if (data['info']) {
-      this.infoForm.patchValue(data['info']);
-    }
-    if (data['broker']) {
-      this.brokerForm.patchValue(data['broker']);
-    }
-    if (data['payee']) {
-      this.payeeForm.patchValue(data['payee']);
-    }
-    if (data['commission_rates']) {
-      this.commissionRates = data['commission_rates'];
-    }
+    // Only restore user-editable data (terms form).
+    // Read-only display fields (info, broker, payee, commission_rates)
+    // are always pulled fresh from prior steps via prefillFromPriorSteps().
     if (data['terms']) {
       this.termsForm.patchValue(data['terms']);
+      // If disclosure was previously agreed to, they must have opened it
+      if (data['terms']['disclosure_opened'] || data['terms']['disclosure_agreement']) {
+        this.disclosureOpened = true;
+      }
     }
   }
 
   getData(): Record<string, any> {
     const termsData = this.termsForm.getRawValue();
+    termsData.disclosure_opened = this.disclosureOpened;
 
     // S4: Add acknowledged_at timestamp when terms are complete
     if (termsData.e_signature && termsData.accepted_by) {
@@ -594,6 +602,16 @@ export class CommissionAckComponent implements OnInit, OnDestroy {
       commission_rates: this.commissionRates,
       terms: termsData,
     };
+  }
+
+  openDisclosure(): void {
+    const ref = this.dialog.open(DisclosureAgreementDialogComponent, {
+      width: '640px',
+      maxHeight: '80vh',
+    });
+    ref.afterClosed().subscribe(() => {
+      this.disclosureOpened = true;
+    });
   }
 
   isValid(): boolean {
@@ -621,3 +639,80 @@ export class CommissionAckComponent implements OnInit, OnDestroy {
     this.termsForm.markAllAsTouched();
   }
 }
+
+@Component({
+  selector: 'app-disclosure-agreement-dialog',
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+  template: `
+    <div class="p-2">
+      <div class="flex items-center gap-3 mb-1">
+        <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+          <mat-icon class="text-indigo-600" style="font-size:22px;width:22px;height:22px;">description</mat-icon>
+        </div>
+        <h2 class="text-lg font-bold text-slate-900">Disclosure Agreement</h2>
+      </div>
+
+      <mat-dialog-content class="py-5">
+        <div class="prose prose-sm max-w-none text-slate-700 space-y-4">
+          <p>
+            This Disclosure Agreement ("Agreement") is entered into between the undersigned broker/producer
+            ("Producer") and Lincoln National Corporation ("Lincoln Financial") regarding the compensation
+            arrangements for the group insurance products described herein.
+          </p>
+
+          <h4 class="text-sm font-semibold text-slate-900">1. Compensation Disclosure</h4>
+          <p>
+            Producer acknowledges that compensation for the sale and servicing of Lincoln Financial group insurance
+            products is paid pursuant to the terms of the applicable compensation agreement between Producer
+            (or Producer's agency/firm) and Lincoln Financial. Compensation may include commissions, service fees,
+            bonuses, overrides, and/or other forms of remuneration.
+          </p>
+
+          <h4 class="text-sm font-semibold text-slate-900">2. Fiduciary Acknowledgement</h4>
+          <p>
+            Producer acknowledges that when acting in a fiduciary capacity, Producer will disclose to the
+            plan sponsor or employer all direct and indirect compensation received in connection with the
+            placement or servicing of the group insurance plan, as required by applicable law, including
+            but not limited to ERISA Section 408(b)(2).
+          </p>
+
+          <h4 class="text-sm font-semibold text-slate-900">3. Conflict of Interest</h4>
+          <p>
+            Producer represents that Producer has disclosed to the plan sponsor or employer any material
+            conflicts of interest that may affect Producer's judgment or recommendations regarding the
+            selection of insurance products or service providers.
+          </p>
+
+          <h4 class="text-sm font-semibold text-slate-900">4. Compliance</h4>
+          <p>
+            Producer agrees to comply with all applicable federal and state laws, rules, and regulations
+            governing the sale of insurance products, including maintaining all required licenses and
+            appointments in the applicable jurisdictions.
+          </p>
+
+          <h4 class="text-sm font-semibold text-slate-900">5. Accuracy of Information</h4>
+          <p>
+            Producer certifies that all information provided in connection with this group enrollment,
+            including but not limited to census data, employer contributions, and plan design selections,
+            is true, accurate, and complete to the best of Producer's knowledge.
+          </p>
+
+          <h4 class="text-sm font-semibold text-slate-900">6. Amendment and Termination</h4>
+          <p>
+            Lincoln Financial reserves the right to amend the terms of compensation at any time upon written notice
+            to Producer. Either party may terminate this Agreement upon thirty (30) days' written notice
+            to the other party.
+          </p>
+        </div>
+      </mat-dialog-content>
+
+      <mat-dialog-actions align="end" class="mt-2">
+        <button mat-flat-button color="primary" [mat-dialog-close]="true" style="border-radius: 8px;">
+          I Have Read This Agreement
+        </button>
+      </mat-dialog-actions>
+    </div>
+  `,
+})
+export class DisclosureAgreementDialogComponent {}

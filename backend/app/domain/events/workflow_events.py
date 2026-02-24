@@ -37,3 +37,13 @@ class WorkflowSubmitted(DomainEvent):
 class DocumentDeleted(DomainEvent):
     client_id: UUID
     document_id: UUID
+
+
+class WorkflowHandoffRequested(DomainEvent):
+    workflow_instance_id: UUID
+    target_role: str
+    target_email: str
+    target_name: str
+    client_name: str
+    next_step_name: str
+    broker_name: str
