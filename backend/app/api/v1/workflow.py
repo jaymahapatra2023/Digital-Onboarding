@@ -119,6 +119,45 @@ async def complete_step(
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+@router.post("/submit")
+async def submit_workflow(
+    client_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserORM = Depends(get_current_user),
+):
+    """Submit the completed workflow and produce the downstream servicing payload.
+
+    Validates all required steps are completed, marks the workflow as submitted,
+    and returns the assembled payload including renewal notification settings.
+    """
+    service = WorkflowService(db)
+    try:
+        return await service.submit_workflow(
+            client_id=client_id,
+            user_id=current_user.id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.get("/submission")
+async def get_submission_payload(
+    client_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserORM = Depends(get_current_user),
+):
+    """Get the downstream servicing payload for a completed workflow.
+
+    Returns the assembled payload that downstream servicing systems use
+    for notification scheduling and operations.
+    """
+    service = WorkflowService(db)
+    try:
+        return await service.get_submission_payload(client_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 @router.post("/steps/{step_id}/skip")
 async def skip_step(
     client_id: UUID,

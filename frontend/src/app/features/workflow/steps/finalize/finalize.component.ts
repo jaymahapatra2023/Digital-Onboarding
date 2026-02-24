@@ -27,12 +27,28 @@ import { STEP_NAMES } from '../step-registry';
         <p class="text-slate-500 ml-12">Review all group setup data elements before final submission</p>
       </div>
 
+      <!-- S3: Prerequisite blocking banner -->
+      <div *ngIf="incompleteSteps.length > 0" class="bg-red-50 border border-red-300 rounded-xl p-4 space-y-2">
+        <div class="flex items-center gap-2">
+          <mat-icon class="text-red-600" style="font-size:20px;width:20px;height:20px;">block</mat-icon>
+          <h3 class="text-sm font-semibold text-red-800">
+            The following steps must be completed before finalizing
+          </h3>
+        </div>
+        <ul class="list-disc list-inside space-y-1 ml-7">
+          <li *ngFor="let step of incompleteSteps" class="text-sm text-red-700">{{ step }}</li>
+        </ul>
+      </div>
+
       <!-- Print Button -->
       <div class="flex justify-end">
         <button mat-stroked-button (click)="printScreen()" class="text-slate-600">
           <mat-icon>print</mat-icon> Print this Screen
         </button>
       </div>
+
+      <!-- S3: Disabled wrapper when prerequisites not met -->
+      <div [ngClass]="{'opacity-60 pointer-events-none': !commissionAckComplete}">
 
       <!-- Note about editing -->
       <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
@@ -166,9 +182,29 @@ import { STEP_NAMES } from '../step-registry';
               <mat-icon class="text-indigo-500" style="font-size:18px;width:18px;height:18px;">edit</mat-icon>
             </button>
           </div>
-          <div class="text-sm">
-            <span class="text-slate-500">Renewal Notification Period</span>
-            <span class="text-slate-800 block">{{ data['renewal_notification_period'] || '—' }}</span>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm">
+            <div>
+              <span class="text-slate-500">Notification Period</span>
+              <span class="text-slate-800 block">{{ data['renewal_notification_period'] || '—' }} days</span>
+            </div>
+            <div>
+              <span class="text-slate-500">Downstream Status</span>
+              <span class="text-slate-800 block">
+                <span *ngIf="data['renewal_notification_period']"
+                      class="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+                  <mat-icon style="font-size:14px;width:14px;height:14px;">check_circle</mat-icon>
+                  Ready for servicing
+                </span>
+                <span *ngIf="!data['renewal_notification_period']"
+                      class="inline-flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
+                  <mat-icon style="font-size:14px;width:14px;height:14px;">warning</mat-icon>
+                  Not configured
+                </span>
+              </span>
+            </div>
+          </div>
+          <div class="mt-3 bg-slate-50 rounded-lg p-3 border border-slate-100 text-xs text-slate-500">
+            This setting will be included in the downstream servicing payload for renewal notification scheduling.
           </div>
         </mat-card-content>
       </mat-card>
@@ -287,6 +323,8 @@ import { STEP_NAMES } from '../step-registry';
           and change any information captured prior to this step.
         </p>
       </div>
+
+      </div><!-- /S3 disabled wrapper -->
     </div>
   `,
   styles: [`
@@ -300,6 +338,10 @@ export class FinalizeComponent implements OnInit {
   @Output() editStepRequest = new EventEmitter<string>();
 
   stepData: Record<string, Record<string, any>> = {};
+
+  // S3: Prerequisite enforcement
+  commissionAckComplete = true;
+  incompleteSteps: string[] = [];
 
   companyInfoFields = [
     { key: 'company_name', label: 'Company Name' },
@@ -317,6 +359,7 @@ export class FinalizeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAllStepData();
+    this.checkPrerequisites();
   }
 
   private loadAllStepData(): void {
@@ -326,6 +369,27 @@ export class FinalizeComponent implements OnInit {
         this.stepData[step.step_id] = step.data;
       }
     }
+  }
+
+  // S3: Check that commission_ack is complete before allowing finalize
+  private checkPrerequisites(): void {
+    const incomplete: string[] = [];
+
+    // Check commission_ack step data for e-signature
+    const commAckData = this.store.getStepData('commission_ack');
+    const hasSignature = commAckData?.['terms']?.['e_signature'] === true
+      && !!commAckData?.['terms']?.['accepted_by'];
+
+    // Also verify the step status is COMPLETED
+    const commAckStep = this.store.sortedSteps().find(s => s.step_id === 'commission_ack');
+    const stepCompleted = commAckStep?.status === 'COMPLETED';
+
+    if (!hasSignature || !stepCompleted) {
+      incomplete.push(STEP_NAMES['commission_ack'] || 'Commission Agreement Acknowledgement');
+    }
+
+    this.incompleteSteps = incomplete;
+    this.commissionAckComplete = incomplete.length === 0;
   }
 
   editStep(stepId: string): void {
@@ -341,6 +405,6 @@ export class FinalizeComponent implements OnInit {
   }
 
   isValid(): boolean {
-    return true;
+    return this.commissionAckComplete;
   }
 }

@@ -273,7 +273,8 @@ export class WorkflowContainerComponent implements OnInit {
         if (result.next_step_id) {
           this.navigateToStep(result.next_step_id);
         } else {
-          this.notification.success('All steps completed!');
+          // All steps completed — submit the workflow downstream
+          this.submitWorkflow();
         }
       },
       error: () => this.notification.error('Failed to complete step'),
@@ -286,6 +287,19 @@ export class WorkflowContainerComponent implements OnInit {
     if (currentIdx > 0) {
       this.navigateToStep(steps[currentIdx - 1].step_id);
     }
+  }
+
+  private submitWorkflow(): void {
+    this.workflowService.submitWorkflow(this.clientId).subscribe({
+      next: () => {
+        this.notification.success('Group setup submitted successfully!');
+        this.router.navigate(['/sold-cases']);
+      },
+      error: () => {
+        // Submission failed but steps are still completed — notify user
+        this.notification.error('Steps completed, but downstream submission failed. Please try again.');
+      },
+    });
   }
 
   onSkip(): void {

@@ -23,6 +23,10 @@ export class WorkflowService {
     return this.api.post(`/clients/${clientId}/workflow/steps/${stepId}/complete`);
   }
 
+  submitWorkflow(clientId: string): Observable<any> {
+    return this.api.post(`/clients/${clientId}/workflow/submit`);
+  }
+
   skipStep(clientId: string, stepId: string): Observable<any> {
     return this.api.post(`/clients/${clientId}/workflow/steps/${stepId}/skip`);
   }

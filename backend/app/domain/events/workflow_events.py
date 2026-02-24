@@ -29,6 +29,11 @@ class DocumentUploaded(DomainEvent):
     file_type: str
 
 
+class WorkflowSubmitted(DomainEvent):
+    workflow_instance_id: UUID
+    servicing_payload: dict = {}
+
+
 class DocumentDeleted(DomainEvent):
     client_id: UUID
     document_id: UUID

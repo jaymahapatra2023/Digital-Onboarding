@@ -12,6 +12,7 @@ from app.domain.events.workflow_events import (
     WorkflowStepCompleted,
     WorkflowStepSaved,
     WorkflowStepSkipped,
+    WorkflowSubmitted,
 )
 from app.domain.models.workflow import WorkflowInstance
 from app.infrastructure.repositories.client_repo import ClientRepository
@@ -336,3 +337,120 @@ class WorkflowService:
         )
 
         return {"step_id": step_id, "status": "SKIPPED"}
+
+    # ------------------------------------------------------------------
+    # Submission (downstream output)
+    # ------------------------------------------------------------------
+
+    def _build_servicing_payload(
+        self, instance, steps_sorted: list
+    ) -> dict:
+        """Assemble the downstream servicing payload from all completed step data."""
+        step_data: dict[str, dict] = {}
+        for s in steps_sorted:
+            if s.data:
+                step_data[s.step_id] = (
+                    s.data if isinstance(s.data, dict) else {}
+                )
+
+        renewal_data = step_data.get("renewal_period", {})
+
+        return {
+            "client_id": str(instance.client_id),
+            "workflow_instance_id": str(instance.id),
+            "submitted_at": datetime.now(timezone.utc).isoformat(),
+            "renewal_notification_period": renewal_data.get(
+                "renewal_notification_period"
+            ),
+            "steps": step_data,
+        }
+
+    async def submit_workflow(
+        self,
+        client_id: UUID,
+        user_id: UUID | None = None,
+    ) -> dict:
+        """Submit the completed workflow and produce the downstream payload.
+
+        Validates that all required steps are completed, marks the
+        workflow as COMPLETED if not already, and publishes a
+        ``WorkflowSubmitted`` event carrying the servicing payload.
+
+        Raises ``ValueError`` if the workflow does not exist or has
+        incomplete required steps.
+        """
+        instance = await self.repo.get_instance_by_client(client_id)
+        if not instance:
+            raise ValueError("No workflow found for this client")
+
+        steps_sorted = sorted(
+            instance.step_instances, key=lambda s: s.step_order
+        )
+
+        # Validate all required steps are completed
+        definition = await self.repo.get_definition("group_setup")
+        required_step_ids: set[str] = set()
+        if definition:
+            steps_def = (
+                definition.steps
+                if isinstance(definition.steps, list)
+                else json.loads(definition.steps)
+            )
+            required_step_ids = {
+                s["step_id"]
+                for s in steps_def
+                if s.get("required", True)
+            }
+
+        incomplete = [
+            s.step_id
+            for s in steps_sorted
+            if s.step_id in required_step_ids
+            and s.status not in ("COMPLETED", "SKIPPED", "NOT_APPLICABLE")
+        ]
+        if incomplete:
+            raise ValueError(
+                f"Cannot submit: incomplete required steps: {', '.join(incomplete)}"
+            )
+
+        # Mark workflow COMPLETED if not already
+        now = datetime.now(timezone.utc)
+        if instance.status != "COMPLETED":
+            instance.status = "COMPLETED"
+            instance.completed_at = now
+            await self.session.flush()
+
+        # Update client status
+        await self.client_repo.update_status(client_id, "SUBMITTED")
+
+        payload = self._build_servicing_payload(instance, steps_sorted)
+
+        await event_bus.publish(
+            WorkflowSubmitted(
+                client_id=client_id,
+                user_id=user_id,
+                workflow_instance_id=instance.id,
+                servicing_payload=payload,
+            )
+        )
+
+        return payload
+
+    async def get_submission_payload(self, client_id: UUID) -> dict:
+        """Return the assembled downstream payload for an already-completed workflow.
+
+        Raises ``ValueError`` if the workflow does not exist or is not
+        yet completed.
+        """
+        instance = await self.repo.get_instance_by_client(client_id)
+        if not instance:
+            raise ValueError("No workflow found for this client")
+
+        if instance.status != "COMPLETED":
+            raise ValueError("Workflow has not been completed yet")
+
+        steps_sorted = sorted(
+            instance.step_instances, key=lambda s: s.step_order
+        )
+
+        return self._build_servicing_payload(instance, steps_sorted)

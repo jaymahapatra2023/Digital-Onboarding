@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class ClientStatus(str, Enum):
     APPLICATION_NOT_STARTED = "APPLICATION_NOT_STARTED"
     APPLICATION_IN_PROGRESS = "APPLICATION_IN_PROGRESS"
+    SUBMITTED = "SUBMITTED"
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
 

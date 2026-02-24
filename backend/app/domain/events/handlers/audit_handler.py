@@ -24,6 +24,7 @@ from app.domain.events.workflow_events import (
     WorkflowStepSaved,
     WorkflowStepSkipped,
     WorkflowStepStarted,
+    WorkflowSubmitted,
 )
 
 logger = logging.getLogger(__name__)
@@ -80,6 +81,7 @@ def setup_audit_handlers(session_factory: Callable[..., AsyncSession]) -> None:
         DocumentUploaded,
         DocumentDeleted,
         OfflinePacketSubmitted,
+        WorkflowSubmitted,
     ]
 
     for event_type in all_event_types:
