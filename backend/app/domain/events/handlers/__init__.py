@@ -22,12 +22,8 @@ __all__ = [
 
 
 def setup_event_handlers() -> None:
-    """Register all domain event handlers with the event bus.
+    """Register all domain event handlers with the event bus."""
+    from app.infrastructure.database.session import async_session_factory
 
-    Call ``setup_audit_handlers`` with a session factory and
-    ``setup_notification_handlers`` during application startup.
-    """
-    # Audit handlers require a DB session factory; call
-    # setup_audit_handlers(session_factory) from app startup.
-    # Notification handlers can be wired immediately:
+    setup_audit_handlers(async_session_factory)
     setup_notification_handlers()

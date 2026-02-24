@@ -48,6 +48,14 @@ class ClientService:
         )
 
         now = datetime.now(timezone.utc)
+
+        # Batch-query workflow instances to determine is_offline for each client
+        client_ids = [c.id for c in clients]
+        offline_lookup: dict[UUID, bool | None] = {}
+        for cid in client_ids:
+            wf = await self.workflow_repo.get_instance_by_client(cid)
+            offline_lookup[cid] = wf.is_offline if wf else None
+
         items: list[ClientWithMetrics] = []
         for c in clients:
             days = (now - c.updated_at.replace(tzinfo=timezone.utc)).days if c.updated_at else 0
@@ -58,11 +66,12 @@ class ClientService:
                 **{
                     k: v
                     for k, v in Client.model_validate(c).model_dump().items()
-                    if k not in ("assigned_user_name", "days_since_update")
+                    if k not in ("assigned_user_name", "days_since_update", "is_offline")
                 },
                 assigned_user_name=assigned_name,
                 days_since_update=days,
                 is_stale=days >= params.stale_threshold_days,
+                is_offline=offline_lookup.get(c.id),
             )
             items.append(item)
 

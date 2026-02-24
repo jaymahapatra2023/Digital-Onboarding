@@ -19,14 +19,15 @@ class Document(BaseModel):
 
     id: UUID
     client_id: UUID
-    workflow_step_instance_id: UUID | None = None
+    workflow_instance_id: UUID | None = None
     file_name: str
     file_description: str | None = None
     file_type: DocumentType
-    storage_path: str
-    uploaded_by: UUID | None = None
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    file_path: str
+    file_size_bytes: int | None = None
+    mime_type: str | None = None
+    uploaded_by_user_id: UUID | None = None
+    uploaded_at: datetime | None = None
 
 
 class DocumentUpload(BaseModel):

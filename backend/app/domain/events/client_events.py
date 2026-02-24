@@ -30,6 +30,25 @@ class OfflineSetupChosen(DomainEvent):
     workflow_instance_id: UUID
 
 
+class InvitationSent(DomainEvent):
+    client_id: UUID
+    access_id: UUID
+    email: str
+    role_type: str
+    is_resend: bool = False
+
+
+class AccessUnlocked(DomainEvent):
+    client_id: UUID
+    access_id: UUID
+    email: str
+
+
 class CaseOwnerAssigned(DomainEvent):
     client_id: UUID
     assigned_to_user_id: UUID | None = None
+
+
+class OfflinePacketSubmitted(DomainEvent):
+    client_id: UUID
+    workflow_instance_id: UUID

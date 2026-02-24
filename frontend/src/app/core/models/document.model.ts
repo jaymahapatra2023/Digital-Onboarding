@@ -10,11 +10,13 @@ export enum DocumentType {
 export interface Document {
   id: string;
   client_id: string;
+  workflow_instance_id?: string;
   file_name: string;
   file_description?: string;
   file_type: DocumentType;
-  storage_path: string;
-  uploaded_by?: string;
-  created_at?: string;
-  updated_at?: string;
+  file_path: string;
+  file_size_bytes?: number;
+  mime_type?: string;
+  uploaded_by_user_id?: string;
+  uploaded_at?: string;
 }

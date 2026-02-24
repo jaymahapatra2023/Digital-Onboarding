@@ -97,9 +97,13 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
                 <mat-icon>folder_open</mat-icon>
                 <span>Documents</span>
               </button>
-              <button *ngIf="client.status === ClientStatus.APPLICATION_IN_PROGRESS" mat-menu-item (click)="continueSetup.emit(client)">
+              <button *ngIf="client.status === ClientStatus.APPLICATION_IN_PROGRESS && !client.is_offline" mat-menu-item (click)="continueSetup.emit(client)">
                 <mat-icon>arrow_forward</mat-icon>
                 <span>Continue Group Setup</span>
+              </button>
+              <button *ngIf="client.status === ClientStatus.APPLICATION_IN_PROGRESS && client.is_offline" mat-menu-item (click)="continueOffline.emit(client)">
+                <mat-icon>description</mat-icon>
+                <span>Continue Offline Setup</span>
               </button>
               <button *ngIf="client.status === ClientStatus.APPLICATION_NOT_STARTED" mat-menu-item (click)="startOnline.emit(client)">
                 <mat-icon>play_arrow</mat-icon>
@@ -161,6 +165,7 @@ export class ClientTableComponent {
   @Output() continueSetup = new EventEmitter<Client>();
   @Output() startOnline = new EventEmitter<Client>();
   @Output() startOffline = new EventEmitter<Client>();
+  @Output() continueOffline = new EventEmitter<Client>();
   @Output() viewDocuments = new EventEmitter<Client>();
   @Output() manageAccess = new EventEmitter<Client>();
   @Output() assignToMe = new EventEmitter<Client>();

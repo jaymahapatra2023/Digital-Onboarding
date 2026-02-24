@@ -21,6 +21,7 @@ export interface Client {
   assigned_user_name?: string;
   days_since_update?: number;
   is_stale?: boolean;
+  is_offline?: boolean | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -52,6 +53,13 @@ export enum AccessRoleType {
   BROKER_TPA_GA_ADMIN = 'BROKER_TPA_GA_ADMIN',
 }
 
+export enum InvitationStatus {
+  PENDING = 'PENDING',
+  SENT = 'SENT',
+  ACCEPTED = 'ACCEPTED',
+  EXPIRED = 'EXPIRED',
+}
+
 export interface ClientAccess {
   id: string;
   client_id: string;
@@ -62,6 +70,9 @@ export interface ClientAccess {
   email: string;
   has_ongoing_maintenance_access: boolean;
   is_account_executive: boolean;
+  invitation_status: InvitationStatus;
+  invitation_sent_at?: string;
+  accepted_at?: string;
   created_at?: string;
   updated_at?: string;
 }

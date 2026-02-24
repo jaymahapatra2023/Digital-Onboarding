@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewContainerRef, ViewChild, ComponentRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -89,6 +89,7 @@ export class WorkflowContainerComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     public store: WorkflowStore,
     private workflowService: WorkflowService,
     private notification: NotificationService,
@@ -103,6 +104,12 @@ export class WorkflowContainerComponent implements OnInit {
     this.store.setLoading(true);
     this.workflowService.getWorkflow(this.clientId).subscribe({
       next: (workflow) => {
+        // Redirect offline workflows to the offline packet hub
+        if (workflow.is_offline) {
+          this.router.navigate(['/offline-packet', this.clientId]);
+          return;
+        }
+
         this.store.setWorkflow(workflow);
         this.store.setLoading(false);
         // Allow one change-detection tick so the *ngIf renders the stepContainer

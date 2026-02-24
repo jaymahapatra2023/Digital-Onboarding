@@ -21,6 +21,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadChildren: () => import('./features/workflow/workflow.routes').then(m => m.WORKFLOW_ROUTES),
   },
+  {
+    path: 'offline-packet/:clientId',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/offline-packet/offline-packet.routes').then(m => m.OFFLINE_PACKET_ROUTES),
+  },
   { path: '', redirectTo: '/clients', pathMatch: 'full' },
   { path: '**', redirectTo: '/clients' },
 ];

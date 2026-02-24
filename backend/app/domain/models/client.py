@@ -36,6 +36,7 @@ class Client(BaseModel):
 
 class ClientWithMetrics(Client):
     is_stale: bool = False
+    is_offline: bool | None = None
 
 
 class ClientListResponse(BaseModel):
@@ -96,7 +97,10 @@ class TimelineEvent(BaseModel):
             "WorkflowStepSkipped": ("Workflow step skipped: {step_id}", "skip_next"),
             "DocumentUploaded": ("Document uploaded: {file_name}", "upload_file"),
             "DocumentDeleted": ("Document deleted: {file_name}", "delete"),
+            "OfflinePacketSubmitted": ("Offline packet submitted for review", "send"),
             "CaseOwnerAssigned": ("Case assigned to owner", "assignment_ind"),
+            "InvitationSent": ("Invitation sent to {email} ({role_type})", "send"),
+            "AccessUnlocked": ("Access unlocked for {email}", "lock_open"),
         }
 
 

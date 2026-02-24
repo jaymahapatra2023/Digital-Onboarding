@@ -10,6 +10,8 @@ class WorkflowStatus(str, Enum):
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
     OFFLINE = "OFFLINE"
+    OFFLINE_SUBMITTED = "OFFLINE_SUBMITTED"
+    OFFLINE_IN_REVIEW = "OFFLINE_IN_REVIEW"
 
 
 class StepStatus(str, Enum):

@@ -9,9 +9,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { SoldCasesService } from '../../services/sold-cases.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { ClientAccess } from '../../../../core/models/client.model';
+import { ClientAccess, InvitationStatus } from '../../../../core/models/client.model';
 import { AssignAccessModalComponent, AccessModalData } from '../assign-access-modal/assign-access-modal.component';
 import { DeleteAccessModalComponent, DeleteAccessData } from '../delete-access-modal/delete-access-modal.component';
+import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 
 export interface ManageAccessDialogData {
   clientId: string;
@@ -24,6 +25,7 @@ export interface ManageAccessDialogData {
   imports: [
     CommonModule, MatDialogModule, MatTableModule, MatButtonModule,
     MatIconModule, MatTooltipModule, MatProgressSpinnerModule,
+    StatusBadgeComponent,
   ],
   template: `
     <h2 mat-dialog-title class="flex items-center gap-2">
@@ -69,6 +71,13 @@ export interface ManageAccessDialogData {
           </td>
         </ng-container>
 
+        <ng-container matColumnDef="invitation_status">
+          <th mat-header-cell *matHeaderCellDef>Invitation</th>
+          <td mat-cell *matCellDef="let access">
+            <app-status-badge [status]="access.invitation_status"></app-status-badge>
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="maintenance">
           <th mat-header-cell *matHeaderCellDef>Ongoing Access</th>
           <td mat-cell *matCellDef="let access">
@@ -82,8 +91,18 @@ export interface ManageAccessDialogData {
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef class="w-24"></th>
+          <th mat-header-cell *matHeaderCellDef class="w-36"></th>
           <td mat-cell *matCellDef="let access">
+            <button mat-icon-button matTooltip="Resend Invitation"
+                    *ngIf="canResend(access)"
+                    (click)="resendInvitation(access)">
+              <mat-icon class="text-blue-500" style="font-size:20px;width:20px;height:20px;">send</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Unlock Access"
+                    *ngIf="canUnlock(access)"
+                    (click)="unlockAccess(access)">
+              <mat-icon class="text-green-600" style="font-size:20px;width:20px;height:20px;">lock_open</mat-icon>
+            </button>
             <button mat-icon-button matTooltip="Edit" (click)="editAccess(access)">
               <mat-icon class="text-indigo-500" style="font-size:20px;width:20px;height:20px;">edit</mat-icon>
             </button>
@@ -110,7 +129,7 @@ export interface ManageAccessDialogData {
 export class ManageAccessDialogComponent implements OnInit {
   accessList: ClientAccess[] = [];
   loading = false;
-  displayedColumns = ['name', 'role_type', 'maintenance', 'actions'];
+  displayedColumns = ['name', 'role_type', 'invitation_status', 'maintenance', 'actions'];
 
   constructor(
     public dialogRef: MatDialogRef<ManageAccessDialogComponent>,
@@ -140,6 +159,35 @@ export class ManageAccessDialogComponent implements OnInit {
 
   formatRole(role: string): string {
     return role.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  canResend(access: ClientAccess): boolean {
+    return access.invitation_status === InvitationStatus.SENT
+        || access.invitation_status === InvitationStatus.EXPIRED;
+  }
+
+  canUnlock(access: ClientAccess): boolean {
+    return access.invitation_status === InvitationStatus.EXPIRED;
+  }
+
+  resendInvitation(access: ClientAccess): void {
+    this.service.resendInvitation(this.data.clientId, access.id).subscribe({
+      next: () => {
+        this.notification.success('Invitation resent successfully');
+        this.loadAccess();
+      },
+      error: (err) => this.notification.error(err.error?.detail || 'Failed to resend invitation'),
+    });
+  }
+
+  unlockAccess(access: ClientAccess): void {
+    this.service.unlockAccess(this.data.clientId, access.id).subscribe({
+      next: () => {
+        this.notification.success('Access unlocked successfully');
+        this.loadAccess();
+      },
+      error: (err) => this.notification.error(err.error?.detail || 'Failed to unlock access'),
+    });
   }
 
   openAssign(): void {

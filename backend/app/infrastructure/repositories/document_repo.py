@@ -33,6 +33,20 @@ class DocumentRepository:
         )
         return list(result.scalars().all())
 
+    async def list_by_workflow_instance(
+        self, workflow_instance_id: UUID
+    ) -> list[DocumentORM]:
+        """Return all non-deleted documents for a given workflow instance."""
+        result = await self.session.execute(
+            select(DocumentORM)
+            .where(
+                DocumentORM.workflow_instance_id == workflow_instance_id,
+                DocumentORM.is_deleted.is_(False),
+            )
+            .order_by(DocumentORM.uploaded_at.desc())
+        )
+        return list(result.scalars().all())
+
     async def create(
         self,
         client_id: UUID,

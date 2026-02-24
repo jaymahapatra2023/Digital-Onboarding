@@ -62,6 +62,23 @@ class ClientAccessORM(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
     )
 
+    # ---- invitation tracking ----
+    invitation_status: Mapped[str] = mapped_column(
+        String(20), nullable=False, server_default=text("'PENDING'")
+    )
+    invitation_token: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True, unique=True, index=True
+    )
+    invitation_sent_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    invitation_expires_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    accepted_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
     # ---- relationships ----
     client: Mapped["ClientORM"] = relationship(
         "ClientORM", back_populates="access_entries", lazy="selectin"

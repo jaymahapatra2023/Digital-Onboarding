@@ -14,8 +14,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 10080
     UPLOAD_DIR: str = "./uploads"
+    TEMPLATE_DIR: str = "./templates"
     S3_BUCKET: Optional[str] = None
     CORS_ORIGINS: list[str] = ["http://localhost:4200"]
+    INVITATION_EXPIRY_DAYS: int = 30
+    FRONTEND_URL: str = "http://localhost:4200"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

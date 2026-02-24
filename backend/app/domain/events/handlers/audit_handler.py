@@ -8,9 +8,12 @@ from app.domain.events.base import DomainEvent
 from app.domain.events.client_events import (
     AccessAssigned,
     AccessRevoked,
+    AccessUnlocked,
     CaseMarkedSold,
     CaseOwnerAssigned,
     GroupSetupStarted,
+    InvitationSent,
+    OfflinePacketSubmitted,
     OfflineSetupChosen,
 )
 from app.domain.events.event_bus import event_bus
@@ -65,6 +68,8 @@ def setup_audit_handlers(session_factory: Callable[..., AsyncSession]) -> None:
         CaseMarkedSold,
         AccessAssigned,
         AccessRevoked,
+        InvitationSent,
+        AccessUnlocked,
         CaseOwnerAssigned,
         GroupSetupStarted,
         OfflineSetupChosen,
@@ -74,6 +79,7 @@ def setup_audit_handlers(session_factory: Callable[..., AsyncSession]) -> None:
         WorkflowStepSkipped,
         DocumentUploaded,
         DocumentDeleted,
+        OfflinePacketSubmitted,
     ]
 
     for event_type in all_event_types:

@@ -56,10 +56,10 @@ export interface DocumentsDialogData {
           <td mat-cell *matCellDef="let doc" class="text-slate-600">{{ formatType(doc.file_type) }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="created_at">
+        <ng-container matColumnDef="uploaded_at">
           <th mat-header-cell *matHeaderCellDef>Uploaded</th>
           <td mat-cell *matCellDef="let doc" class="text-slate-500 text-sm">
-            {{ doc.created_at | date:'MMM d, y' }}
+            {{ doc.uploaded_at | date:'MMM d, y' }}
           </td>
         </ng-container>
 
@@ -92,7 +92,7 @@ export interface DocumentsDialogData {
 export class DocumentsDialogComponent implements OnInit {
   documents: Document[] = [];
   loading = false;
-  displayedColumns = ['file_name', 'file_type', 'created_at', 'actions'];
+  displayedColumns = ['file_name', 'file_type', 'uploaded_at', 'actions'];
 
   constructor(
     public dialogRef: MatDialogRef<DocumentsDialogComponent>,

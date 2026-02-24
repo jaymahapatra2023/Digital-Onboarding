@@ -35,6 +35,14 @@ export class SoldCasesService {
     return this.api.delete<void>(`/clients/${clientId}/access/${accessId}`);
   }
 
+  resendInvitation(clientId: string, accessId: string): Observable<ClientAccess> {
+    return this.api.post<ClientAccess>(`/clients/${clientId}/access/${accessId}/resend-invitation`);
+  }
+
+  unlockAccess(clientId: string, accessId: string): Observable<ClientAccess> {
+    return this.api.post<ClientAccess>(`/clients/${clientId}/access/${accessId}/unlock`);
+  }
+
   searchUsers(query: string): Observable<User[]> {
     return this.api.get<User[]>('/users/search', { q: query });
   }

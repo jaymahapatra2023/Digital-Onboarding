@@ -155,6 +155,9 @@ class WorkflowService:
         instance.is_offline = True
         instance.started_at = datetime.now(timezone.utc)
 
+        # Update client status to reflect that the application is underway
+        await self.client_repo.update_status(client_id, "APPLICATION_IN_PROGRESS")
+
         await self.session.flush()
 
         await event_bus.publish(

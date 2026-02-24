@@ -13,6 +13,13 @@ class AccessRoleType(str, Enum):
     BROKER_TPA_GA_ADMIN = "BROKER_TPA_GA_ADMIN"
 
 
+class InvitationStatus(str, Enum):
+    PENDING = "PENDING"
+    SENT = "SENT"
+    ACCEPTED = "ACCEPTED"
+    EXPIRED = "EXPIRED"
+
+
 class ClientAccess(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -25,6 +32,10 @@ class ClientAccess(BaseModel):
     email: str
     has_ongoing_maintenance_access: bool = False
     is_account_executive: bool = False
+    invitation_status: InvitationStatus = InvitationStatus.PENDING
+    invitation_sent_at: datetime | None = None
+    invitation_expires_at: datetime | None = None
+    accepted_at: datetime | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
 

@@ -42,19 +42,23 @@ async def upload_document(
     file: UploadFile,
     file_type: str = Form(...),
     file_description: str | None = Form(None),
+    workflow_instance_id: str | None = Form(None),
     db: AsyncSession = Depends(get_db),
     current_user: UserORM = Depends(get_current_user),
 ):
     """Upload a new document for a client.
 
-    Accepts a multipart file upload along with form fields for file_type
-    and an optional file_description.
+    Accepts a multipart file upload along with form fields for file_type,
+    an optional file_description, and an optional workflow_instance_id to
+    link the document to a specific workflow instance.
     """
     storage = _get_storage()
     service = DocumentService(db, storage)
 
     # Read file content into memory for the storage backend
     file_content = await file.read()
+
+    wf_id = UUID(workflow_instance_id) if workflow_instance_id else None
 
     return await service.upload_document(
         client_id=client_id,
@@ -64,6 +68,7 @@ async def upload_document(
         mime_type=file.content_type,
         file_description=file_description,
         uploaded_by_user_id=current_user.id,
+        workflow_instance_id=wf_id,
     )
 
 

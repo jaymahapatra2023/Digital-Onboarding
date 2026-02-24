@@ -63,10 +63,10 @@ export class FileUploadModalComponent {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<FileUploadModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { clientId: string },
+    @Inject(MAT_DIALOG_DATA) public data: { clientId: string; preselectedType?: string },
   ) {
     this.form = this.fb.group({
-      file_type: ['', Validators.required],
+      file_type: [data.preselectedType || '', Validators.required],
       description: [''],
     });
   }

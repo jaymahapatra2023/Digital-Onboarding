@@ -3,6 +3,8 @@ export enum WorkflowStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   COMPLETED = 'COMPLETED',
   OFFLINE = 'OFFLINE',
+  OFFLINE_SUBMITTED = 'OFFLINE_SUBMITTED',
+  OFFLINE_IN_REVIEW = 'OFFLINE_IN_REVIEW',
 }
 
 export enum StepStatus {

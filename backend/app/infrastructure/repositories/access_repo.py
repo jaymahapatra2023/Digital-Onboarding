@@ -1,5 +1,6 @@
 """Repository for ClientAccess entity data access."""
 
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select
@@ -40,6 +41,8 @@ class AccessRepository:
         has_ongoing_maintenance_access: bool = False,
         is_account_executive: bool = False,
         user_id: UUID | None = None,
+        invitation_token: str | None = None,
+        invitation_expires_at: datetime | None = None,
     ) -> ClientAccessORM:
         """Create a new client access entry and flush to obtain generated defaults."""
         access = ClientAccessORM(
@@ -51,6 +54,8 @@ class AccessRepository:
             role_type=role_type,
             has_ongoing_maintenance_access=has_ongoing_maintenance_access,
             is_account_executive=is_account_executive,
+            invitation_token=invitation_token,
+            invitation_expires_at=invitation_expires_at,
         )
         self.session.add(access)
         await self.session.flush()
@@ -79,6 +84,15 @@ class AccessRepository:
         await self.session.delete(access)
         await self.session.flush()
         return True
+
+    async def get_by_token(self, token: str) -> ClientAccessORM | None:
+        """Look up an access entry by its invitation token."""
+        result = await self.session.execute(
+            select(ClientAccessORM).where(
+                ClientAccessORM.invitation_token == token
+            )
+        )
+        return result.scalar_one_or_none()
 
     async def get_by_client_and_email(
         self, client_id: UUID, email: str

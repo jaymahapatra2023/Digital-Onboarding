@@ -90,6 +90,7 @@ import { Client, ClientStatus } from '../../../../core/models/client.model';
           (continueSetup)="onContinueSetup($event)"
           (startOnline)="onStartOnline($event)"
           (startOffline)="openOfflineSetup($event)"
+          (continueOffline)="onContinueOffline($event)"
           (viewDocuments)="openDocuments($event)"
           (assignToMe)="onAssignToMe($event)"
           (viewTimeline)="openTimeline($event)">
@@ -231,6 +232,10 @@ export class ClientListComponent implements OnInit {
     });
   }
 
+  onContinueOffline(client: Client): void {
+    this.router.navigate(['/offline-packet', client.id]);
+  }
+
   openOfflineSetup(client: Client): void {
     const dialogRef = this.dialog.open(OfflineSetupComponent, {
       width: '500px',
@@ -242,7 +247,7 @@ export class ClientListComponent implements OnInit {
         this.service.startOfflineSetup(client.id).subscribe({
           next: () => {
             this.notification.success('Offline setup initiated');
-            this.loadClients();
+            this.router.navigate(['/offline-packet', client.id]);
           },
           error: (err) => this.notification.error(err.error?.detail || 'Failed to start offline setup'),
         });

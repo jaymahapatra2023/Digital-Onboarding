@@ -14,12 +14,21 @@ export interface DocumentUploadResponse {
 export class FileUploadService {
   constructor(private api: ApiService) {}
 
-  upload(clientId: string, file: File, fileType: string, description?: string): Observable<DocumentUploadResponse> {
+  upload(
+    clientId: string,
+    file: File,
+    fileType: string,
+    description?: string,
+    workflowInstanceId?: string,
+  ): Observable<DocumentUploadResponse> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('file_type', fileType);
     if (description) {
       formData.append('file_description', description);
+    }
+    if (workflowInstanceId) {
+      formData.append('workflow_instance_id', workflowInstanceId);
     }
     return this.api.upload<DocumentUploadResponse>(`/clients/${clientId}/documents`, formData);
   }
