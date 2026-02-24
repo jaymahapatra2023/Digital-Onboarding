@@ -586,6 +586,43 @@ const WAITING_PERIOD_TYPES = [
                   <tr mat-header-row *matHeaderRowDef="caseColumns"></tr>
                   <tr mat-row *matRowDef="let row; columns: caseColumns;"></tr>
                 </table>
+
+                <!-- Case structure review summary -->
+                <div *ngIf="caseStructures.length > 0"
+                     class="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2">
+                  <div class="flex items-center gap-2 mb-1">
+                    <mat-icon class="text-green-600" style="font-size:18px;width:18px;height:18px;">check_circle</mat-icon>
+                    <span class="text-sm font-semibold text-green-800">Case Structure Summary</span>
+                  </div>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                    <div>
+                      <span class="text-green-600 text-xs block">Entries</span>
+                      <span class="text-green-900 font-semibold">{{ caseStructures.length }}</span>
+                    </div>
+                    <div>
+                      <span class="text-green-600 text-xs block">Locations Covered</span>
+                      <span class="text-green-900 font-semibold">{{ getCoveredLocationCount() }} / {{ locations.length }}</span>
+                    </div>
+                    <div>
+                      <span class="text-green-600 text-xs block">Contacts Assigned</span>
+                      <span class="text-green-900 font-semibold">{{ getCoveredContactCount() }}</span>
+                    </div>
+                    <div>
+                      <span class="text-green-600 text-xs block">Departments Mapped</span>
+                      <span class="text-green-900 font-semibold">{{ getCoveredDepartmentCount() }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Amber warning when not all locations covered -->
+                <div *ngIf="caseStructures.length > 0 && getCoveredLocationCount() < locations.length"
+                     class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <mat-icon class="text-amber-600 mt-0.5" style="font-size:20px;width:20px;height:20px;">warning</mat-icon>
+                  <p class="text-sm text-amber-800">
+                    Not all locations are covered by the case structure.
+                    {{ getCoveredLocationCount() }} of {{ locations.length }} locations have entries.
+                  </p>
+                </div>
               </mat-card-content>
             </mat-card>
 
@@ -593,7 +630,8 @@ const WAITING_PERIOD_TYPES = [
               <button mat-button matStepperPrevious class="text-slate-600">
                 <mat-icon>arrow_back</mat-icon> Back
               </button>
-              <button mat-flat-button color="primary" matStepperNext style="border-radius: 8px;">
+              <button mat-flat-button color="primary" matStepperNext style="border-radius: 8px;"
+                      [disabled]="caseStructures.length === 0">
                 Next <mat-icon>arrow_forward</mat-icon>
               </button>
             </div>
@@ -618,6 +656,14 @@ const WAITING_PERIOD_TYPES = [
                   </p>
                 </div>
 
+                <!-- Bulk apply button -->
+                <div class="flex justify-end">
+                  <button mat-flat-button color="accent" (click)="applyAllClassesToAllLocations()" type="button"
+                          style="border-radius: 8px;" [disabled]="classes.length === 0 || locations.length === 0">
+                    <mat-icon>select_all</mat-icon> Apply All Classes to All Locations
+                  </button>
+                </div>
+
                 <div class="space-y-4">
                   <div *ngFor="let loc of locations; let i = index"
                        class="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3">
@@ -640,6 +686,18 @@ const WAITING_PERIOD_TYPES = [
                     </div>
                   </div>
                 </div>
+
+                <!-- Validation error banner -->
+                <div *ngIf="validationErrors.length > 0"
+                     class="bg-red-50 border border-red-300 rounded-xl p-4 space-y-2">
+                  <div class="flex items-center gap-2">
+                    <mat-icon class="text-red-600" style="font-size:20px;width:20px;height:20px;">error</mat-icon>
+                    <span class="text-sm font-semibold text-red-800">Validation Errors</span>
+                  </div>
+                  <ul class="list-disc list-inside space-y-1 ml-7">
+                    <li *ngFor="let err of validationErrors" class="text-sm text-red-700">{{ err }}</li>
+                  </ul>
+                </div>
               </mat-card-content>
             </mat-card>
 
@@ -647,6 +705,10 @@ const WAITING_PERIOD_TYPES = [
             <div class="flex justify-between">
               <button mat-button matStepperPrevious class="text-slate-600">
                 <mat-icon>arrow_back</mat-icon> Back
+              </button>
+              <button mat-flat-button color="primary" (click)="computeValidationErrors()" type="button"
+                      style="border-radius: 8px;">
+                <mat-icon>checklist</mat-icon> Validate Structure
               </button>
             </div>
           </div>
@@ -685,6 +747,7 @@ export class GroupStructureComponent implements OnInit, OnDestroy {
   contacts: Contact[] = [];
   caseStructures: CaseStructure[] = [];
   classLocationAssignments: ClassLocationAssignment[] = [];
+  validationErrors: string[] = [];
 
   // Table columns
   classColumns = ['class_id', 'description', 'actions'];
@@ -830,7 +893,15 @@ export class GroupStructureComponent implements OnInit, OnDestroy {
     });
     ref.afterClosed().subscribe(confirmed => {
       if (confirmed) {
+        const deletedClassId = this.classes[index].class_id;
         this.classes = this.classes.filter((_, i) => i !== index);
+        // Orphan cleanup: remove matching class description
+        this.classDescriptions = this.classDescriptions.filter(cd => cd.class_id !== deletedClassId);
+        // Orphan cleanup: remove from class-location assignments
+        this.classLocationAssignments = this.classLocationAssignments.map(a => ({
+          ...a,
+          class_ids: a.class_ids.filter(id => id !== deletedClassId),
+        }));
       }
     });
   }
@@ -919,7 +990,12 @@ export class GroupStructureComponent implements OnInit, OnDestroy {
     });
     ref.afterClosed().subscribe(confirmed => {
       if (confirmed) {
+        const deletedLocationId = this.locations[index].id;
         this.locations = this.locations.filter((_, i) => i !== index);
+        // Orphan cleanup: remove referencing case structures
+        this.caseStructures = this.caseStructures.filter(cs => cs.location_id !== deletedLocationId);
+        // Orphan cleanup: remove class-location assignments for this location
+        this.classLocationAssignments = this.classLocationAssignments.filter(a => a.location_id !== deletedLocationId);
       }
     });
   }
@@ -970,7 +1046,12 @@ export class GroupStructureComponent implements OnInit, OnDestroy {
     });
     ref.afterClosed().subscribe(confirmed => {
       if (confirmed) {
+        const deletedBillingId = this.billingAddresses[index].id;
         this.billingAddresses = this.billingAddresses.filter((_, i) => i !== index);
+        // Orphan cleanup: clear billing reference in case structures (set to empty = Primary)
+        this.caseStructures = this.caseStructures.map(cs =>
+          cs.billing_address_id === deletedBillingId ? { ...cs, billing_address_id: '' } : cs
+        );
       }
     });
   }
@@ -999,7 +1080,12 @@ export class GroupStructureComponent implements OnInit, OnDestroy {
     });
     ref.afterClosed().subscribe(confirmed => {
       if (confirmed) {
+        const deletedDeptId = this.departments[index].id;
         this.departments = this.departments.filter((_, i) => i !== index);
+        // Orphan cleanup: clear department reference in case structures
+        this.caseStructures = this.caseStructures.map(cs =>
+          cs.department_id === deletedDeptId ? { ...cs, department_id: '' } : cs
+        );
       }
     });
   }
@@ -1041,7 +1127,10 @@ export class GroupStructureComponent implements OnInit, OnDestroy {
     });
     ref.afterClosed().subscribe(confirmed => {
       if (confirmed) {
+        const deletedContactId = this.contacts[index].id;
         this.contacts = this.contacts.filter((_, i) => i !== index);
+        // Orphan cleanup: remove referencing case structures (contact is required)
+        this.caseStructures = this.caseStructures.filter(cs => cs.contact_id !== deletedContactId);
       }
     });
   }
@@ -1126,16 +1215,72 @@ export class GroupStructureComponent implements OnInit, OnDestroy {
   }
 
   isValid(): boolean {
-    // All locations must have at least one class assigned
-    const allLocationsAssigned = this.locations.every(loc =>
-      this.getAssignedClassIds(loc.id).length > 0
+    this.computeValidationErrors();
+    return this.validationErrors.length === 0;
+  }
+
+  computeValidationErrors(): void {
+    const errors: string[] = [];
+
+    if (this.classes.length === 0) {
+      errors.push('At least one employee class is required');
+    }
+
+    const unconfiguredClasses = this.classes.filter(
+      c => !this.classDescriptions.some(cd => cd.class_id === c.class_id)
     );
-    return (
-      this.classes.length > 0 &&
-      this.classDescriptions.length >= this.classes.length &&
-      this.locations.length > 0 &&
-      this.contacts.length > 0 &&
-      allLocationsAssigned
+    if (unconfiguredClasses.length > 0) {
+      errors.push(`All classes need descriptions configured (missing: ${unconfiguredClasses.map(c => c.class_id).join(', ')})`);
+    }
+
+    if (this.locations.length === 0) {
+      errors.push('At least one location is required');
+    }
+
+    if (this.contacts.length === 0) {
+      errors.push('At least one contact is required');
+    }
+
+    if (this.billingForm.get('has_third_party_billing')?.value === 'yes' && this.billingAddresses.length === 0) {
+      errors.push('At least one billing address is required when third-party billing is enabled');
+    }
+
+    if (this.caseStructures.length === 0) {
+      errors.push('At least one case structure entry is required');
+    }
+
+    const unassignedLocations = this.locations.filter(
+      loc => this.getAssignedClassIds(loc.id).length === 0
     );
+    if (unassignedLocations.length > 0) {
+      errors.push(`All locations must have class assignments (unassigned: ${unassignedLocations.map(l => l.name).join(', ')})`);
+    }
+
+    this.validationErrors = errors;
+  }
+
+  // --- Coverage helpers for case structure summary ---
+  getCoveredLocationCount(): number {
+    const coveredIds = new Set(this.caseStructures.map(cs => cs.location_id));
+    return coveredIds.size;
+  }
+
+  getCoveredContactCount(): number {
+    const coveredIds = new Set(this.caseStructures.map(cs => cs.contact_id));
+    return coveredIds.size;
+  }
+
+  getCoveredDepartmentCount(): number {
+    const coveredIds = new Set(this.caseStructures.filter(cs => cs.department_id).map(cs => cs.department_id));
+    return coveredIds.size;
+  }
+
+  // --- Bulk assignment ---
+  applyAllClassesToAllLocations(): void {
+    const allClassIds = this.classes.map(c => c.class_id);
+    this.classLocationAssignments = this.locations.map(loc => ({
+      location_id: loc.id,
+      class_ids: [...allClassIds],
+    }));
   }
 }

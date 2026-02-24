@@ -211,14 +211,16 @@ import { STEP_NAMES } from '../step-registry';
 
       <!-- Step 6: Group Structure -->
       <mat-card *ngIf="stepData['group_structure'] as data">
-        <mat-card-content class="p-5">
+        <mat-card-content class="p-5 space-y-4">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-base font-semibold text-slate-800">Group Structure</h3>
             <button mat-icon-button matTooltip="Edit" (click)="editStep('group_structure')">
               <mat-icon class="text-indigo-500" style="font-size:18px;width:18px;height:18px;">edit</mat-icon>
             </button>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+
+          <!-- 4-column summary grid -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
               <span class="text-slate-500 block text-xs">Classes</span>
               <span class="text-slate-800 font-semibold">{{ data['classes']?.length || 0 }}</span>
@@ -228,14 +230,85 @@ import { STEP_NAMES } from '../step-registry';
               <span class="text-slate-800 font-semibold">{{ data['locations']?.length || 0 }}</span>
             </div>
             <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
-              <span class="text-slate-500 block text-xs">Departments</span>
-              <span class="text-slate-800 font-semibold">{{ data['departments']?.length || 0 }}</span>
+              <span class="text-slate-500 block text-xs">Contacts</span>
+              <span class="text-slate-800 font-semibold">{{ data['contacts']?.length || 0 }}</span>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-3 border border-slate-100">
+              <span class="text-slate-500 block text-xs">Case Structures</span>
+              <span class="text-slate-800 font-semibold">{{ data['case_structures']?.length || 0 }}</span>
             </div>
           </div>
-          <div *ngIf="data['contacts']?.length > 0" class="mt-3">
-            <span class="text-xs font-medium text-slate-500 block mb-1">Contacts</span>
-            <div *ngFor="let c of data['contacts']" class="text-sm text-slate-700">
-              {{ c.first_name }} {{ c.last_name }} — {{ c.role || c.contact_type }}
+
+          <!-- Class pills -->
+          <div *ngIf="data['classes']?.length > 0">
+            <span class="text-xs font-medium text-slate-500 block mb-2">Classes</span>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let c of data['classes']"
+                    class="inline-flex items-center gap-1 text-xs font-medium text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
+                {{ c.class_id }} &mdash; {{ c.description }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Location list with city/state -->
+          <div *ngIf="data['locations']?.length > 0">
+            <span class="text-xs font-medium text-slate-500 block mb-2">Locations</span>
+            <div class="space-y-1">
+              <div *ngFor="let loc of data['locations']"
+                   class="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
+                <mat-icon class="text-slate-400" style="font-size:16px;width:16px;height:16px;">location_on</mat-icon>
+                <span class="font-medium">{{ loc.name }}</span>
+                <span *ngIf="loc.city || loc.state" class="text-slate-400">&mdash; {{ loc.city }}<span *ngIf="loc.city && loc.state">, </span>{{ loc.state }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Third-party billing addresses -->
+          <div *ngIf="data['billing']?.has_third_party_billing === 'yes' && data['billing_addresses']?.length > 0">
+            <span class="text-xs font-medium text-slate-500 block mb-2">Third-Party Billing Addresses</span>
+            <div class="space-y-1">
+              <div *ngFor="let ba of data['billing_addresses']"
+                   class="text-sm text-slate-700 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
+                {{ ba.address_line1 }}, {{ ba.city }}, {{ ba.state }} {{ ba.zip }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Contacts with roles -->
+          <div *ngIf="data['contacts']?.length > 0">
+            <span class="text-xs font-medium text-slate-500 block mb-2">Contacts</span>
+            <div class="space-y-1">
+              <div *ngFor="let c of data['contacts']"
+                   class="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
+                <mat-icon class="text-slate-400" style="font-size:16px;width:16px;height:16px;">person</mat-icon>
+                <span class="font-medium">{{ c.first_name }} {{ c.last_name }}</span>
+                <span class="text-slate-400">&mdash; {{ c.roles?.join(', ') || c.role || c.contact_type || '—' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Case structure mappings table -->
+          <div *ngIf="data['case_structures']?.length > 0">
+            <span class="text-xs font-medium text-slate-500 block mb-2">Case Structure Mappings</span>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm border border-slate-200 rounded-lg overflow-hidden">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="text-left px-3 py-2 text-xs font-medium text-slate-500">Location</th>
+                    <th class="text-left px-3 py-2 text-xs font-medium text-slate-500">Billing</th>
+                    <th class="text-left px-3 py-2 text-xs font-medium text-slate-500">Department</th>
+                    <th class="text-left px-3 py-2 text-xs font-medium text-slate-500">Contact</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let cs of data['case_structures']" class="border-t border-slate-100">
+                    <td class="px-3 py-2 text-slate-700">{{ getGSLocationName(cs.location_id, data) }}</td>
+                    <td class="px-3 py-2 text-slate-700">{{ getGSBillingLabel(cs.billing_address_id, data) }}</td>
+                    <td class="px-3 py-2 text-slate-700">{{ getGSDepartmentName(cs.department_id, data) }}</td>
+                    <td class="px-3 py-2 text-slate-700">{{ getGSContactName(cs.contact_id, data) }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </mat-card-content>
@@ -398,6 +471,28 @@ export class FinalizeComponent implements OnInit {
 
   printScreen(): void {
     window.print();
+  }
+
+  // --- Group Structure lookup helpers for finalize review ---
+  getGSLocationName(id: string, data: Record<string, any>): string {
+    const loc = data['locations']?.find((l: any) => l.id === id);
+    return loc?.name || '—';
+  }
+
+  getGSBillingLabel(id: string, data: Record<string, any>): string {
+    if (!id) return 'Primary';
+    const ba = data['billing_addresses']?.find((b: any) => b.id === id);
+    return ba ? `${ba.address_line1}, ${ba.city}` : '—';
+  }
+
+  getGSDepartmentName(id: string, data: Record<string, any>): string {
+    if (!id) return '—';
+    return data['departments']?.find((d: any) => d.id === id)?.description || '—';
+  }
+
+  getGSContactName(id: string, data: Record<string, any>): string {
+    const c = data['contacts']?.find((ct: any) => ct.id === id);
+    return c ? `${c.first_name} ${c.last_name}` : '—';
   }
 
   getData(): Record<string, any> {
