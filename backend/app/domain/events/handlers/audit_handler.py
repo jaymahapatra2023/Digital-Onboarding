@@ -20,6 +20,8 @@ from app.domain.events.event_bus import event_bus
 from app.domain.events.workflow_events import (
     DocumentDeleted,
     DocumentUploaded,
+    EnrollmentTransitionInitiated,
+    MasterAppSigned,
     WorkflowStepCompleted,
     WorkflowStepSaved,
     WorkflowStepSkipped,
@@ -82,6 +84,8 @@ def setup_audit_handlers(session_factory: Callable[..., AsyncSession]) -> None:
         DocumentDeleted,
         OfflinePacketSubmitted,
         WorkflowSubmitted,
+        MasterAppSigned,
+        EnrollmentTransitionInitiated,
     ]
 
     for event_type in all_event_types:

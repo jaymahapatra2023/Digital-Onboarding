@@ -11,6 +11,8 @@ from app.domain.events.event_bus import event_bus
 from sqlalchemy import select
 
 from app.domain.events.workflow_events import (
+    EnrollmentTransitionInitiated,
+    MasterAppSigned,
     WorkflowHandoffRequested,
     WorkflowStepCompleted,
     WorkflowStepSaved,
@@ -238,6 +240,13 @@ class WorkflowService:
                 "Data cannot be modified after final signature."
             )
 
+        # Immutability guard: prevent modification of completed master_app step
+        if step_id == "master_app" and step.status == "COMPLETED":
+            raise ValueError(
+                "Master Application step has been completed and is now locked. "
+                "Data cannot be modified after final signature."
+            )
+
         now = datetime.now(timezone.utc)
         await self.repo.update_step_instance(step.id, data=data, last_saved_at=now)
 
@@ -291,6 +300,26 @@ class WorkflowService:
         await self.repo.update_step_instance(
             step.id, status="COMPLETED", completed_at=now
         )
+
+        # Stamp server-side signer metadata on master_app step completion
+        if step_id == "master_app" and step.data:
+            data = step.data if isinstance(step.data, dict) else {}
+            sig = data.get("signature", {})
+            sig["server_timestamp"] = now.isoformat()
+            sig["signer_ip"] = request_ip
+            sig["server_user_agent"] = request_user_agent
+            data["signature"] = sig
+            await self.repo.update_step_instance(step.id, data=data)
+
+            await event_bus.publish(
+                MasterAppSigned(
+                    client_id=client_id,
+                    user_id=user_id,
+                    workflow_instance_id=instance.id,
+                    accepted_by=sig.get("accepted_by", ""),
+                    signer_ip=request_ip,
+                )
+            )
 
         # Stamp server-side signer metadata on authorization step completion
         if step_id == "authorization" and step.data:
@@ -487,6 +516,14 @@ class WorkflowService:
         }
 
     # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _generate_group_number(self, client_id: UUID) -> str:
+        short_id = str(client_id).replace("-", "")[:8].upper()
+        return f"GRP-{short_id}"
+
+    # ------------------------------------------------------------------
     # Submission (downstream output)
     # ------------------------------------------------------------------
 
@@ -533,6 +570,21 @@ class WorkflowService:
                 },
             }
 
+        # Normalize master_app signature into a structured top-level key
+        master_app_data = step_data.get("master_app", {})
+        master_app_output = None
+        if master_app_data:
+            sig = master_app_data.get("signature", {})
+            master_app_output = {
+                "accepted_by": sig.get("accepted_by"),
+                "title": sig.get("title"),
+                "signature_date": sig.get("date"),
+                "terms_accepted": sig.get("terms_accepted"),
+                "client_timestamp": sig.get("client_timestamp"),
+                "server_timestamp": sig.get("server_timestamp"),
+                "signer_ip": sig.get("signer_ip"),
+            }
+
         # Normalize authorization into a structured top-level key
         authorization_data = step_data.get("authorization", {})
         authorization_output = None
@@ -568,6 +620,7 @@ class WorkflowService:
             ),
             "billing": billing_output,
             "authorization": authorization_output,
+            "master_app": master_app_output,
             "steps": step_data,
         }
 
@@ -626,10 +679,18 @@ class WorkflowService:
             instance.completed_at = now
             await self.session.flush()
 
+        # Generate and persist group number
+        group_number = self._generate_group_number(client_id)
+        client = await self.client_repo.get_by_id(client_id)
+        if client and not client.group_id:
+            client.group_id = group_number
+            await self.session.flush()
+
         # Update client status
         await self.client_repo.update_status(client_id, "SUBMITTED")
 
         payload = self._build_servicing_payload(instance, steps_sorted)
+        payload["group_number"] = group_number
 
         await event_bus.publish(
             WorkflowSubmitted(
@@ -637,6 +698,16 @@ class WorkflowService:
                 user_id=user_id,
                 workflow_instance_id=instance.id,
                 servicing_payload=payload,
+            )
+        )
+
+        await event_bus.publish(
+            EnrollmentTransitionInitiated(
+                client_id=client_id,
+                user_id=user_id,
+                workflow_instance_id=instance.id,
+                group_number=group_number,
+                servicing_payload_keys=list(payload.keys()),
             )
         )
 
@@ -659,4 +730,10 @@ class WorkflowService:
             instance.step_instances, key=lambda s: s.step_order
         )
 
-        return self._build_servicing_payload(instance, steps_sorted)
+        payload = self._build_servicing_payload(instance, steps_sorted)
+
+        client = await self.client_repo.get_by_id(client_id)
+        if client and client.group_id:
+            payload["group_number"] = client.group_id
+
+        return payload

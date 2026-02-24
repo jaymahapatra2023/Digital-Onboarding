@@ -5,17 +5,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { WorkflowStore } from '../../store/workflow.store';
+import { WorkflowService } from '../../services/workflow.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 import { MasterAppSignDialogComponent } from './master-app-sign-dialog.component';
-import { MasterAppSignature, MasterAppConfirmation, MasterAppData } from './master-app.interfaces';
+import { MasterAppSignature, MasterAppConfirmation } from './master-app.interfaces';
+import { StepStatus, WorkflowStatus } from '../../../../core/models/workflow.model';
 
 @Component({
   selector: 'app-master-app',
   standalone: true,
   imports: [
     CommonModule, MatButtonModule, MatCardModule, MatIconModule,
-    MatProgressBarModule, MatDialogModule,
+    MatProgressBarModule, MatProgressSpinnerModule, MatDialogModule,
   ],
   template: `
     <div class="space-y-6">
@@ -30,7 +34,7 @@ import { MasterAppSignature, MasterAppConfirmation, MasterAppData } from './mast
       </div>
 
       <!-- Before submission -->
-      <ng-container *ngIf="!submitted">
+      <ng-container *ngIf="!submitted && !submitting">
         <mat-card>
           <mat-card-content class="p-6 space-y-5">
             <h3 class="text-base font-semibold text-slate-800">
@@ -51,16 +55,16 @@ import { MasterAppSignature, MasterAppConfirmation, MasterAppData } from './mast
               </div>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm mt-3">
                 <div>
+                  <span class="text-green-600 text-xs">Signed By</span>
+                  <span class="text-green-800 block">{{ signature.accepted_by }}</span>
+                </div>
+                <div>
                   <span class="text-green-600 text-xs">Title</span>
                   <span class="text-green-800 block">{{ signature.title }}</span>
                 </div>
                 <div>
-                  <span class="text-green-600 text-xs">City</span>
-                  <span class="text-green-800 block">{{ signature.city }}</span>
-                </div>
-                <div>
-                  <span class="text-green-600 text-xs">State</span>
-                  <span class="text-green-800 block">{{ signature.state }}</span>
+                  <span class="text-green-600 text-xs">City / State</span>
+                  <span class="text-green-800 block">{{ signature.city }}, {{ signature.state }}</span>
                 </div>
                 <div>
                   <span class="text-green-600 text-xs">Date</span>
@@ -68,14 +72,39 @@ import { MasterAppSignature, MasterAppConfirmation, MasterAppData } from './mast
                 </div>
               </div>
             </div>
+
+            <!-- Error message -->
+            <div *ngIf="submitError" class="bg-red-50 rounded-xl p-4 border border-red-200">
+              <div class="flex items-center gap-2 text-red-800">
+                <mat-icon style="font-size:20px;width:20px;height:20px;">error</mat-icon>
+                <span class="text-sm font-semibold">Submission failed</span>
+              </div>
+              <p class="text-sm text-red-700 mt-1">{{ submitError }}</p>
+            </div>
           </mat-card-content>
         </mat-card>
 
-        <div *ngIf="signature" class="flex justify-end">
-          <button mat-flat-button color="primary" (click)="submitApplication()" style="border-radius: 10px; padding: 0 24px;">
+        <div *ngIf="signature" class="flex justify-end gap-3">
+          <button *ngIf="submitError" mat-stroked-button color="warn" (click)="submitApplication()" style="border-radius: 10px; padding: 0 24px;">
+            Retry Submit
+          </button>
+          <button *ngIf="!submitError" mat-flat-button color="primary" (click)="submitApplication()" style="border-radius: 10px; padding: 0 24px;">
             Final Submit
           </button>
         </div>
+      </ng-container>
+
+      <!-- Submitting transition state -->
+      <ng-container *ngIf="submitting">
+        <mat-card>
+          <mat-card-content class="p-6">
+            <div class="flex flex-col items-center text-center py-8">
+              <mat-spinner diameter="48" class="mb-6"></mat-spinner>
+              <h3 class="text-lg font-bold text-slate-900 mb-2">Submitting your application...</h3>
+              <p class="text-sm text-slate-500">{{ submittingStatus }}</p>
+            </div>
+          </mat-card-content>
+        </mat-card>
       </ng-container>
 
       <!-- After submission: Confirmation -->
@@ -157,6 +186,9 @@ export class MasterAppComponent implements OnInit, OnDestroy {
   signature: MasterAppSignature | null = null;
   confirmation: MasterAppConfirmation | null = null;
   submitted = false;
+  submitting = false;
+  submitError: string | null = null;
+  submittingStatus = 'Saving signature data...';
   countdownSeconds = 0;
   countdownProgress = 0;
 
@@ -167,6 +199,8 @@ export class MasterAppComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private store: WorkflowStore,
     private router: Router,
+    private workflowService: WorkflowService,
+    private notification: NotificationService,
   ) {}
 
   ngOnInit(): void {
@@ -189,9 +223,12 @@ export class MasterAppComponent implements OnInit, OnDestroy {
     }
     if (data['submitted']) {
       this.submitted = true;
-      // If already submitted, countdown is done
       this.countdownSeconds = 0;
       this.countdownProgress = 100;
+      // Rebuild confirmation from store if missing
+      if (!this.confirmation) {
+        this.confirmation = this.buildConfirmationFromStore();
+      }
     }
   }
 
@@ -210,12 +247,82 @@ export class MasterAppComponent implements OnInit, OnDestroy {
   submitApplication(): void {
     if (!this.signature) return;
 
-    this.submitted = true;
-    this.confirmation = this.buildConfirmation();
-    this.startCountdown();
+    this.submitting = true;
+    this.submitError = null;
+    this.submittingStatus = 'Saving signature data...';
+
+    const clientId = this.store.client()?.id;
+    if (!clientId) {
+      this.submitting = false;
+      this.submitError = 'Client information not available. Please reload and try again.';
+      return;
+    }
+
+    const stepData = this.getData();
+
+    // Step 1: Save step data
+    this.workflowService.saveStepData(clientId, 'master_app', stepData).subscribe({
+      next: () => {
+        this.submittingStatus = 'Completing master application step...';
+        // Step 2: Complete step
+        this.workflowService.completeStep(clientId, 'master_app').subscribe({
+          next: () => {
+            this.store.updateStepStatus('master_app', StepStatus.COMPLETED);
+            this.submittingStatus = 'Submitting workflow for enrollment...';
+            // Step 3: Submit workflow
+            this.workflowService.submitWorkflow(clientId).subscribe({
+              next: (payload) => {
+                this.store.updateWorkflowStatus(WorkflowStatus.COMPLETED);
+                this.store.setSubmissionPayload(payload);
+                this.submitting = false;
+                this.submitted = true;
+                this.confirmation = this.buildConfirmationFromPayload(payload);
+                this.startCountdown();
+                this.notification.success('Group setup submitted successfully!');
+              },
+              error: (err) => {
+                this.submitting = false;
+                this.submitError = err?.error?.detail || 'Workflow submission failed. Please retry.';
+              },
+            });
+          },
+          error: (err) => {
+            this.submitting = false;
+            this.submitError = err?.error?.detail || 'Failed to complete master application step. Please retry.';
+          },
+        });
+      },
+      error: (err) => {
+        this.submitting = false;
+        this.submitError = err?.error?.detail || 'Failed to save signature data. Please retry.';
+      },
+    });
   }
 
-  private buildConfirmation(): MasterAppConfirmation {
+  private buildConfirmationFromPayload(payload: Record<string, any>): MasterAppConfirmation {
+    const groupNumber = payload['group_number'] || 'Pending';
+    const { effectiveDate, classes, departments } = this.getLocalStoreData();
+    return {
+      group_number: groupNumber,
+      effective_date: effectiveDate,
+      classes,
+      departments,
+    };
+  }
+
+  private buildConfirmationFromStore(): MasterAppConfirmation {
+    const client = this.store.client();
+    const groupNumber = client?.group_id || 'Pending';
+    const { effectiveDate, classes, departments } = this.getLocalStoreData();
+    return {
+      group_number: groupNumber,
+      effective_date: effectiveDate,
+      classes,
+      departments,
+    };
+  }
+
+  private getLocalStoreData(): { effectiveDate: string; classes: string[]; departments: string[] } {
     const steps = this.store.sortedSteps();
     const groupStructureData = steps.find(s => s.step_id === 'group_structure')?.data as Record<string, any> | undefined;
 
@@ -237,8 +344,7 @@ export class MasterAppComponent implements OnInit, OnDestroy {
     const effectiveDate = companyData?.['basic']?.effective_date || new Date().toLocaleDateString('en-US');
 
     return {
-      group_number: 'GRP-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
-      effective_date: effectiveDate,
+      effectiveDate,
       classes: classes.length > 0 ? classes : ['Default Class'],
       departments: departments.length > 0 ? departments : ['Default Department'],
     };

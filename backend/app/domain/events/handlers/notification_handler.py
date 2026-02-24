@@ -6,7 +6,12 @@ from app.domain.events.client_events import (
     InvitationSent,
     OfflinePacketSubmitted,
 )
-from app.domain.events.workflow_events import WorkflowHandoffRequested, WorkflowSubmitted
+from app.domain.events.workflow_events import (
+    EnrollmentTransitionInitiated,
+    MasterAppSigned,
+    WorkflowHandoffRequested,
+    WorkflowSubmitted,
+)
 from app.domain.events.event_bus import event_bus
 
 logger = logging.getLogger(__name__)
@@ -61,6 +66,18 @@ class NotificationHandler:
             f"for client {event.client_id}"
         )
 
+    async def handle_master_app_signed(self, event: MasterAppSigned) -> None:
+        logger.info(
+            f"Master app signed for client {event.client_id} "
+            f"(accepted_by={event.accepted_by})"
+        )
+
+    async def handle_enrollment_transition(self, event: EnrollmentTransitionInitiated) -> None:
+        logger.info(
+            f"Enrollment transition for client {event.client_id} "
+            f"(group_number={event.group_number})"
+        )
+
     async def handle_workflow_submitted(self, event: WorkflowSubmitted) -> None:
         renewal = event.servicing_payload.get("renewal_notification_period")
         billing = event.servicing_payload.get("billing")
@@ -88,5 +105,7 @@ def setup_notification_handlers() -> None:
     event_bus.subscribe(OfflinePacketSubmitted, handler.handle_offline_packet_submitted)
     event_bus.subscribe(WorkflowSubmitted, handler.handle_workflow_submitted)
     event_bus.subscribe(WorkflowHandoffRequested, handler.handle_handoff_requested)
+    event_bus.subscribe(MasterAppSigned, handler.handle_master_app_signed)
+    event_bus.subscribe(EnrollmentTransitionInitiated, handler.handle_enrollment_transition)
 
     logger.info("Notification handlers registered")

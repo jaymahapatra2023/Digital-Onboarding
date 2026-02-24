@@ -10,12 +10,14 @@ export class WorkflowStore {
   private _loading = signal<boolean>(false);
   private _saving = signal<boolean>(false);
   private _userRole = signal<string | null>(null);
+  private _submissionPayload = signal<Record<string, any> | null>(null);
 
   workflow = this._workflow.asReadonly();
   client = this._client.asReadonly();
   currentStepId = this._currentStepId.asReadonly();
   loading = this._loading.asReadonly();
   saving = this._saving.asReadonly();
+  submissionPayload = this._submissionPayload.asReadonly();
 
   sortedSteps = computed(() => {
     const wf = this._workflow();
@@ -98,6 +100,10 @@ export class WorkflowStore {
     const wf = this._workflow();
     if (!wf) return;
     this._workflow.set({ ...wf, status });
+  }
+
+  setSubmissionPayload(payload: Record<string, any> | null): void {
+    this._submissionPayload.set(payload);
   }
 
   updateStepStatus(stepId: string, status: StepStatus): void {

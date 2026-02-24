@@ -66,7 +66,7 @@ const US_STATES = [
         <form [formGroup]="form" class="space-y-4">
           <mat-form-field class="w-full" appearance="outline">
             <mat-label>Name</mat-label>
-            <input matInput [value]="data.name" readonly>
+            <input matInput formControlName="name">
           </mat-form-field>
 
           <mat-form-field class="w-full" appearance="outline">
@@ -130,6 +130,7 @@ export class MasterAppSignDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: MasterAppSignDialogData,
   ) {
     this.form = this.fb.group({
+      name: [{ value: data.name, disabled: true }],
       title: ['', Validators.required],
       city: ['', Validators.required],
       state: ['', Validators.required],
@@ -143,13 +144,16 @@ export class MasterAppSignDialogComponent {
 
   onSign(): void {
     if (this.form.invalid) return;
-    const val = this.form.value;
+    const val = this.form.getRawValue();
     const signature: MasterAppSignature = {
+      accepted_by: val.name,
       title: val.title,
       city: val.city,
       state: val.state,
       date: this.today,
       terms_accepted: true,
+      client_timestamp: new Date().toISOString(),
+      signer_user_agent: navigator.userAgent,
     };
     this.dialogRef.close(signature);
   }

@@ -39,6 +39,19 @@ class DocumentDeleted(DomainEvent):
     document_id: UUID
 
 
+class MasterAppSigned(DomainEvent):
+    workflow_instance_id: UUID
+    step_id: str = "master_app"
+    accepted_by: str = ""
+    signer_ip: str | None = None
+
+
+class EnrollmentTransitionInitiated(DomainEvent):
+    workflow_instance_id: UUID
+    group_number: str = ""
+    servicing_payload_keys: list[str] = []
+
+
 class WorkflowHandoffRequested(DomainEvent):
     workflow_instance_id: UUID
     target_role: str

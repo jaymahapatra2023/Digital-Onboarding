@@ -122,13 +122,13 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
             <!-- Dynamic step component container -->
             <ng-container #stepContainer></ng-container>
 
-            <!-- Navigation bar -->
+            <!-- Navigation bar (hidden on master_app — it owns its own submit flow) -->
             <div class="flex justify-between items-center mt-10 pt-6 border-t border-gray-200">
               <button mat-button (click)="onPrevious()" [disabled]="isFirstStep"
                       class="text-slate-600">
                 <mat-icon>arrow_back</mat-icon> Previous
               </button>
-              <div *ngIf="!store.isWorkflowSubmitted()" class="flex gap-3">
+              <div *ngIf="!store.isWorkflowSubmitted() && !isOnMasterApp" class="flex gap-3">
                 <button mat-button (click)="onSkip()" class="text-slate-400"
                         [disabled]="store.isCurrentStepRoleRestricted()">Skip</button>
                 <button mat-flat-button color="primary" (click)="onNext()"
@@ -239,6 +239,10 @@ export class WorkflowContainerComponent implements OnInit {
   get isFirstStep(): boolean {
     const steps = this.store.sortedSteps();
     return steps.length > 0 && steps[0].step_id === this.store.currentStepId();
+  }
+
+  get isOnMasterApp(): boolean {
+    return this.store.currentStepId() === 'master_app';
   }
 
   get isLastStep(): boolean {
