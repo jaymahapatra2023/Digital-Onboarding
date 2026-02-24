@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { ClientListResponse, ClientListParams, Client, ClientAccess, ClientAccessCreate } from '../../../core/models/client.model';
+import {
+  ClientListResponse, ClientListParams, Client, ClientAccess, ClientAccessCreate,
+  CaseReadiness, TimelineResponse,
+} from '../../../core/models/client.model';
 import { User } from '../../../core/models/user.model';
 
 @Injectable({ providedIn: 'root' })
@@ -42,5 +45,17 @@ export class SoldCasesService {
 
   startOfflineSetup(clientId: string): Observable<any> {
     return this.api.post(`/clients/${clientId}/workflow/offline`);
+  }
+
+  checkReadiness(clientId: string): Observable<CaseReadiness> {
+    return this.api.get<CaseReadiness>(`/clients/${clientId}/readiness`);
+  }
+
+  getTimeline(clientId: string, limit = 50, offset = 0): Observable<TimelineResponse> {
+    return this.api.get<TimelineResponse>(`/clients/${clientId}/timeline`, { limit, offset });
+  }
+
+  assignToMe(clientId: string): Observable<Client> {
+    return this.api.post<Client>(`/clients/${clientId}/assign-me`);
   }
 }

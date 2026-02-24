@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
 import { Client, ClientStatus } from '../../../../core/models/client.model';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge/status-badge.component';
 
@@ -16,7 +17,7 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
   imports: [
     CommonModule, MatTableModule, MatSortModule, MatPaginatorModule,
     MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule,
-    StatusBadgeComponent,
+    MatDividerModule, StatusBadgeComponent,
   ],
   template: `
     <div class="overflow-x-auto">
@@ -63,6 +64,22 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
           </td>
         </ng-container>
 
+        <!-- Days in Queue -->
+        <ng-container matColumnDef="days_in_queue">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="updated_at">Days in Queue</th>
+          <td mat-cell *matCellDef="let client">
+            <span *ngIf="client.days_since_update != null"
+                  class="inline-flex items-center gap-1 text-sm font-medium"
+                  [ngClass]="getDaysClass(client.days_since_update)">
+              <mat-icon *ngIf="client.is_stale" class="text-amber-500"
+                        style="font-size:16px;width:16px;height:16px;"
+                        matTooltip="This case is stale">warning</mat-icon>
+              {{ client.days_since_update }}d
+            </span>
+            <span *ngIf="client.days_since_update == null" class="text-slate-300">&mdash;</span>
+          </td>
+        </ng-container>
+
         <!-- Actions -->
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef class="w-16"></th>
@@ -91,6 +108,15 @@ import { StatusBadgeComponent } from '../../../../shared/components/status-badge
               <button *ngIf="client.status === ClientStatus.APPLICATION_NOT_STARTED" mat-menu-item (click)="startOffline.emit(client)">
                 <mat-icon>description</mat-icon>
                 <span>Offline Setup</span>
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="assignToMe.emit(client)">
+                <mat-icon>assignment_ind</mat-icon>
+                <span>Assign to Me</span>
+              </button>
+              <button mat-menu-item (click)="viewTimeline.emit(client)">
+                <mat-icon>timeline</mat-icon>
+                <span>View Timeline</span>
               </button>
             </mat-menu>
           </td>
@@ -137,9 +163,17 @@ export class ClientTableComponent {
   @Output() startOffline = new EventEmitter<Client>();
   @Output() viewDocuments = new EventEmitter<Client>();
   @Output() manageAccess = new EventEmitter<Client>();
+  @Output() assignToMe = new EventEmitter<Client>();
+  @Output() viewTimeline = new EventEmitter<Client>();
 
   ClientStatus = ClientStatus;
-  displayedColumns = ['client_name', 'unique_id', 'status', 'eligible_employees', 'location', 'actions'];
+  displayedColumns = ['client_name', 'unique_id', 'status', 'eligible_employees', 'location', 'days_in_queue', 'actions'];
+
+  getDaysClass(days: number): string {
+    if (days >= 14) return 'text-red-600';
+    if (days >= 7) return 'text-amber-600';
+    return 'text-green-600';
+  }
 
   onSort(sort: Sort): void {
     this.sortChange.emit(sort);

@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import DateTime, Integer, String, text
+from sqlalchemy import DateTime, ForeignKey, Integer, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -12,6 +12,7 @@ from app.infrastructure.database.base import Base
 if TYPE_CHECKING:
     from app.infrastructure.database.models.access_orm import ClientAccessORM
     from app.infrastructure.database.models.document_orm import DocumentORM
+    from app.infrastructure.database.models.user_orm import UserORM
     from app.infrastructure.database.models.workflow_orm import WorkflowInstanceORM
 
 
@@ -60,11 +61,19 @@ class ClientORM(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+    assigned_to_user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        nullable=True,
+    )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
     )
 
     # ---- relationships ----
+    assigned_user: Mapped[Optional["UserORM"]] = relationship(
+        "UserORM", foreign_keys=[assigned_to_user_id], lazy="selectin"
+    )
     access_entries: Mapped[List["ClientAccessORM"]] = relationship(
         "ClientAccessORM", back_populates="client", lazy="selectin"
     )

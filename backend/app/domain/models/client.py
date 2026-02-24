@@ -27,12 +27,19 @@ class Client(BaseModel):
     eligible_employees: int | None = None
     status: ClientStatus = ClientStatus.APPLICATION_NOT_STARTED
     group_id: str | None = None
+    assigned_to_user_id: UUID | None = None
+    assigned_user_name: str | None = None
+    days_since_update: int | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
 
 
+class ClientWithMetrics(Client):
+    is_stale: bool = False
+
+
 class ClientListResponse(BaseModel):
-    items: list[Client]
+    items: list[ClientWithMetrics]
     total: int
     page: int
     per_page: int
@@ -42,7 +49,58 @@ class ClientListResponse(BaseModel):
 class ClientListParams(BaseModel):
     search: str | None = None
     status: ClientStatus | None = None
+    assigned_to_user_id: UUID | None = None
+    stale: bool | None = None
+    stale_threshold_days: int = 7
     page: int = Field(default=1, ge=1)
     per_page: int = Field(default=20, ge=1, le=100)
     sort_by: str = "created_at"
     sort_order: Literal["asc", "desc"] = "desc"
+
+
+# --- Story 4: Case Readiness ---
+
+class ReadinessBlocker(BaseModel):
+    code: str
+    message: str
+
+
+class CaseReadiness(BaseModel):
+    is_ready: bool
+    blockers: list[ReadinessBlocker]
+
+
+# --- Story 5: Timeline ---
+
+class TimelineEvent(BaseModel):
+    id: UUID
+    event_type: str
+    description: str
+    icon: str
+    user_id: UUID | None = None
+    user_name: str | None = None
+    created_at: datetime
+
+    @staticmethod
+    def event_descriptions() -> dict[str, tuple[str, str]]:
+        """Map event_type -> (description_template, material_icon)."""
+        return {
+            "CaseMarkedSold": ("Case marked as sold", "sell"),
+            "AccessAssigned": ("Access granted to {email} as {role_type}", "person_add"),
+            "AccessRevoked": ("Access revoked for {email}", "person_remove"),
+            "GroupSetupStarted": ("Online group setup started", "play_arrow"),
+            "OfflineSetupChosen": ("Offline setup initiated", "description"),
+            "WorkflowStepStarted": ("Workflow step started: {step_id}", "start"),
+            "WorkflowStepCompleted": ("Workflow step completed: {step_id}", "check_circle"),
+            "WorkflowStepSaved": ("Workflow step saved: {step_id}", "save"),
+            "WorkflowStepSkipped": ("Workflow step skipped: {step_id}", "skip_next"),
+            "DocumentUploaded": ("Document uploaded: {file_name}", "upload_file"),
+            "DocumentDeleted": ("Document deleted: {file_name}", "delete"),
+            "CaseOwnerAssigned": ("Case assigned to owner", "assignment_ind"),
+        }
+
+
+class TimelineResponse(BaseModel):
+    client_id: UUID
+    events: list[TimelineEvent]
+    total: int

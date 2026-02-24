@@ -28,3 +28,8 @@ class GroupSetupStarted(DomainEvent):
 class OfflineSetupChosen(DomainEvent):
     client_id: UUID
     workflow_instance_id: UUID
+
+
+class CaseOwnerAssigned(DomainEvent):
+    client_id: UUID
+    assigned_to_user_id: UUID | None = None

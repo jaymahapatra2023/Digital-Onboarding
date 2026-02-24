@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
@@ -18,11 +19,14 @@ import { OfflineSetupComponent } from '../../components/offline-setup/offline-se
 import { DocumentsDialogComponent } from '../../components/documents-dialog/documents-dialog.component';
 import { ManageAccessDialogComponent } from '../../components/manage-access-dialog/manage-access-dialog.component';
 import { FileUploadModalComponent } from '../../components/file-upload-modal/file-upload-modal.component';
+import { ReadinessBlockersDialogComponent } from '../../components/readiness-blockers-dialog/readiness-blockers-dialog.component';
+import { TimelineDialogComponent } from '../../components/timeline-dialog/timeline-dialog.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SoldCasesService } from '../../services/sold-cases.service';
 import { SoldCasesStore } from '../../store/sold-cases.store';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { FileUploadService } from '../../../../core/services/file-upload.service';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { Client, ClientStatus } from '../../../../core/models/client.model';
 
 @Component({
@@ -30,7 +34,8 @@ import { Client, ClientStatus } from '../../../../core/models/client.model';
   standalone: true,
   imports: [
     CommonModule, MatButtonModule, MatIconModule, MatInputModule,
-    MatFormFieldModule, MatSelectModule, FormsModule, ClientTableComponent,
+    MatFormFieldModule, MatSelectModule, MatSlideToggleModule,
+    FormsModule, ClientTableComponent,
   ],
   template: `
     <div class="page-container">
@@ -44,7 +49,7 @@ import { Client, ClientStatus } from '../../../../core/models/client.model';
 
       <!-- Filters -->
       <div class="card p-5 mb-6">
-        <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <mat-form-field appearance="outline" class="flex-1">
             <mat-label>Search clients</mat-label>
             <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearch($event)" placeholder="Search by name or ID...">
@@ -60,6 +65,14 @@ import { Client, ClientStatus } from '../../../../core/models/client.model';
               </mat-option>
             </mat-select>
           </mat-form-field>
+
+          <mat-slide-toggle
+            [(ngModel)]="myCasesOnly"
+            (ngModelChange)="onMyCasesToggle($event)"
+            color="primary"
+            class="mb-4 sm:mb-0">
+            My Cases Only
+          </mat-slide-toggle>
         </div>
       </div>
 
@@ -77,7 +90,9 @@ import { Client, ClientStatus } from '../../../../core/models/client.model';
           (continueSetup)="onContinueSetup($event)"
           (startOnline)="onStartOnline($event)"
           (startOffline)="openOfflineSetup($event)"
-          (viewDocuments)="openDocuments($event)">
+          (viewDocuments)="openDocuments($event)"
+          (assignToMe)="onAssignToMe($event)"
+          (viewTimeline)="openTimeline($event)">
         </app-client-table>
       </div>
     </div>
@@ -86,6 +101,7 @@ import { Client, ClientStatus } from '../../../../core/models/client.model';
 export class ClientListComponent implements OnInit {
   searchTerm = '';
   statusFilter = '';
+  myCasesOnly = false;
   statuses = Object.values(ClientStatus);
 
   constructor(
@@ -95,6 +111,7 @@ export class ClientListComponent implements OnInit {
     private router: Router,
     private notification: NotificationService,
     private fileUploadService: FileUploadService,
+    private auth: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -123,6 +140,12 @@ export class ClientListComponent implements OnInit {
 
   onStatusFilter(status: string): void {
     this.store.updateParams({ status: status || undefined, page: 1 });
+    this.loadClients();
+  }
+
+  onMyCasesToggle(checked: boolean): void {
+    const userId = checked ? this.auth.user()?.id : undefined;
+    this.store.updateParams({ assigned_to_user_id: userId, page: 1 });
     this.loadClients();
   }
 
@@ -174,24 +197,37 @@ export class ClientListComponent implements OnInit {
   }
 
   onStartOnline(client: Client): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Begin Online Group Setup',
-        message: `Start the online group setup process for ${client.client_name}?`,
-        confirmText: 'Begin Setup',
-      },
-    });
+    this.service.checkReadiness(client.id).subscribe({
+      next: (readiness) => {
+        if (!readiness.is_ready) {
+          this.dialog.open(ReadinessBlockersDialogComponent, {
+            width: '480px',
+            data: { blockers: readiness.blockers },
+          });
+          return;
+        }
 
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
-        this.service.startOnlineSetup(client.id).subscribe({
-          next: () => {
-            this.notification.success('Group setup started');
-            this.router.navigate(['/workflow', client.id]);
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+          data: {
+            title: 'Begin Online Group Setup',
+            message: `Start the online group setup process for ${client.client_name}?`,
+            confirmText: 'Begin Setup',
           },
-          error: (err) => this.notification.error(err.error?.detail || 'Failed to start setup'),
         });
-      }
+
+        dialogRef.afterClosed().subscribe(confirmed => {
+          if (confirmed) {
+            this.service.startOnlineSetup(client.id).subscribe({
+              next: () => {
+                this.notification.success('Group setup started');
+                this.router.navigate(['/workflow', client.id]);
+              },
+              error: (err) => this.notification.error(err.error?.detail || 'Failed to start setup'),
+            });
+          }
+        });
+      },
+      error: (err) => this.notification.error(err.error?.detail || 'Failed to check readiness'),
     });
   }
 
@@ -224,6 +260,23 @@ export class ClientListComponent implements OnInit {
   openManageAccess(client: Client): void {
     this.dialog.open(ManageAccessDialogComponent, {
       width: '700px',
+      data: { clientId: client.id, clientName: client.client_name },
+    });
+  }
+
+  onAssignToMe(client: Client): void {
+    this.service.assignToMe(client.id).subscribe({
+      next: () => {
+        this.notification.success('Case assigned to you');
+        this.loadClients();
+      },
+      error: (err) => this.notification.error(err.error?.detail || 'Failed to assign case'),
+    });
+  }
+
+  openTimeline(client: Client): void {
+    this.dialog.open(TimelineDialogComponent, {
+      width: '600px',
       data: { clientId: client.id, clientName: client.client_name },
     });
   }

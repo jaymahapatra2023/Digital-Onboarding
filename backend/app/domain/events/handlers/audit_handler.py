@@ -9,6 +9,7 @@ from app.domain.events.client_events import (
     AccessAssigned,
     AccessRevoked,
     CaseMarkedSold,
+    CaseOwnerAssigned,
     GroupSetupStarted,
     OfflineSetupChosen,
 )
@@ -64,6 +65,7 @@ def setup_audit_handlers(session_factory: Callable[..., AsyncSession]) -> None:
         CaseMarkedSold,
         AccessAssigned,
         AccessRevoked,
+        CaseOwnerAssigned,
         GroupSetupStarted,
         OfflineSetupChosen,
         WorkflowStepStarted,

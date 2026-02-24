@@ -17,6 +17,10 @@ export interface Client {
   eligible_employees?: number;
   status: ClientStatus;
   group_id?: string;
+  assigned_to_user_id?: string;
+  assigned_user_name?: string;
+  days_since_update?: number;
+  is_stale?: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -32,6 +36,8 @@ export interface ClientListResponse {
 export interface ClientListParams {
   search?: string;
   status?: string;
+  assigned_to_user_id?: string;
+  stale?: boolean;
   page?: number;
   per_page?: number;
   sort_by?: string;
@@ -68,4 +74,34 @@ export interface ClientAccessCreate {
   has_ongoing_maintenance_access?: boolean;
   is_account_executive?: boolean;
   user_id?: string;
+}
+
+// --- Story 4: Case Readiness ---
+
+export interface ReadinessBlocker {
+  code: string;
+  message: string;
+}
+
+export interface CaseReadiness {
+  is_ready: boolean;
+  blockers: ReadinessBlocker[];
+}
+
+// --- Story 5: Timeline ---
+
+export interface TimelineEvent {
+  id: string;
+  event_type: string;
+  description: string;
+  icon: string;
+  user_id?: string;
+  user_name?: string;
+  created_at: string;
+}
+
+export interface TimelineResponse {
+  client_id: string;
+  events: TimelineEvent[];
+  total: number;
 }
