@@ -117,4 +117,37 @@ export class WorkflowStore {
     };
     this._workflow.set(updated);
   }
+
+  // --- sessionStorage draft persistence ---
+
+  persistDraft(clientId: string, stepId: string, data: Record<string, any>): void {
+    try {
+      sessionStorage.setItem(`draft_${clientId}_${stepId}`, JSON.stringify(data));
+    } catch { /* quota exceeded — silently ignore */ }
+  }
+
+  restoreDraft(clientId: string, stepId: string): Record<string, any> | null {
+    try {
+      const raw = sessionStorage.getItem(`draft_${clientId}_${stepId}`);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  clearDraft(clientId: string, stepId: string): void {
+    sessionStorage.removeItem(`draft_${clientId}_${stepId}`);
+  }
+
+  clearAllDrafts(clientId: string): void {
+    const prefix = `draft_${clientId}_`;
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key?.startsWith(prefix)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => sessionStorage.removeItem(k));
+  }
 }

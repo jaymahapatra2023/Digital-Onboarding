@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     SLA_CRITICAL_DAYS: int = 14
     STUCK_STEP_THRESHOLD_DAYS: int = 7
 
+    # Database connection pool tuning
+    DB_POOL_SIZE: int = 20
+    DB_MAX_OVERFLOW: int = 10
+    DB_POOL_RECYCLE: int = 3600
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 

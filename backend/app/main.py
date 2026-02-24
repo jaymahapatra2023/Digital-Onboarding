@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.api.middleware.error_handler import register_exception_handlers
+from app.api.middleware.request_timing import RequestTimingMiddleware
 from app.api.v1.router import router as v1_router
 from app.domain.events.handlers import setup_event_handlers
 
@@ -27,12 +28,15 @@ app = FastAPI(
 
 register_exception_handlers(app)
 
+app.add_middleware(RequestTimingMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Response-Time-Ms"],
 )
 
 app.include_router(v1_router, prefix="/api/v1")

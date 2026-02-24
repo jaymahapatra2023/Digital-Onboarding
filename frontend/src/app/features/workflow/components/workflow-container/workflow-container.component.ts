@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewContainerRef, ViewChild, ComponentRef, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewContainerRef, ViewChild, ComponentRef, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -159,13 +159,15 @@ import { getOwnershipLabel } from '../../../group-setup/store/group-setup.store'
     </div>
   `,
 })
-export class WorkflowContainerComponent implements OnInit {
+export class WorkflowContainerComponent implements OnInit, OnDestroy {
   @ViewChild('stepContainer', { read: ViewContainerRef, static: false })
   stepContainer!: ViewContainerRef;
   @ViewChild('errorBanner', { read: ElementRef, static: false })
   errorBanner?: ElementRef;
 
   private currentComponentRef: ComponentRef<any> | null = null;
+  private autoSaveTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly AUTO_SAVE_INTERVAL_MS = 30000;
   clientId: string = '';
   userRole: string = '';
   validationErrors: string[] = [];
@@ -190,6 +192,22 @@ export class WorkflowContainerComponent implements OnInit {
     this.store.setUserRole(this.userRole);
     this.loadWorkflow();
     this.loadClient();
+
+    // Periodic auto-save every 30s
+    this.autoSaveTimer = setInterval(() => {
+      if (!this.store.isWorkflowSubmitted() &&
+          !this.store.isCurrentStepRoleRestricted() &&
+          this.currentComponentRef?.instance?.getData) {
+        this.saveCurrentStepData();
+      }
+    }, this.AUTO_SAVE_INTERVAL_MS);
+  }
+
+  ngOnDestroy(): void {
+    if (this.autoSaveTimer) {
+      clearInterval(this.autoSaveTimer);
+      this.autoSaveTimer = null;
+    }
   }
 
   loadWorkflow(): void {
@@ -294,6 +312,11 @@ export class WorkflowContainerComponent implements OnInit {
             this.navigateToStep(targetStepId);
           });
         }
+        // Restore draft from sessionStorage if available
+        const draft = this.store.restoreDraft(this.clientId, stepId);
+        if (draft && this.currentComponentRef.instance.setData) {
+          this.currentComponentRef.instance.setData(draft);
+        }
       } catch {
         this.notification.error(`Step "${stepId}" is not yet implemented`);
       }
@@ -313,9 +336,14 @@ export class WorkflowContainerComponent implements OnInit {
     // Update the in-memory store so other steps see the latest data
     this.store.updateStepData(stepId, data);
 
+    // Persist draft locally so data survives even if the API call fails
+    this.store.persistDraft(this.clientId, stepId, data);
+
     this.store.setSaving(true);
     try {
       await this.workflowService.saveStepData(this.clientId, stepId, data).toPromise();
+      // API save succeeded — clear local draft
+      this.store.clearDraft(this.clientId, stepId);
     } catch (err: any) {
       const hint = err?.error?.recovery_hint;
       this.notification.error(hint || 'Auto-save failed. Your latest changes may not be saved.');
@@ -390,6 +418,7 @@ export class WorkflowContainerComponent implements OnInit {
     this.workflowService.completeStep(this.clientId, stepId).subscribe({
       next: (result) => {
         this.store.updateStepStatus(stepId, StepStatus.COMPLETED);
+        this.store.clearDraft(this.clientId, stepId);
         if (result.next_step_id) {
           this.navigateToStep(result.next_step_id);
         } else {
@@ -416,6 +445,7 @@ export class WorkflowContainerComponent implements OnInit {
     this.workflowService.submitWorkflow(this.clientId).subscribe({
       next: () => {
         this.store.updateWorkflowStatus(WorkflowStatus.COMPLETED);
+        this.store.clearAllDrafts(this.clientId);
         this.notification.success('Group setup submitted successfully!');
       },
       error: (err: any) => {

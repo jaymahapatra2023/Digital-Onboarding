@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, timeout } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { WorkflowInstance } from '../../../core/models/workflow.model';
 
@@ -16,7 +16,9 @@ export class WorkflowService {
   }
 
   saveStepData(clientId: string, stepId: string, data: Record<string, any>): Observable<any> {
-    return this.api.put(`/clients/${clientId}/workflow/steps/${stepId}`, { data });
+    return this.api.put(`/clients/${clientId}/workflow/steps/${stepId}`, { data }).pipe(
+      timeout(15000)
+    );
   }
 
   completeStep(clientId: string, stepId: string): Observable<any> {

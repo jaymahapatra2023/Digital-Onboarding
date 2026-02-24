@@ -38,8 +38,6 @@ This document outlines the epics and user stories required to address the functi
 **User Stories:**
 
 *   **Story:** As a broker, I want to verify a producer's license status and compensable code against a live, authoritative system so that I can ensure compliance and data accuracy.
-*   **Story:** As a developer, I want to integrate a PCI-compliant payment gateway (e.g., Stripe, Braintree) to securely tokenize and process online credit card and bank account payments.
-*   **Story:** As a user, I want to receive a real confirmation email after my payment is successfully processed so that I have a record of the transaction.
 *   **Story:** As a sales representative, I want an automated email notification to be sent when a new sold case has been inactive for more than 24 hours so that I can follow up with the user.
 *   **Story:** As a developer, I want to implement a secure file storage solution (e.g., AWS S3) to handle the upload of the HIPAA Business Associate Agreement.
 

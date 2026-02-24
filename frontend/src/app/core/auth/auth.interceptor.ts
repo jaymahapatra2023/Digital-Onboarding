@@ -1,8 +1,10 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
+import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { NotificationService } from '../services/notification.service';
+
+let isRefreshing = false;
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -17,8 +19,36 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
-        authService.logout();
+      if (error.status === 401 && !req.url.includes('/auth/refresh')) {
+        if (isRefreshing) {
+          authService.logout();
+          return throwError(() => error);
+        }
+
+        isRefreshing = true;
+        const refresh$ = authService.refreshToken();
+
+        if (!refresh$) {
+          isRefreshing = false;
+          authService.logout();
+          return throwError(() => error);
+        }
+
+        return refresh$.pipe(
+          switchMap(() => {
+            isRefreshing = false;
+            const newToken = authService.getToken();
+            const retryReq = req.clone({
+              setHeaders: { Authorization: `Bearer ${newToken}` },
+            });
+            return next(retryReq);
+          }),
+          catchError((refreshError) => {
+            isRefreshing = false;
+            authService.logout();
+            return throwError(() => refreshError);
+          })
+        );
       } else if (error.status === 0) {
         notification.error('Network error. Check your connection and try again.');
       } else if (error.status === 403) {
